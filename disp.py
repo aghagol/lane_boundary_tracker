@@ -13,11 +13,12 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_seqs", 
-  help="a CSV file containing list of input sequences, \
-  path to detections and path to tracking results")
+  help="a tab-separated CSV file with 3 columns... \
+  name: seq name, dpath: path to detections and \
+  tpath: path to tracking results.")
 args = parser.parse_args()
 
-seqs = pd.read_csv(args.input_seqs)
+seqs = pd.read_csv(args.input_seqs,sep='\t')
 
 fig, ax = plt.subplots(1,1)
 colors = np.random.rand(711,3) # create random colors for tracks
