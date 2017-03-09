@@ -1,9 +1,13 @@
 """ 
-Create a list of sequences as input to disp.py
+Creating a list of sequences as input to disp.py
 
-CSV input format is: 3 columns 
-"name" (seq_name), "dpath" (detection file path), "tpath" (track file path)
+output CSV has 3 columns:
+  name..............this is the sequence name
+  dpath.............this is the detection file path
+  tpath.............this is the track file path
+
 """
+print(__doc__)
 
 import pandas as pd
 
@@ -30,4 +34,6 @@ seqs['dpath'] = ['mot_benchmark/%s/%s/det/det.txt'%(phase,seq) for seq in sequen
 seqs['tpath'] = ['output/%s.txt'%(seq) for seq in sequences]
 
 seqs_df = pd.DataFrame(seqs)
-seqs_df.to_csv(output_filename,index=False)
+seqs_df = seqs_df[['name','dpath','tpath']] # sort
+
+seqs_df.to_csv(output_filename,index=False,sep='\t',header=True)

@@ -1,12 +1,6 @@
 """ 
 This is a script for plotting detections and tracks
-
-Usage:
-
-  python disp.py path/to/list_of_sequences_file
-
 Note: detections and tracks must be provided in the MOT format
-
 CTRL+C to skip to the next sequence
 """
 print(__doc__)
@@ -15,8 +9,15 @@ import sys, os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import argparse
 
-seqs = pd.read_csv(sys.argv[1])
+parser = argparse.ArgumentParser()
+parser.add_argument("input_seqs", 
+  help="a CSV file containing list of input sequences, \
+  path to detections and path to tracking results")
+args = parser.parse_args()
+
+seqs = pd.read_csv(args.input_seqs)
 
 fig, ax = plt.subplots(1,1)
 colors = np.random.rand(711,3) # create random colors for tracks
