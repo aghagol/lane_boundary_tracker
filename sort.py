@@ -62,7 +62,7 @@ def convert_bbox_to_z(bbox):
 def convert_x_to_bbox(x,score=None):
   """
   Takes a bounding box in the form [x,y,s,r] and returns it in the form
-    [x1,y1,x2,x2] where x1,y1 is the top left and x2,y2 is the bottom right
+    [x1,y1,x2,y2] where x1,y1 is the top left and x2,y2 is the bottom right
   """
   w = np.sqrt(x[2]*x[3])
   h = x[2]/w
@@ -257,38 +257,48 @@ if __name__ == '__main__':
   
   for seq in sequences:
     mot_tracker = Sort() #create instance of the SORT tracker
-    seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
-    with open('output/%s.txt'%(seq),'w') as out_file:
-      print("Processing %s."%(seq))
-      for frame in range(int(seq_dets[:,0].max())):
-        frame += 1 #detection and frame numbers begin at 1
-        dets = seq_dets[seq_dets[:,0]==frame,2:7]
-        dets[:,2:4] += dets[:,0:2] #convert to [x1,y1,w,h] to [x1,y1,x2,y2]
-        total_frames += 1
+    # seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
+    seq_dets = np.loadtxt('mot_benchmark/%s/%s/det/det.txt'%(phase,seq),delimiter=',') # mohamamd
 
-        if(display):
-          ax1 = fig.add_subplot(111, aspect='equal')
-          fn = 'mot_benchmark/%s/%s/img1/%06d.jpg'%(phase,seq,frame)
-          im =io.imread(fn)
-          ax1.imshow(im)
-          plt.title(seq+' Tracked Targets')
+    if not display:
+      out_file = open('output/%s.txt'%(seq),'w')
 
-        start_time = time.time()
-        trackers = mot_tracker.update(dets)
-        cycle_time = time.time() - start_time
-        total_time += cycle_time
+    print("Processing %s."%(seq))
+    for frame in range(int(seq_dets[:,0].max())):
+      frame += 1 #detection and frame numbers begin at 1
+      dets = seq_dets[seq_dets[:,0]==frame,2:7]
+      dets[:,2:4] += dets[:,0:2] #convert to [x1,y1,w,h] to [x1,y1,x2,y2]
+      total_frames += 1
 
-        for d in trackers:
+      if(display):
+        ax1 = fig.add_subplot(111, aspect='equal')
+        fn = 'mot_benchmark/%s/%s/img1/%06d.jpg'%(phase,seq,frame)
+        im =io.imread(fn)
+        ax1.imshow(im)
+        plt.title(seq+' Tracked Targets')
+
+      start_time = time.time()
+      trackers = mot_tracker.update(dets)
+      cycle_time = time.time() - start_time
+      total_time += cycle_time
+
+      for d in trackers:
+
+        if not display:
           print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1'%(frame,d[4],d[0],d[1],d[2]-d[0],d[3]-d[1]),file=out_file)
-          if(display):
-            d = d.astype(np.uint32)
-            ax1.add_patch(patches.Rectangle((d[0],d[1]),d[2]-d[0],d[3]-d[1],fill=False,lw=3,ec=colours[d[4]%32,:]))
-            ax1.set_adjustable('box-forced')
-
+          
         if(display):
-          fig.canvas.flush_events()
-          plt.draw()
-          ax1.cla()
+          d = d.astype(np.uint32)
+          ax1.add_patch(patches.Rectangle((d[0],d[1]),d[2]-d[0],d[3]-d[1],fill=False,lw=3,ec=colours[d[4]%32,:]))
+          ax1.set_adjustable('box-forced')
+
+      if(display):
+        fig.canvas.flush_events()
+        plt.draw()
+        ax1.cla()
+
+      if not display:
+        out_file.close()
 
   print("Total Tracking took: %.3f for %d frames or %.1f FPS"%(total_time,total_frames,total_frames/total_time))
   if(display):
