@@ -36,4 +36,4 @@ seqs['tpath'] = ['output/%s.txt'%(seq) for seq in sequences]
 seqs_df = pd.DataFrame(seqs)
 seqs_df = seqs_df[['name','dpath','tpath']] # sort
 
-seqs_df.to_csv(output_filename,index=False,sep='\t',header=True)
+seqs_df.to_csv(output_filename,index=False,header=True)

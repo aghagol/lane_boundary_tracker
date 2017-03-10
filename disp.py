@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("input_seqs", help="a tab-separated CSV file with 3 columns: \
+parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
   name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
 parser.add_argument("-d","--delay",type=float,default=.01, help="delay in seconds for each frame.")
 parser.add_argument("--margin",type=int,default=50, help="add this many pixels to plot margins.")
 args = parser.parse_args()
 
-seqs = pd.read_csv(args.input_seqs,sep='\t')
+seqs = pd.read_csv(args.input_seqs)
 
 fig, ax = plt.subplots(1,1)
 colors = np.random.rand(711,3) # create random colors for tracks

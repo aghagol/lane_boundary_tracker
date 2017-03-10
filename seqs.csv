@@ -1,12 +1,12 @@
-name	dpath	tpath
-PETS09-S2L1	mot_benchmark/train/PETS09-S2L1/det/det.txt	output/PETS09-S2L1.txt
-TUD-Campus	mot_benchmark/train/TUD-Campus/det/det.txt	output/TUD-Campus.txt
-TUD-Stadtmitte	mot_benchmark/train/TUD-Stadtmitte/det/det.txt	output/TUD-Stadtmitte.txt
-ETH-Bahnhof	mot_benchmark/train/ETH-Bahnhof/det/det.txt	output/ETH-Bahnhof.txt
-ETH-Sunnyday	mot_benchmark/train/ETH-Sunnyday/det/det.txt	output/ETH-Sunnyday.txt
-ETH-Pedcross2	mot_benchmark/train/ETH-Pedcross2/det/det.txt	output/ETH-Pedcross2.txt
-KITTI-13	mot_benchmark/train/KITTI-13/det/det.txt	output/KITTI-13.txt
-KITTI-17	mot_benchmark/train/KITTI-17/det/det.txt	output/KITTI-17.txt
-ADL-Rundle-6	mot_benchmark/train/ADL-Rundle-6/det/det.txt	output/ADL-Rundle-6.txt
-ADL-Rundle-8	mot_benchmark/train/ADL-Rundle-8/det/det.txt	output/ADL-Rundle-8.txt
-Venice-2	mot_benchmark/train/Venice-2/det/det.txt	output/Venice-2.txt
+name,dpath,tpath
+PETS09-S2L1,mot_benchmark/train/PETS09-S2L1/det/det.txt,output/PETS09-S2L1.txt
+TUD-Campus,mot_benchmark/train/TUD-Campus/det/det.txt,output/TUD-Campus.txt
+TUD-Stadtmitte,mot_benchmark/train/TUD-Stadtmitte/det/det.txt,output/TUD-Stadtmitte.txt
+ETH-Bahnhof,mot_benchmark/train/ETH-Bahnhof/det/det.txt,output/ETH-Bahnhof.txt
+ETH-Sunnyday,mot_benchmark/train/ETH-Sunnyday/det/det.txt,output/ETH-Sunnyday.txt
+ETH-Pedcross2,mot_benchmark/train/ETH-Pedcross2/det/det.txt,output/ETH-Pedcross2.txt
+KITTI-13,mot_benchmark/train/KITTI-13/det/det.txt,output/KITTI-13.txt
+KITTI-17,mot_benchmark/train/KITTI-17/det/det.txt,output/KITTI-17.txt
+ADL-Rundle-6,mot_benchmark/train/ADL-Rundle-6/det/det.txt,output/ADL-Rundle-6.txt
+ADL-Rundle-8,mot_benchmark/train/ADL-Rundle-8/det/det.txt,output/ADL-Rundle-8.txt
+Venice-2,mot_benchmark/train/Venice-2/det/det.txt,output/Venice-2.txt
