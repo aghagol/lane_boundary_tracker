@@ -14,8 +14,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
   name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
-parser.add_argument("-d","--delay",type=float,default=.01, help="delay in seconds for each frame.")
-parser.add_argument("--margin",type=int,default=50, help="add this many pixels to plot margins.")
+parser.add_argument("-d","--delay",type=float,default=.01,help="delay in seconds for each frame.")
+parser.add_argument("--margin",type=int,default=50,help="add this many pixels to plot margins.")
 args = parser.parse_args()
 
 seqs = pd.read_csv(args.input_seqs)
@@ -60,5 +60,4 @@ for seq_idx,seq in seqs.iterrows():
       inp = raw_input(" Enter 'q' to quit, 's' to skip: ")
       if inp=='q': exit('')
       if inp=='s': break
-      pass
 

@@ -238,7 +238,8 @@ def parse_args():
 
 if __name__ == '__main__':
   # all train
-  sequences = ['PETS09-S2L1','TUD-Campus','TUD-Stadtmitte','ETH-Bahnhof','ETH-Sunnyday','ETH-Pedcross2','KITTI-13','KITTI-17','ADL-Rundle-6','ADL-Rundle-8','Venice-2']
+  # sequences = ['PETS09-S2L1','TUD-Campus','TUD-Stadtmitte','ETH-Bahnhof','ETH-Sunnyday','ETH-Pedcross2','KITTI-13','KITTI-17','ADL-Rundle-6','ADL-Rundle-8','Venice-2']
+  sequences = ['pose']
   args = parse_args()
   display = args.display
   phase = 'train'
@@ -257,8 +258,8 @@ if __name__ == '__main__':
   
   for seq in sequences:
     mot_tracker = Sort() #create instance of the SORT tracker
-    # seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
-    seq_dets = np.loadtxt('mot_benchmark/%s/%s/det/det.txt'%(phase,seq),delimiter=',') # mohamamd
+    seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
+    # seq_dets = np.loadtxt('mot_benchmark/%s/%s/det/det.txt'%(phase,seq),delimiter=',') # mohamamd
 
     if not display:
       out_file = open('output/%s.txt'%(seq),'w')
@@ -297,8 +298,8 @@ if __name__ == '__main__':
         plt.draw()
         ax1.cla()
 
-      if not display:
-        out_file.close()
+  if not display:
+    out_file.close()
 
   print("Total Tracking took: %.3f for %d frames or %.1f FPS"%(total_time,total_frames,total_frames/total_time))
   if(display):
