@@ -58,7 +58,7 @@ for seq_idx,seq in seqs.iterrows():
       plt.pause(args.delay)
 
     except KeyboardInterrupt:
-      inp = raw_input(" Enter 'q' to quit, 's' to skip: ")
+      inp = raw_input(" Enter to continue, 'q' to quit, 's' to skip: ")
       if inp=='q': exit('')
       if inp=='s': break
 
