@@ -44,7 +44,8 @@ for seq_idx,seq in seqs.iterrows():
       ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
 
       # plot the detections as filled dots
-      ax.plot(dets[dets[:,0]==frame,2],dets[dets[:,0]==frame,3],'ko')
+      for fr in range(max(frame-2,0),frame+1):
+        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'k.')
 
       # get active tracks and plot them
       trks_active = trks[trks[:,0]==frame,:]
