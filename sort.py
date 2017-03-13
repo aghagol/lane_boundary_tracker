@@ -237,9 +237,7 @@ def parse_args():
     return args
 
 if __name__ == '__main__':
-  # all train
-  # sequences = ['PETS09-S2L1','TUD-Campus','TUD-Stadtmitte','ETH-Bahnhof','ETH-Sunnyday','ETH-Pedcross2','KITTI-13','KITTI-17','ADL-Rundle-6','ADL-Rundle-8','Venice-2']
-  sequences = ['pose']
+  
   args = parse_args()
   display = args.display
   phase = 'train'
@@ -256,10 +254,10 @@ if __name__ == '__main__':
   if not os.path.exists('output'):
     os.makedirs('output')
   
+  sequences = os.listdir('input')
   for seq in sequences:
     mot_tracker = Sort() #create instance of the SORT tracker
-    seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
-    # seq_dets = np.loadtxt('mot_benchmark/%s/%s/det/det.txt'%(phase,seq),delimiter=',') # mohamamd
+    seq_dets = np.loadtxt('input/%s/det/det.txt'%(seq),delimiter=',') #load detections
 
     if not display:
       out_file = open('output/%s.txt'%(seq),'w')
