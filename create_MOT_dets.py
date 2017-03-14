@@ -13,16 +13,16 @@ if __name__ == "__main__":
 
   param = {}
   param['pose_step'] = 10
-  param['image_nrows'] = 1000
-  param['image_ncols'] = 1000
-  param['object_size'] = 100
+  param['image_nrows_default'] = None #None for automatic
+  param['image_ncols_default'] = None #None for automatic
+  param['object_size'] = 50 #in auto mode, this is in meters
   param['pose_shifts'] = [(0,0),(-10,0),(10,0)]
 
   data_dir = '/home/mo/Desktop/HADComplianceGroundTruth1/'
   output_dir = './out/'
 
-  tmp = np.zeros((param['image_nrows'],param['image_ncols']))
-
+  skipped = 0
+  processed = 0
   print('Working on %s...'%data_dir)
   for drive in os.listdir(data_dir):
     if os.path.isdir(data_dir+drive):
@@ -32,16 +32,25 @@ if __name__ == "__main__":
         if input_file.endswith('pose.csv'):
           counter +=1
           if counter>1:
-            print('Warning: found more than one pose csv in drive %s!'%drive)
-            print('Processing the first one only...')
+            print('\tWarning: found more than one pose csv in drive %s!'%drive)
+            print('\tProcessing the first one only...')
           else:
             det_out = output_dir+'%s/det/'%drive
             os.makedirs(det_out)
-            make_MOT_det(data_dir+drive+'/'+input_file, det_out+'det.txt', param)
+            if make_MOT_det(data_dir+drive+'/'+input_file, det_out+'det.txt', param):
+              print('\tDrive too large! Skipping...')
+              skipped +=1
+              os.rmdir(det_out)
+              os.rmdir(output_dir+'%s/'%drive)
+              continue
 
             img_out = output_dir+'%s/img1/'%drive
             os.makedirs(img_out)
+            tmp = np.zeros((param['image_nrows'],param['image_ncols']))
             Image.fromarray(tmp).convert('RGB').save(img_out+'000001.jpg')
 
+            processed +=1
+
+print('Skipped=%d, Processed=%d'%(skipped,processed))
 
 

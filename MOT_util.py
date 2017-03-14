@@ -1,5 +1,21 @@
 import numpy as np
 import pandas as pd
+from math import radians, cos, sin, asin, sqrt
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    m = 1000 * 6367 * c
+    return m
 
 def make_MOT_det(input_file_path, output_file_path, parameters):
   """
@@ -20,6 +36,18 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
   lon = np.array(pose_df[1]) #longitude
   n_frames = lat.shape[0]
 
+  if not parameters['image_nrows_default']:
+    w = int(haversine(lon.min(),lat.min(),lon.max(),lat.min()))
+    h = int(haversine(lon.min(),lat.min(),lon.min(),lat.max()))
+    print('\tAutomatic scaling: width=%d (m), height=%d (m)'%(w,h))
+    parameters['image_nrows'] = h # meter-wide pixels
+    parameters['image_ncols'] = w
+    if max(w,h)>10000:
+      return 1
+  else:
+    parameters['image_nrows'] = parameters['image_nrows_default']
+    parameters['image_ncols'] = parameters['image_ncols_default']
+
   # convert (longitude, latitude) to pixels
   lat = np.floor((lat-lat.min())/(lat.max()-lat.min())*parameters['image_nrows'])
   lon = np.floor((lon-lon.min())/(lon.max()-lon.min())*parameters['image_ncols'])
@@ -36,8 +64,8 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
   for frame in range(n_frames):
     for ii in range(n_tracks):
       out[frame*n_tracks + ii,0] = frame
-      out[frame*n_tracks + ii,2] = tracks[ii][0][frame]
-      out[frame*n_tracks + ii,3] = tracks[ii][1][frame]
+      out[frame*n_tracks + ii,2] = tracks[ii][0][frame]-parameters['object_size']/2
+      out[frame*n_tracks + ii,3] = tracks[ii][1][frame]-parameters['object_size']/2
   out[:,1] = -1
   out[:,4] = parameters['object_size']
   out[:,5] = parameters['object_size']
@@ -47,3 +75,4 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
   out[:,9] = -1
   out = pd.DataFrame(out)
   out.to_csv(output_file_path, header=None, index=False)
+  return 0
