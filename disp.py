@@ -36,16 +36,28 @@ for seq_idx,seq in seqs.iterrows():
   trks[:,2] += trks[:,4]/2.
   trks[:,3] += trks[:,5]/2.
 
-  for frame in range(int(trks[:,0].max())-1):
+  n_frames = int(dets[:,0].max())
+  for frame in range(n_frames):
 
     try:
+      dets_cur = dets[dets[:,0]==frame,2:4]
+      if not dets_cur.any():
+        continue
+
       ax.cla()
-      ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
-      ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
+      # ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
+      # ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
+
+      s = 500.
+      xlim_low = np.floor(dets_cur[0,0]/s)*s
+      ylim_low = np.floor(dets_cur[0,1]/s)*s
+      ax.set_xlim([xlim_low,xlim_low+s])
+      ax.set_ylim([ylim_low,ylim_low+s])
 
       # plot the detections as filled dots
-      for fr in range(max(frame-2,0),frame+1):
-        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'k.')
+      for fr in range(max(frame-1,0),frame): #tail
+        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'r.')
+      ax.plot(dets_cur[:,0],dets_cur[:,1],'k.')
 
       # get active tracks and plot them
       trks_active = trks[trks[:,0]==frame,:]
@@ -54,7 +66,7 @@ for seq_idx,seq in seqs.iterrows():
         trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,trks[:,0]<=frame),:]
         ax.plot(trk_tail[:,2],trk_tail[:,3],'r',color=colors[trk_idid%711,:])
 
-      ax.set_title('frame %d'%frame)
+      ax.set_title('frame %d (out of %d)'%(frame+1,n_frames))
       plt.pause(args.delay)
 
     except KeyboardInterrupt:
