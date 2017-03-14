@@ -254,10 +254,18 @@ if __name__ == '__main__':
   if not os.path.exists('output'):
     os.makedirs('output')
   
-  sequences = os.listdir('input')
+  if display:
+    sequences = os.listdir('data')
+  else:
+    sequences = os.listdir('input')
+
   for seq in sequences:
     mot_tracker = Sort() #create instance of the SORT tracker
-    seq_dets = np.loadtxt('input/%s/det/det.txt'%(seq),delimiter=',') #load detections
+    
+    if display:
+      seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
+    else:
+      seq_dets = np.loadtxt('input/%s/det/det.txt'%(seq),delimiter=',') #load detections
 
     if not display:
       out_file = open('output/%s.txt'%(seq),'w')
