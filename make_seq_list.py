@@ -18,6 +18,7 @@ import os
 output_filename = 'seqs.csv'
 
 sequences = os.listdir('data')
+sequences.sort()
 
 seqs = {}
 seqs['name'] = sequences

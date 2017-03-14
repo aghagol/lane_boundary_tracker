@@ -1,6 +1,5 @@
 """ 
-This is a script for plotting detections and tracks
-Note: detections and tracks must be provided in the MOT format
+This is a script for plotting detections and tracks (in MOT format)
 CTRL+C to pause
 """
 print(__doc__)
@@ -45,6 +44,7 @@ for seq_idx,seq in seqs.iterrows():
         continue
 
       ax.cla()
+
       # ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
       # ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
 
