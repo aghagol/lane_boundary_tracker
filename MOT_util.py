@@ -40,8 +40,8 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
     w = int(haversine(lon.min(),lat.min(),lon.max(),lat.min()))
     h = int(haversine(lon.min(),lat.min(),lon.min(),lat.max()))
     print('\tAutomatic scaling: width=%d (m), height=%d (m)'%(w,h))
-    parameters['image_nrows'] = h # meter-wide pixels
-    parameters['image_ncols'] = w
+    parameters['image_nrows'] = h+parameters['object_size'] # meter-wide pixels
+    parameters['image_ncols'] = w+parameters['object_size']
     if max(w,h)>10000:
       return 1
   else:
@@ -64,8 +64,8 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
   for frame in range(n_frames):
     for ii in range(n_tracks):
       out[frame*n_tracks + ii,0] = frame
-      out[frame*n_tracks + ii,2] = tracks[ii][0][frame]-parameters['object_size']/2
-      out[frame*n_tracks + ii,3] = tracks[ii][1][frame]-parameters['object_size']/2
+      out[frame*n_tracks + ii,2] = tracks[ii][0][frame]#-parameters['object_size']/2
+      out[frame*n_tracks + ii,3] = tracks[ii][1][frame]#-parameters['object_size']/2
   out[:,1] = -1
   out[:,4] = parameters['object_size']
   out[:,5] = parameters['object_size']
