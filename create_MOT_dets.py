@@ -18,7 +18,7 @@ if __name__ == "__main__":
   param['object_size'] = 100 #in auto mode, this is in meters
   param['pose_shifts'] = [(0,0)]#,(-4,0),(4,0)]
 
-  data_dir = '/home/mo/Desktop/HADComplianceGroundTruth1/'
+  data_dir = 'data/'
   output_dir = './out/'
 
   skipped = 0
