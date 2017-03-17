@@ -61,10 +61,10 @@ for seq_idx,seq in seqs.iterrows():
 
       # get active tracks and plot them
       trks_active = trks[trks[:,0]==frame,:]
-      for trk_alive in trks_active:
-        trk_idid = int(trk_alive[1])
-        trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,trks[:,0]<=frame),:]
-        ax.plot(trk_tail[:,2],trk_tail[:,3],'r',color=colors[trk_idid%711,:])
+      for trk_active in trks_active:
+        trk_idid = int(trk_active[1])
+        trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-100)),:]
+        ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
 
       ax.set_title('frame %d (out of %d)'%(frame+1,n_frames))
       plt.pause(args.delay)
