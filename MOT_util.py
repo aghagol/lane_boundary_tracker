@@ -49,8 +49,8 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
     parameters['image_ncols'] = parameters['image_ncols_default']
 
   # convert (longitude, latitude) to pixels
-  lat = np.floor((lat-lat.min())/(lat.max()-lat.min())*parameters['image_nrows'])
-  lon = np.floor((lon-lon.min())/(lon.max()-lon.min())*parameters['image_ncols'])
+  lat = np.floor((lat-lat.min())/(lat.max()-lat.min())*parameters['image_nrows'])+1
+  lon = np.floor((lon-lon.min())/(lon.max()-lon.min())*parameters['image_ncols'])+1
 
   # synthesize multiple tracks (by translating the pose track)
   
@@ -63,7 +63,7 @@ def make_MOT_det(input_file_path, output_file_path, parameters):
   out = np.zeros((n_frames*n_tracks,10),dtype=int)
   for frame in range(n_frames):
     for ii in range(n_tracks):
-      out[frame*n_tracks + ii,0] = frame
+      out[frame*n_tracks + ii,0] = frame+1
       out[frame*n_tracks + ii,2] = tracks[ii][0][frame]#-parameters['object_size']/2
       out[frame*n_tracks + ii,3] = tracks[ii][1][frame]#-parameters['object_size']/2
   out[:,1] = -1

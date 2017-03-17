@@ -12,11 +12,11 @@ from MOT_util import make_MOT_det
 if __name__ == "__main__":
 
   param = {}
-  param['pose_step'] = 10
+  param['pose_step'] = 50
   param['image_nrows_default'] = None #None for automatic
   param['image_ncols_default'] = None #None for automatic
-  param['object_size'] = 50 #in auto mode, this is in meters
-  param['pose_shifts'] = [(0,0),(-10,0),(10,0)]
+  param['object_size'] = 100 #in auto mode, this is in meters
+  param['pose_shifts'] = [(0,0)]#,(-4,0),(4,0)]
 
   data_dir = '/home/mo/Desktop/HADComplianceGroundTruth1/'
   output_dir = './out/'
