@@ -17,7 +17,7 @@
 """
 from __future__ import print_function
 
-# from numba import jit
+from numba import jit
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,7 +29,7 @@ import time
 import argparse
 from filterpy.kalman import KalmanFilter
 
-# @jit
+@jit
 def iou(bb_test,bb_gt):
   """
   Computes IUO between two bboxes in the form [x1,y1,x2,y2]
@@ -240,35 +240,23 @@ if __name__ == '__main__':
   
   args = parse_args()
   display = args.display
-  phase = 'train'
   total_time = 0.0
   total_frames = 0
   colours = np.random.rand(32,3) #used only for display
   if(display):
-    if not os.path.exists('mot_benchmark'):
-      print('no symbolic links found to data')
-      exit()
     plt.ion()
     fig = plt.figure() 
   
   if not os.path.exists('output'):
     os.makedirs('output')
   
-  if display:
-    sequences = os.listdir('data')
-  else:
-    sequences = os.listdir('input')
-
+  sequences = os.listdir('data')
   for seq in sequences:
     mot_tracker = Sort() #create instance of the SORT tracker
-    
-    if display:
-      seq_dets = np.loadtxt('data/%s/det.txt'%(seq),delimiter=',') #load detections
-    else:
-      seq_dets = np.loadtxt('input/%s/det/det.txt'%(seq),delimiter=',') #load detections
 
-    if not display:
-      out_file = open('output/%s.txt'%(seq),'w')
+    seq_dets = np.loadtxt('data/%s/det/det.txt'%(seq),delimiter=',') #load detections
+
+    out_file = open('output/%s.txt'%(seq),'w')
 
     print("Processing %s."%(seq))
     for frame in range(int(seq_dets[:,0].max())):
@@ -279,7 +267,7 @@ if __name__ == '__main__':
 
       if(display):
         ax1 = fig.add_subplot(111, aspect='equal')
-        fn = 'mot_benchmark/%s/%s/img1/%06d.jpg'%(phase,seq,frame)
+        fn = 'data/%s/img1/%06d.jpg'%(seq,frame)
         im =io.imread(fn)
         ax1.imshow(im)
         plt.title(seq+' Tracked Targets')
@@ -290,9 +278,7 @@ if __name__ == '__main__':
       total_time += cycle_time
 
       for d in trackers:
-
-        if not display:
-          print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1'%(frame,d[4],d[0],d[1],d[2]-d[0],d[3]-d[1]),file=out_file)
+        print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1'%(frame,d[4],d[0],d[1],d[2]-d[0],d[3]-d[1]),file=out_file)
           
         if(display):
           d = d.astype(np.uint32)
@@ -304,12 +290,9 @@ if __name__ == '__main__':
         plt.draw()
         ax1.cla()
 
-  if not display:
     out_file.close()
 
   print("Total Tracking took: %.3f for %d frames or %.1f FPS"%(total_time,total_frames,total_frames/total_time))
-  if(display):
-    print("Note: to get real runtime results run without the option: --display")
-  
+
 
 
