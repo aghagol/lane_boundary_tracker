@@ -17,8 +17,13 @@ import os
 
 output_filename = 'seqs.csv'
 
-sequences = os.listdir('data')
-sequences.sort()
+sequences = [i for i in os.listdir('data') if os.path.isdir('data/'+i)]
+seq_set_trks = set([i[:-4] for i in os.listdir('tracks') if i.endswith('txt')])
+seq_set_dets = set(sequences)
+for seq in sequences:
+    if not seq in seq_set_trks:
+        seq_set_dets.remove(seq)
+sequences = sorted(list(seq_set_dets))
 
 seqs = {}
 seqs['name'] = sequences
