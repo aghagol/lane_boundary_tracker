@@ -1,4 +1,8 @@
-import os, json
+"""
+This script transforms JSON files to MOT format detections for object tracking
+"""
+
+import json
 import pandas as pd
 import numpy as np
 from PIL import Image
@@ -8,7 +12,6 @@ json_toy = 'HT085_1465209329-posecentric.json'
 output_file_path = 'det_mot.txt'
 
 param = {
-  'skip_npoints':50,
   'pixel_size':1., #in meters
   'object_size':10., #in meters
   }
