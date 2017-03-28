@@ -114,6 +114,8 @@ def JSON_to_MOT_det(input_file_path, output_file_path, parameters):
 
   image_nrows = h *zoom
   image_ncols = w *zoom
+  parameters['image_nrows'] = int(image_nrows)
+  parameters['image_ncols'] = int(image_ncols)
   print('\tZoom= %f'%(zoom))
   print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
   if max(image_nrows,image_ncols)>10000:

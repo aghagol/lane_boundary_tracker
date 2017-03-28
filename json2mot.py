@@ -1,67 +1,41 @@
 """
-This script transforms JSON files to MOT format detections for object tracking
+This script creates an MOT-like dataset
+Input format: a JSON file
+MOT format: a CSV with columns: frame#, -1, x, y, w, h, confidence, -1, -1, -1
 """
-
-import json
-import pandas as pd
-import numpy as np
+import os
 from PIL import Image
-from MOT_util import haversine
+import numpy as np
 
-json_toy = 'HT085_1465209329-posecentric.json'
-output_file_path = 'det_mot.txt'
+from MOT_util import JSON_to_MOT_det
 
 param = {
   'pixel_size':1., #in meters
   'object_size':10., #in meters
-  }
-zoom = 1/param['pixel_size']
+}
 
-with open(json_toy) as data_file:
-  data = json.load(data_file)['fromPosePointToSamplePoints']
+data_dir = 'JSON_data/'
+output_dir = './out/'
 
-det_lon = np.array([float(p['longitude']) for k,v in data.iteritems() for p in v['samplepoints']])
-det_lat = np.array([float(p['latitude'])  for k,v in data.iteritems() for p in v['samplepoints']])
-det_timestamps = [k for k,v in data.iteritems() for p in v['samplepoints']]
-timestamp_to_frame_idx = dict(zip(data.keys(),range(len(data))))
+skipped = 0
+processed = 0
+for drive in os.listdir(data_dir):
+  if drive.endswith('json'):
+    print('Working on drive %s'%drive)
+    det_out = output_dir+'%s/det/'%drive.split('-')[0]
+    os.makedirs(det_out)
+    if JSON_to_MOT_det(data_dir+drive, det_out+'det.txt', param):
+      print('\tDrive too large! Skipping...')
+      skipped +=1
+      os.rmdir(det_out)
+      os.rmdir(output_dir+'%s/'%drive)
+    else: #create also the image
+      img_out = output_dir+'%s/img1/'%drive.split('-')[0]
+      os.makedirs(img_out)
+      tmp = np.zeros((param['image_nrows'],param['image_ncols']))
+      Image.fromarray(tmp).convert('RGB').save(img_out+'000001.jpg')
+      processed +=1
 
-lat_min, lat_max = (det_lat.min(), det_lat.max())
-lon_min, lon_max = (det_lon.min(), det_lon.max())
-
-w = int(haversine(lon_min,lat_min,lon_max,lat_min))
-h = int(haversine(lon_min,lat_min,lon_min,lat_max))
-
-print('\tWidth= %d (meters)'%(w))
-print('\tHeight= %d (meters)'%(h))
-
-image_nrows = h *zoom
-image_ncols = w *zoom
-print('\tZoom= %f'%(zoom))
-print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
-
-# map (longitude, latitude) to (row, column)
-det_row = np.floor( (det_lat-lat_min) / (lat_max-lat_min) *image_nrows ) +1
-det_col = np.floor( (det_lon-lon_min) / (lon_max-lon_min) *image_ncols ) +1
-
-# write to output
-out = np.zeros((len(det_timestamps),10),dtype=int)
-out[:,0] = [timestamp_to_frame_idx[t]+1 for t in det_timestamps]
-out[:,1] = -1
-out[:,2] = det_row
-out[:,3] = det_col
-out[:,4] = param['object_size'] *zoom
-out[:,5] = param['object_size'] *zoom
-out[:,6] = 1
-out[:,7] = -1
-out[:,8] = -1
-out[:,9] = -1
-out = pd.DataFrame(out)
-out.to_csv(output_file_path, header=None, index=False)
-
-
-
-
-
-
+print('Skipped=%d, Processed=%d'%(skipped,processed))
 
 
