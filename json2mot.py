@@ -14,7 +14,7 @@ param = {
   'object_size':10., #in meters
 }
 
-data_dir = 'JSON_data/'
+data_dir = 'jsons/'
 output_dir = './out/'
 
 skipped = 0
