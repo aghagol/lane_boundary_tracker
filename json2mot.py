@@ -28,7 +28,7 @@ for drive in os.listdir(data_dir):
       print('\tDrive too large! Skipping...')
       skipped +=1
       os.rmdir(det_out)
-      os.rmdir(output_dir+'%s/'%drive)
+      os.rmdir(output_dir+'%s/'%drive.split('-')[0])
     else: #create also the image
       img_out = output_dir+'%s/img1/'%drive.split('-')[0]
       os.makedirs(img_out)
