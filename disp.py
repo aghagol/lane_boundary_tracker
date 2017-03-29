@@ -19,7 +19,7 @@ args = parser.parse_args()
 
 seqs = pd.read_csv(args.input_seqs)
 
-fig, ax = plt.subplots(1,1,figsize=(9,9))
+fig, ax = plt.subplots(1,1,figsize=(6,6))
 colors = np.random.rand(711,3) # create random colors for tracks
 
 w = 100. #display windows size
@@ -52,8 +52,8 @@ for seq_idx,seq in seqs.iterrows():
 
       xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
       ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
-      ax.set_xlim([xlim_low-w,xlim_low+w])
-      ax.set_ylim([ylim_low-w,ylim_low+w])
+      ax.set_xlim([xlim_low,xlim_low+w])
+      ax.set_ylim([ylim_low,ylim_low+w])
 
       # plot the detections as filled dots
       for fr in range(max(frame-1,0),frame): #tail
@@ -73,18 +73,16 @@ for seq_idx,seq in seqs.iterrows():
     except KeyboardInterrupt:
       os.system('clear')
       print('Menu:')
-      print('\tj\tjump to frame')
-      print('\tw\tadjust window width')
-      print('\tq\tquit')
-      print('\ts\tskip sequence and continue with next')
+      print('\tEnter j[number] to jump to frame')
+      print('\tEnter w[number] to adjust window width')
+      print('\tEnter q to quit')
+      print('\tEnter s to skip sequence and continue with next')
       inp = raw_input("\nPress Enter to resume: ")
       if len(inp.strip()):
         if inp[0]=='j': frame=int(inp[1:])-1
         if inp[0]=='w': w=float(inp[1:])
         if inp=='q': exit('')
         if inp=='s': break
-      else:
-        os.system('clear')
 
     frame +=1
 
