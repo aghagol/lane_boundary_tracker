@@ -19,9 +19,10 @@ args = parser.parse_args()
 
 seqs = pd.read_csv(args.input_seqs)
 
-fig, ax = plt.subplots(1,1)
+fig, ax = plt.subplots(1,1,figsize=(9,9))
 colors = np.random.rand(711,3) # create random colors for tracks
 
+w = 100. #display windows size
 for seq_idx,seq in seqs.iterrows():
 
   print('Working on sequence %s'%seqs.name[seq_idx])
@@ -36,7 +37,8 @@ for seq_idx,seq in seqs.iterrows():
   trks[:,3] += trks[:,5]/2.
 
   n_frames = int(dets[:,0].max())
-  for frame in range(n_frames):
+  frame = 1
+  while frame < n_frames:
 
     try:
       dets_cur = dets[dets[:,0]==frame,2:4]
@@ -48,11 +50,10 @@ for seq_idx,seq in seqs.iterrows():
       # ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
       # ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
 
-      s = 500.
-      xlim_low = np.floor(dets_cur[0,0]/s)*s
-      ylim_low = np.floor(dets_cur[0,1]/s)*s
-      ax.set_xlim([xlim_low,xlim_low+s])
-      ax.set_ylim([ylim_low,ylim_low+s])
+      xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
+      ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
+      ax.set_xlim([xlim_low-w,xlim_low+w])
+      ax.set_ylim([ylim_low-w,ylim_low+w])
 
       # plot the detections as filled dots
       for fr in range(max(frame-1,0),frame): #tail
@@ -63,14 +64,27 @@ for seq_idx,seq in seqs.iterrows():
       trks_active = trks[trks[:,0]==frame,:]
       for trk_active in trks_active:
         trk_idid = int(trk_active[1])
-        trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-100)),:]
+        trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
         ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
 
       ax.set_title('frame %d (out of %d)'%(frame+1,n_frames))
       plt.pause(args.delay)
 
     except KeyboardInterrupt:
-      inp = raw_input(" Enter to continue, 'q' to quit, 's' to skip: ")
-      if inp=='q': exit('')
-      if inp=='s': break
+      os.system('clear')
+      print('Menu:')
+      print('\tj\tjump to frame')
+      print('\tw\tadjust window width')
+      print('\tq\tquit')
+      print('\ts\tskip sequence and continue with next')
+      inp = raw_input("\nPress Enter to resume: ")
+      if len(inp.strip()):
+        if inp[0]=='j': frame=int(inp[1:])-1
+        if inp[0]=='w': w=float(inp[1:])
+        if inp=='q': exit('')
+        if inp=='s': break
+      else:
+        os.system('clear')
+
+    frame +=1
 
