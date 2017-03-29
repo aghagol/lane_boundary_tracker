@@ -97,20 +97,21 @@ def JSON_to_MOT_det(input_file_path, output_file_path, parameters):
   import json
   with open(input_file_path) as data_file:
     data = json.load(data_file)['fromPosePointToSamplePoints']
+  timestamps = sorted([int(k) for k in data])
 
-  det_lon = np.array([float(p['longitude']) for k,v in data.iteritems() for p in v['samplepoints']])
-  det_lat = np.array([float(p['latitude'])  for k,v in data.iteritems() for p in v['samplepoints']])
-  det_timestamps = [k for k,v in data.iteritems() for p in v['samplepoints']]
-  timestamp_to_frame_idx = dict(zip(data.keys(),range(len(data))))
+  det_lon = np.array([float(p['longitude']) for t in timestamps for p in data['%d'%t]['samplepoints']])
+  det_lat = np.array([float(p['latitude'])  for t in timestamps for p in data['%d'%t]['samplepoints']])
+  det_timestamps = [t for t in timestamps for p in data['%d'%t]['samplepoints']]
+  timestamp_to_frame_idx = dict(zip(timestamps,range(len(timestamps))))
 
   lat_min, lat_max = (det_lat.min(), det_lat.max())
   lon_min, lon_max = (det_lon.min(), det_lon.max())
 
-  w = int(haversine(lon_min,lat_min,lon_max,lat_min))
-  h = int(haversine(lon_min,lat_min,lon_min,lat_max))
+  w = haversine(lon_min,lat_min,lon_max,lat_min)
+  h = haversine(lon_min,lat_min,lon_min,lat_max)
 
-  print('\tWidth= %d (meters)'%(w))
-  print('\tHeight= %d (meters)'%(h))
+  print('\tWidth= %f (meters)'%(w))
+  print('\tHeight= %f (meters)'%(h))
 
   image_nrows = h *zoom
   image_ncols = w *zoom
@@ -118,15 +119,18 @@ def JSON_to_MOT_det(input_file_path, output_file_path, parameters):
   parameters['image_ncols'] = int(image_ncols)
   print('\tZoom= %f'%(zoom))
   print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
-  if max(image_nrows,image_ncols)>10000:
-    return 1
+  # if max(image_nrows,image_ncols)>10000:
+  #   return 1
 
   # map (longitude, latitude) to (row, column)
-  det_row = np.floor( (det_lat-lat_min) / (lat_max-lat_min) *image_nrows ) +1
-  det_col = np.floor( (det_lon-lon_min) / (lon_max-lon_min) *image_ncols ) +1
+  # det_row = np.floor( (det_lat-lat_min) / (lat_max-lat_min) *image_nrows ) +1
+  # det_col = np.floor( (det_lon-lon_min) / (lon_max-lon_min) *image_ncols ) +1
+
+  det_row = (det_lat-lat_min) / (lat_max-lat_min) *image_nrows
+  det_col = (det_lon-lon_min) / (lon_max-lon_min) *image_ncols
 
   # write to output
-  out = np.zeros((len(det_timestamps),10),dtype=int)
+  out = np.zeros((len(det_timestamps),10))
   out[:,0] = [timestamp_to_frame_idx[t]+1 for t in det_timestamps]
   out[:,1] = -1
   out[:,2] = det_row

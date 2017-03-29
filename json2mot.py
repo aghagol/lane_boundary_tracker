@@ -32,8 +32,8 @@ for drive in os.listdir(data_dir):
     else: #create also the image
       img_out = output_dir+'%s/img1/'%drive.split('-')[0]
       os.makedirs(img_out)
-      tmp = np.zeros((param['image_nrows'],param['image_ncols']))
-      Image.fromarray(tmp).convert('RGB').save(img_out+'000001.jpg')
+      # tmp = np.zeros((param['image_nrows'],param['image_ncols']))
+      # Image.fromarray(tmp).convert('RGB').save(img_out+'000001.jpg')
       processed +=1
 
 print('Skipped=%d, Processed=%d'%(skipped,processed))
