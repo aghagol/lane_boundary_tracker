@@ -130,7 +130,7 @@ def JSON_to_MOT_det(input_file_path, output_file_path, parameters):
   det_col = (det_lon-lon_min) / (lon_max-lon_min) *image_ncols
 
   # write to output
-  out = np.zeros((len(det_timestamps),10))
+  out = np.zeros((len(det_timestamps),10),dtype=object)
   out[:,0] = [timestamp_to_frame_idx[t]+1 for t in det_timestamps]
   out[:,1] = -1
   out[:,2] = det_row
@@ -144,3 +144,13 @@ def JSON_to_MOT_det(input_file_path, output_file_path, parameters):
   out = pd.DataFrame(out)
   out.to_csv(output_file_path, header=None, index=False)
   return 0
+
+def store_JSON_timestamps(input_file_path, output_file_path):
+  """
+  Store a mapping between frame numbers and timestamps
+  """
+  import json
+  with open(input_file_path) as data_file:
+    timestamps = sorted([int(k) for k in json.load(data_file)['fromPosePointToSamplePoints']])
+  timestamps = np.array([range(1,len(timestamps)+1),timestamps]).T
+  pd.DataFrame(timestamps).to_csv(output_file_path, header=None, index=False)
