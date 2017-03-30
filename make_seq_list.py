@@ -4,6 +4,7 @@ Creating a list of sequences as input to disp.py
 output CSV has 3 columns:
   name..............this is the sequence name
   dpath.............this is the detection file path
+  mpath.............this is the frame timestamps file path (if any)
   tpath.............this is the track file path
 
 Make a symbolic link `data` to MOT dataset
@@ -28,10 +29,11 @@ sequences = sorted(list(seq_set_dets))
 seqs = {}
 seqs['name'] = sequences
 seqs['dpath'] = ['data/%s/det/det.txt'%(seq) for seq in sequences]
+seqs['mpath'] = ['data/%s/det/timestamps.txt'%(seq) for seq in sequences]
 seqs['tpath'] = ['tracks/%s.txt'%(seq) for seq in sequences]
 
 seqs_df = pd.DataFrame(seqs)
-seqs_df = seqs_df[['name','dpath','tpath']] # sort
+seqs_df = seqs_df[['name','dpath','tpath','mpath']] # sort
 
 seqs_df.to_csv(output_filename,index=False,header=True)
 
