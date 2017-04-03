@@ -7,9 +7,7 @@ import os
 from PIL import Image
 import numpy as np
 
-from MOT_util import JSON_to_MOT_det
-from MOT_util import store_JSON_timestamps
-from MOT_util import JSON_to_MOT_GT
+import motutil
 
 param = {
   'pixel_size':1., #in meters
@@ -26,7 +24,7 @@ for drive in os.listdir(data_dir):
     print('Working on drive %s'%drive)
     det_out = output_dir+'%s/det/'%drive.split('-')[0]
     os.makedirs(det_out)
-    if JSON_to_MOT_det(data_dir+drive, det_out+'det.txt', param):
+    if motutil.JSON_to_MOT_det(data_dir+drive, det_out+'det.txt', param):
       print('\tDrive too large! Skipping...')
       skipped +=1
       os.rmdir(det_out)
@@ -34,7 +32,7 @@ for drive in os.listdir(data_dir):
     else: #create also the image
       print("\t\tdone")
       print("\tStoring the timestamps...")
-      store_JSON_timestamps(data_dir+drive, det_out+'timestamps.txt')
+      motutil.store_JSON_timestamps(data_dir+drive, det_out+'timestamps.txt')
       print("\t\tdone")
       print("\tSaving the (blank) image")
       img_out = output_dir+'%s/img1/'%drive.split('-')[0]
@@ -45,7 +43,7 @@ for drive in os.listdir(data_dir):
       print("\tSaving the GT")
       gt_out = output_dir+'%s/gt/'%drive.split('-')[0]
       os.makedirs(gt_out)
-      JSON_to_MOT_GT(data_dir+drive, gt_out+'gt.txt', param)
+      motutil.JSON_to_MOT_GT(data_dir+drive, gt_out+'gt.txt', param)
       print("\t\tdone")
       processed +=1
 
