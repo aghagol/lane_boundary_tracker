@@ -15,6 +15,8 @@ parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
   name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
 parser.add_argument("-d","--delay",type=float,default=.01,help="delay in seconds for each frame.")
 parser.add_argument("--margin",type=int,default=50,help="add this many pixels to plot margins.")
+parser.add_argument("-g","--groundtruth",action='store_true',help="Show ground-truth \
+  instead of computer tracks.")
 args = parser.parse_args()
 
 seqs = pd.read_csv(args.input_seqs)
@@ -28,11 +30,17 @@ for seq_idx,seq in seqs.iterrows():
   print('Working on sequence %s'%seqs.name[seq_idx])
 
   dets = np.loadtxt(seq.dpath,delimiter=',')[:,:6]
-  trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
+
   if os.path.exists(seq.mpath):
     timestamps = np.loadtxt(seq.mpath,delimiter=',')
   else:
     timestamps = np.zeros((dets.shape[0],2))
+
+  if args.groundtruth:
+    if not os.path.exists(seq.gpath): exit("GT data not there!")
+    trks = np.loadtxt(seq.gpath,delimiter=',')
+  else:
+    trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
 
   # center
   dets[:,2] += dets[:,4]/2.
@@ -51,13 +59,13 @@ for seq_idx,seq in seqs.iterrows():
 
       ax.cla()
 
-      # ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
-      # ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
+      ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
+      ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
 
-      xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
-      ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
-      ax.set_xlim([xlim_low,xlim_low+w])
-      ax.set_ylim([ylim_low,ylim_low+w])
+      # xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
+      # ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
+      # ax.set_xlim([xlim_low,xlim_low+w])
+      # ax.set_ylim([ylim_low,ylim_low+w])
 
       # plot the detections as filled dots
       for fr in range(max(frame-1,0),frame): #tail

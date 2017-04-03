@@ -30,10 +30,11 @@ seqs = {}
 seqs['name'] = sequences
 seqs['dpath'] = ['data/%s/det/det.txt'%(seq) for seq in sequences]
 seqs['mpath'] = ['data/%s/det/timestamps.txt'%(seq) for seq in sequences]
+seqs['gpath'] = ['data/%s/gt/gt.txt'%(seq) for seq in sequences]
 seqs['tpath'] = ['tracks/%s.txt'%(seq) for seq in sequences]
 
 seqs_df = pd.DataFrame(seqs)
-seqs_df = seqs_df[['name','dpath','tpath','mpath']] # sort
+seqs_df = seqs_df[['name','dpath','tpath','mpath','gpath']] # sort
 
 seqs_df.to_csv(output_filename,index=False,header=True)
 
