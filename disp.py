@@ -14,10 +14,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
   name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
 parser.add_argument("-d","--delay",type=float,default=.01,help="delay in seconds for each frame.")
-parser.add_argument("--margin",type=int,default=50,help="add this many pixels to plot margins.")
+parser.add_argument("--margin",type=int,default=10,help="add this many pixels to plot margins.")
 parser.add_argument("-g","--groundtruth",action='store_true',help="Show ground-truth \
   instead of computer tracks.")
+parser.add_argument("-f","--fixed-axes",action='store_true',help="Use fixed axes for display.")
+
 args = parser.parse_args()
+fixed_axes = args.fixed_axes
 
 seqs = pd.read_csv(args.input_seqs)
 
@@ -59,13 +62,14 @@ for seq_idx,seq in seqs.iterrows():
 
       ax.cla()
 
-      ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
-      ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
-
-      # xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
-      # ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
-      # ax.set_xlim([xlim_low,xlim_low+w])
-      # ax.set_ylim([ylim_low,ylim_low+w])
+      if fixed_axes:
+        ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
+        ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
+      else:
+        xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
+        ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
+        ax.set_xlim([xlim_low-args.margin,xlim_low+w+args.margin])
+        ax.set_ylim([ylim_low-args.margin,ylim_low+w+args.margin])
 
       # plot the detections as filled dots
       for fr in range(max(frame-1,0),frame): #tail
@@ -87,12 +91,14 @@ for seq_idx,seq in seqs.iterrows():
       print('Menu:')
       print('\tEnter j[number] to jump to frame')
       print('\tEnter w[number] to adjust window width')
+      print('\tEnter f to toggle display axes fit')
       print('\tEnter q to quit')
       print('\tEnter s to skip sequence and continue with next')
       inp = raw_input("\nPress Enter to resume: ")
       if len(inp.strip()):
-        if inp[0]=='j': frame=int(inp[1:])-1
-        if inp[0]=='w': w=float(inp[1:])
+        if inp[0]=='j': frame = int(inp[1:])-1
+        if inp[0]=='w': w = float(inp[1:])
+        if inp=='f': fixed_axes = not fixed_axes
         if inp=='q': exit('')
         if inp=='s': break
 
