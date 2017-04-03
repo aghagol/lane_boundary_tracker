@@ -9,6 +9,7 @@ import numpy as np
 
 from MOT_util import JSON_to_MOT_det
 from MOT_util import store_JSON_timestamps
+from MOT_util import JSON_to_MOT_GT
 
 param = {
   'pixel_size':1., #in meters
@@ -40,6 +41,11 @@ for drive in os.listdir(data_dir):
       os.makedirs(img_out)
       # tmp = np.zeros((param['image_nrows'],param['image_ncols']))
       # Image.fromarray(tmp).convert('RGB').save(img_out+'000001.jpg')
+      print("\t\tdone")
+      print("\tSaving the GT")
+      gt_out = output_dir+'%s/gt/'%drive.split('-')[0]
+      os.makedirs(gt_out)
+      JSON_to_MOT_GT(data_dir+drive, gt_out+'gt.txt', param)
       print("\t\tdone")
       processed +=1
 
