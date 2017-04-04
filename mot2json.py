@@ -23,7 +23,7 @@ for seq_idx,seq in seqs.iterrows():
   track_file = seq.gpath
   print("Processing groundtruth: file located at %s"%(track_file))
   track = np.loadtxt(track_file,delimiter=',')
-  out = {"frames":[]}
+  out = {"frames":[],"class":"video"}
   frame_id_list = sorted(list(set(track[:,0])))
   print('...there is a total of %d frames'%(len(frame_id_list)))
   for frame_id in frame_id_list:
@@ -54,7 +54,7 @@ for seq_idx,seq in seqs.iterrows():
   track_file = seq.tpath
   print("Processing hypotheses: file located at %s"%(track_file))
   track = np.loadtxt(track_file,delimiter=',')
-  out = {"frames":[]}
+  out = {"frames":[],"class":"video"}
   frame_id_list = sorted(list(set(track[:,0])))
   print('...there is a total of %d frames'%(len(frame_id_list)))
   for frame_id in frame_id_list:
