@@ -36,22 +36,10 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
 
   w = haversine(lon_min,lat_min,lon_max,lat_min)
   h = haversine(lon_min,lat_min,lon_min,lat_max)
-
-  print('\tWidth= %f (meters)'%(w))
-  print('\tHeight= %f (meters)'%(h))
-
   image_nrows = h *zoom
   image_ncols = w *zoom
-  parameters['image_nrows'] = int(image_nrows)
-  parameters['image_ncols'] = int(image_ncols)
-  print('\tZoom= %f'%(zoom))
-  print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
-  # if max(image_nrows,image_ncols)>10000:
-  #   return 1
-
-  # map (longitude, latitude) to (row, column)
-  # det_row = np.floor( (det_lat-lat_min) / (lat_max-lat_min) *image_nrows ) +1
-  # det_col = np.floor( (det_lon-lon_min) / (lon_max-lon_min) *image_ncols ) +1
+  parameters['image_nrows'] = max(int(image_nrows),parameters['image_nrows'])
+  parameters['image_ncols'] = max(int(image_ncols),parameters['image_ncols'])
 
   det_row = (det_lat-lat_min) / (lat_max-lat_min) *image_nrows
   det_col = (det_lon-lon_min) / (lon_max-lon_min) *image_ncols
