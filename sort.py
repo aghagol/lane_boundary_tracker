@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
     out_file = open('output/%s.txt'%(seq),'w')
 
-    print("Processing %s."%(seq))
+    print("Processing %s"%(seq))
     for frame in range(int(seq_dets[:,0].max())):
       frame += 1 #detection and frame numbers begin at 1
       dets = seq_dets[seq_dets[:,0]==frame,2:7]
