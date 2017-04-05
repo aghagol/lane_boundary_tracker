@@ -8,6 +8,7 @@ rm -f tracks
 rm -rf stat_out/
 rm -rf out/
 rm -f log.txt
+rm -f seqs.csv
 
 #link to data
 ln -s ../preprocess/out data

@@ -6,6 +6,7 @@ cd modules/visualizeMOT
 rm -f data
 rm -f tracks
 rm -f log.txt
+rm -f seqs.csv
 
 #link to data
 ln -s ../preprocess/out data

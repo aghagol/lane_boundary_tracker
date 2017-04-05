@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+cd modules/preprocess
+rm -f drive_jsons
+rm -f JSONs
+rm -rf ss_jsons/
+rm -rf out/
+rm -f log.txt
+cd ../..
+
+cd modules/evaluateMOT
+rm -f data
+rm -f tracks
+rm -rf stat_out/
+rm -rf out/
+rm -f log.txt
+rm -f seqs.csv
+cd ../..
+
+cd modules/sort
+rm -f data
+rm -rf output/
+rm -f log.txt
+cd ../..
+
+cd modules/visualizeMOT
+rm -f data
+rm -f tracks
+rm -f log.txt
+rm -f seqs.csv
+cd ../..
