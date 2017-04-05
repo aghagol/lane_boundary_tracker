@@ -17,6 +17,7 @@ param = {
   'object_size':10., #in meters
   'image_nrows':100, #minimum size
   'image_ncols':100, #minimum size
+  'drop_rate':.1,
 }
 
 data_dir = 'JSONs/'
