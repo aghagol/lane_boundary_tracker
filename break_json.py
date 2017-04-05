@@ -29,14 +29,21 @@ for json_file in json_list:
   print('...done')
   
   surface_timestamp = {}
+  surface_remove = set()
   for k,v in data[json_key].iteritems():
     for p in v['samplepoints']:
       if p['roadSurfaceID'] in surface_timestamp:
-        surface_timestamp[p['roadSurfaceID']].append(k)
+        surface_timestamp[p['roadSurfaceID']].add(k)
       else:
-        surface_timestamp[p['roadSurfaceID']] = [k]
+        surface_timestamp[p['roadSurfaceID']] = set([k])
+      if p['boundaryCurveID'][:4]=='null' and p['roadSurfaceID'] not in surface_remove:
+        print('WARNING: marking road surface %016d for removal because I found null lane boundaries in it!'%(int(p['roadSurfaceID'])))
+        surface_remove.add(p['roadSurfaceID'])
 
-  for surface, timestamp_list in surface_timestamp.iteritems():
-    timestamp = np.min([int(i) for i in timestamp_list])
-    with open(json_out_dir+drive_id+'/surface_%d_%016d.json'%(timestamp,int(surface)),'w') as fjson:
-      json.dump({json_key:{k:v for k,v in data[json_key].iteritems() if k in timestamp_list}},fjson,indent=4)
+  for surface, timestamp_set in surface_timestamp.iteritems():
+    if surface in surface_remove:
+      print('Skipping road surface %016d'%(int(surface)))
+      continue
+    start_timestamp = np.min([int(i) for i in timestamp_set])
+    with open(json_out_dir+drive_id+'/surface_%d_%016d.json'%(start_timestamp,int(surface)),'w') as fjson:
+      json.dump({json_key:{k:v for k,v in data[json_key].iteritems() if k in timestamp_set}},fjson,indent=4)
