@@ -9,7 +9,7 @@ stat_path = 'stat_out'
 if not os.path.exists(stat_path):
   os.mkdir(stat_path)
   for name in os.listdir('data'):
-    print('Working on %s'%(name))
+#    print('Working on %s'%(name))
     os.system("python pymot/pymot.py -a out/%s/groundtruth.json -b out/%s/hypotheses.json > %s/%s.stat"%(name,name,stat_path,name))
 
 #parse stat files
