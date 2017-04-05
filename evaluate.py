@@ -12,11 +12,9 @@ if not os.path.exists(stat_path):
 
 #parse stat files
 stat_list = [i for i in os.listdir(stat_path) if i.endswith('stat')]
-#something off about HT085_1465209329_surface_1149245953810000_0000003185458778
 
 stat = {}
 for stat_file in stat_list:
-  if stat_file=='HT085_1465209329_surface_1149245953810000_0000003185458778.stat': continue
   with open(stat_path+'/'+stat_file) as f:
     stat_str = f.read()
   stat[stat_file] = {k.strip():v for k,v in re.findall('(.+[^\d+\.{0,1}\d*])(\d+\.{0,1}\d*)',stat_str)}
