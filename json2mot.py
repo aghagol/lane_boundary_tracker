@@ -18,6 +18,7 @@ param = {
   'image_nrows':100, #minimum size
   'image_ncols':100, #minimum size
   'drop_rate':.1,
+  'min_dets':2,
 }
 
 data_dir = 'JSONs/'
@@ -34,12 +35,18 @@ for drive in os.listdir(data_dir):
       surface_name = surface[:-5]
     det_out = output_dir+'%s_%s/det/'%(drive,surface_name)
     os.makedirs(det_out)
-    if motutil.json_to_mot_det(data_dir+drive+'/'+surface, det_out+'det.txt', param):
-      print('\tDrive %s_%s too large! Skipping...'%(drive,surface))
+    state = motutil.json_to_mot_det(data_dir+drive+'/'+surface, det_out+'det.txt', param)
+    if state==1:
+      print('\tDrive %s_%s: too large! Skipping...'%(drive,surface))
       skipped +=1
       os.rmdir(det_out)
       os.rmdir(output_dir+'%s_%s/'%(drive,surface_name))
-    else: 
+    elif state==2:
+      print('\tDrive %s_%s: too few detections! Skipping...'%(drive,surface))
+      skipped +=1
+      os.rmdir(det_out)
+      os.rmdir(output_dir+'%s_%s/'%(drive,surface_name))
+    else:
       #save timestamps
       motutil.store_json_timestamps(data_dir+drive+'/'+surface, det_out+'timestamps.txt')
       #save images

@@ -60,7 +60,10 @@ def json_to_mot_det(input_file_path, output_file_path, parameters):
   out[:,9] = -1
 
   #drop detections at drop_rate rate
-  out = out[np.random.rand(out.shape[0])>parameters['drop_rate'],:]
+  if parameters['drop_rate']<1:
+    out = out[np.random.rand(out.shape[0])>parameters['drop_rate'],:]
+  if out.shape[0]<parameters['min_dets']:
+    return 2
 
   out = pd.DataFrame(out)
   out.to_csv(output_file_path, header=None, index=False)
