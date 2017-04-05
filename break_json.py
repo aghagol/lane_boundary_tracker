@@ -8,11 +8,13 @@ print(__doc__)
 
 import os
 import json
+import numpy as np
 
 data_dir = 'drive_jsons/'
-json_out_dir = 'ss_jsons/'
-
 json_list = [i for i in os.listdir(data_dir) if i.endswith('json')]
+
+json_key = 'fromPosePointToSamplePoints'
+json_out_dir = 'ss_jsons/'
 
 for json_file in json_list:
 
@@ -27,13 +29,14 @@ for json_file in json_list:
   print('...done')
   
   surface_timestamp = {}
-  for k,v in data['fromPosePointToSamplePoints'].iteritems():
+  for k,v in data[json_key].iteritems():
     for p in v['samplepoints']:
       if p['roadSurfaceID'] in surface_timestamp:
         surface_timestamp[p['roadSurfaceID']].append(k)
       else:
         surface_timestamp[p['roadSurfaceID']] = [k]
 
-  for surface in surface_timestamp:
-    with open(json_out_dir+drive_id+'/surface_%s.json'%(surface),'w') as fjson:
-      json.dump({'fromPosePointToSamplePoints':{k:v for k,v in data['fromPosePointToSamplePoints'].iteritems() if k in surface_timestamp[surface]}},fjson,indent=4)
+  for surface, timestamp_list in surface_timestamp.iteritems():
+    timestamp = np.min([int(i) for i in timestamp_list])
+    with open(json_out_dir+drive_id+'/surface_%d_%016d.json'%(timestamp,int(surface)),'w') as fjson:
+      json.dump({json_key:{k:v for k,v in data[json_key].iteritems() if k in timestamp_list}},fjson,indent=4)
