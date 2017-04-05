@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ 
 This is a script for plotting detections and tracks (in MOT format)
 CTRL+C to pause
