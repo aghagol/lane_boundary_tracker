@@ -10,6 +10,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 
+#this is an optional feature
+import warnings
+warnings.filterwarnings("ignore")
+
 parser = argparse.ArgumentParser()
 parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
   name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
@@ -87,14 +91,15 @@ for seq_idx,seq in seqs.iterrows():
       plt.pause(args.delay)
 
     except KeyboardInterrupt:
-      os.system('clear')
-      print('Menu:')
-      print('\tEnter j[number] to jump to frame')
-      print('\tEnter w[number] to adjust window width')
-      print('\tEnter f to toggle display axes fit')
-      print('\tEnter q to quit')
-      print('\tEnter s to skip sequence and continue with next')
-      inp = raw_input("\nPress Enter to resume: ")
+      print('')
+      print('=================================================')
+      print('...Enter j[number] to jump to frame')
+      print('...Enter w[number] to adjust window width')
+      print('...Enter f to toggle display axes fit')
+      print('...Enter q to quit')
+      print('...Enter s to skip sequence and continue with next')
+      inp = raw_input("...or just press Enter to resume: ")
+      print('=================================================')
       if len(inp.strip()):
         if inp[0]=='j': frame = int(inp[1:])-1
         if inp[0]=='w': w = float(inp[1:])
