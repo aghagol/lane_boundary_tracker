@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os, re
 import numpy as np
 

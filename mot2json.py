@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ 
 This is a script for converting gt and tracks (in MOT format) to JSONs
 """
