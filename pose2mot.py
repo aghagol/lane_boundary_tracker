@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This script creates an MOT-like dataset
 Input format: a CSV with columns: longitude, latitude, altitude, timestamp
