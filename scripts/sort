@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+cd modules/sort
+
+#clean up past runs
+rm -f data
+rm -rf output/
+rm -f log.txt
+
+#link to input sequences
+ln -s ../preprocess/out data
+
+echo "Running SORT tracker"
+./sort.py >> log.txt
+
+cd ../..
+echo "done"
+
+

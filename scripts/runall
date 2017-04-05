@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+scripts/preprocess
+scripts/sort
+scripts/evaluate
+
+
+

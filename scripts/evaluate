@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+cd modules/evaluateMOT
+
+#clean up past runs
+rm -f data
+rm -f tracks
+rm -rf stat_out/
+rm -rf out/
+rm -f log.txt
+
+#link to data
+ln -s ../preprocess/out data
+ln -s ../sort/output tracks
+
+echo "Making a list of sequences"
+./make_seq_list.py >> log.txt
+
+echo "Converting MOT to JSONs"
+./mot2json.py seqs.csv >> log.txt
+
+echo "Running evaluation (groundtruth.json vs hypotheses.json)"
+./evaluate.py
+
+cd ../..
+echo "done"
+
+
