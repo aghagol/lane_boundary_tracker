@@ -12,14 +12,13 @@ rm -f log.txt
 #link to data
 ln -s ../../data/sample_json drive_jsons
 
-echo "Breaking up big (drive) JSONs into small (surface) JSONs"
+echo $(date) "Breaking up big (drive) JSONs into small (surface) JSONs"
 ./break_json.py >> log.txt
 
 ln -s ss_jsons JSONs
-echo "Saving JSONs in MOT format"
+echo $(date) "Saving JSONs in MOT format"
 ./json2mot.py >> log.txt
 
 cd ../..
-echo "done"
 
 

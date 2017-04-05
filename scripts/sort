@@ -10,10 +10,9 @@ rm -f log.txt
 #link to input sequences
 ln -s ../preprocess/out data
 
-echo "Running SORT tracker"
+echo $(date) "Running SORT tracker"
 ./sort.py >> log.txt
 
 cd ../..
-echo "done"
 
 

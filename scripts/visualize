@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-cd modules/evaluateMOT
+cd modules/visualizeMOT
 
 #clean up past runs
 rm -f data
 rm -f tracks
-rm -rf stat_out/
-rm -rf out/
 rm -f log.txt
 
 #link to data
@@ -16,11 +14,8 @@ ln -s ../sort/output tracks
 echo $(date) "Making a list of sequences"
 ./make_seq_list.py >> log.txt
 
-echo $(date) "Converting MOT to JSONs"
-./mot2json.py seqs.csv >> log.txt
-
-echo $(date) "Running evaluation (groundtruth.json vs hypotheses.json)"
-./evaluate.py
+echo $(date) "Display"
+./disp.py seqs.csv
 
 cd ../..
 
