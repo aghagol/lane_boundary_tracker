@@ -1,15 +1,15 @@
 [submodule "preprocess"]
-	path = preprocess
+	path = modules/preprocess
 	url = https://github.com/aghagol/preprocess.git
 [submodule "sort"]
-	path = sort
+	path = modules/sort
 	url = https://github.com/aghagol/sort.git
 [submodule "visualizeMOT"]
-	path = visualizeMOT
+	path = modules/visualizeMOT
 	url = https://github.com/aghagol/visualizeMOT.git
 [submodule "rnntracking"]
-	path = rnntracking
+	path = modules/rnntracking
 	url = https://github.com/aghagol/rnntracking.git
 [submodule "evaluateMOT"]
-	path = evaluateMOT
+	path = modules/evaluateMOT
 	url = https://github.com/aghagol/evaluateMOT.git
