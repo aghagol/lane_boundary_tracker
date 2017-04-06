@@ -11,14 +11,14 @@ import argparse
 import json
 
 parser = argparse.ArgumentParser()
-parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
-  name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
+parser.add_argument("--input",help="list of sequences in a CSV file")
+parser.add_argument("--output",help="output path to save JSONs")
 args = parser.parse_args()
 
-seqs = pd.read_csv(args.input_seqs)
+seqs = pd.read_csv(args.input)
 for seq_idx,seq in seqs.iterrows():
   print('Working on sequence %s'%seqs.name[seq_idx])
-  os.makedirs('out/%s'%seqs.name[seq_idx])
+  os.makedirs('%s/%s'%(args.output,seqs.name[seq_idx]))
 
   #process groundtruth
   track_file = seq.gpath
@@ -46,7 +46,7 @@ for seq_idx,seq in seqs.iterrows():
       }
       tmp["annotations"].append((points))
     out["frames"].append((tmp))
-  jsonfile_path = 'out/%s/groundtruth.json'%(seqs.name[seq_idx])
+  jsonfile_path = '%s/%s/groundtruth.json'%(args.output,seqs.name[seq_idx])
   print("...writing to %s"%(jsonfile_path))
   with open(jsonfile_path,'w') as fjson:
     json.dump([out],fjson,indent=4)
@@ -76,7 +76,7 @@ for seq_idx,seq in seqs.iterrows():
       }
       tmp["hypotheses"].append((points))
     out["frames"].append((tmp))
-  jsonfile_path = 'out/%s/hypotheses.json'%(seqs.name[seq_idx])
+  jsonfile_path = '%s/%s/hypotheses.json'%(args.output,seqs.name[seq_idx])
   print("...writing to %s"%(jsonfile_path))
   with open(jsonfile_path,'w') as fjson:
     json.dump([out],fjson,indent=4)

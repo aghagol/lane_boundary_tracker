@@ -1,8 +1,24 @@
 #!/usr/bin/env bash
 
-scripts/preprocess
-scripts/sort
-scripts/evaluate
+echo "Enter path to results: "
+read -e tmp_path
+mkdir $tmp_path
 
+echo "Enter path to data: "
+read -e data_path
 
+if [[ -n "$data_path" ]] ; then
+  scripts/preprocess --input $data_path --output $tmp_path/preprocess
+  scripts/sort --input $tmp_path/preprocess/mot --output $tmp_path/sort
+  scripts/evaluate --input $tmp_path/preprocess/mot --tracks $tmp_path/sort/tracks --output $tmp_path/evaluate
+fi
+
+echo "Visualize?"
+select ans in "Yes" "No"
+do
+  case $ans in
+    "Yes") scripts/visualize --input $tmp_path/preprocess/mot --tracks $tmp_path/sort/tracks --output $tmp_path/visualize;;
+  esac
+  break
+done
 

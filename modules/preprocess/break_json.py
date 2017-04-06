@@ -10,12 +10,17 @@ print(__doc__)
 import os
 import json
 import numpy as np
+import argparse
 
-data_dir = 'drive_jsons/'
+parser = argparse.ArgumentParser()
+parser.add_argument("--input",help="path to input drive JSONs")
+parser.add_argument("--output",help="output path to save surface JSONs")
+args = parser.parse_args()
+data_dir = args.input+'/'
+json_out_dir = args.output+'/'
+
 json_list = [i for i in os.listdir(data_dir) if i.endswith('json')]
-
 json_key = 'fromPosePointToSamplePoints'
-json_out_dir = 'ss_jsons/'
 
 for json_file in json_list:
 

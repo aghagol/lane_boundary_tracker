@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-cd modules/trackers/sort
+while [[ "$#" > 1 ]]; do case $1 in
+    --input) input_sort="$2";;
+    --output) output_sort="$2";;
+    *) echo "Usage: sort --input [path] --output [path]"; exit 1;;
+  esac; shift; shift
+done
 
-#clean up past runs
-rm -f data
-rm -rf output/
-rm -f log.txt
+if [[ -z "$input_sort" ]] || [[ -z "$output_sort" ]] ; then
+  echo "Usage: sort --input [path] --output [path]"
+  exit 1
+fi
 
-#link to input sequences
-ln -s ../../preprocess/out data
+mkdir $output_sort
 
 echo $(date) "Running SORT tracker"
-./sort.py >> log.txt
-
-cd ../../..
-
-
+./modules/trackers/sort/sort.py --input $input_sort --output $output_sort/tracks >> $output_sort/log.txt

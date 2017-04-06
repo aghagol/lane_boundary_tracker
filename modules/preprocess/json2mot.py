@@ -9,8 +9,16 @@ print(__doc__)
 import os
 from PIL import Image
 import numpy as np
+import argparse
 
 import motutil
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--input",help="path to input JSONs")
+parser.add_argument("--output",help="output path to MOT dataset")
+args = parser.parse_args()
+data_dir = args.input+'/'
+output_dir = args.output+'/'
 
 param = {
   'pixel_size':1., #in meters
@@ -20,9 +28,6 @@ param = {
   'drop_rate':.1,
   'min_dets':2,
 }
-
-data_dir = 'JSONs/'
-output_dir = './out/'
 
 skipped = 0
 processed = 0

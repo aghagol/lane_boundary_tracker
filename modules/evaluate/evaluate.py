@@ -2,22 +2,17 @@
 
 import os, re
 import numpy as np
+import argparse
 
-stat_path = 'stat_out'
+parser = argparse.ArgumentParser()
+parser.add_argument("--input",help="path to stat files")
+args = parser.parse_args()
 
-#populate stats if not already there
-if not os.path.exists(stat_path):
-  os.mkdir(stat_path)
-  for name in os.listdir('data'):
-#    print('Working on %s'%(name))
-    os.system("python pymot/pymot.py -a out/%s/groundtruth.json -b out/%s/hypotheses.json > %s/%s.stat"%(name,name,stat_path,name))
-
-#parse stat files
-stat_list = [i for i in os.listdir(stat_path) if i.endswith('stat')]
+stat_list = [i for i in os.listdir(args.input) if i.endswith('stat')]
 
 stat = {}
 for stat_file in stat_list:
-  with open(stat_path+'/'+stat_file) as f:
+  with open(args.input+'/'+stat_file) as f:
     stat_str = f.read()
   stat[stat_file] = {k.strip():v for k,v in re.findall('(.+[^\d+\.{0,1}\d*])(\d+\.{0,1}\d*)',stat_str)}
 

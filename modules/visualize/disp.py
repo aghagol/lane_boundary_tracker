@@ -16,18 +16,18 @@ import warnings
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("input_seqs", help="a CSV file with 3 columns: \
+parser.add_argument("--input", help="a CSV file with 3 columns: \
   name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
-parser.add_argument("-d","--delay",type=float,default=.01,help="delay in seconds for each frame.")
+parser.add_argument("--delay",type=float,default=.01,help="delay in seconds for each frame.")
 parser.add_argument("--margin",type=int,default=10,help="add this many pixels to plot margins.")
-parser.add_argument("-g","--groundtruth",action='store_true',help="Show ground-truth \
+parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth \
   instead of computer tracks.")
-parser.add_argument("-f","--fixed-axes",action='store_true',help="Use fixed axes for display.")
+parser.add_argument("--fixed-axes",action='store_true',help="Use fixed axes for display.")
 
 args = parser.parse_args()
 fixed_axes = args.fixed_axes
 
-seqs = pd.read_csv(args.input_seqs)
+seqs = pd.read_csv(args.input)
 
 fig, ax = plt.subplots(1,1,figsize=(6,6))
 colors = np.random.rand(711,3) # create random colors for tracks

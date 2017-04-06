@@ -233,7 +233,9 @@ class Sort(object):
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='SORT demo')
-    parser.add_argument('--display', dest='display', help='Display online tracker output (slow) [False]',action='store_true')
+    parser.add_argument("--display",help='Display online tracker output',action='store_true')
+    parser.add_argument("--input",help="path to MOT dataset")
+    parser.add_argument("--output",help="output path to save tracking results")
     args = parser.parse_args()
     return args
 
@@ -248,16 +250,16 @@ if __name__ == '__main__':
     plt.ion()
     fig = plt.figure() 
   
-  if not os.path.exists('output'):
-    os.makedirs('output')
+  if not os.path.exists(args.output):
+    os.makedirs(args.output)
   
-  sequences = os.listdir('data')
+  sequences = os.listdir(args.input)
   for seq in sequences:
     mot_tracker = Sort() #create instance of the SORT tracker
 
-    seq_dets = np.loadtxt('data/%s/det/det.txt'%(seq),delimiter=',') #load detections
+    seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 
-    out_file = open('output/%s.txt'%(seq),'w')
+    out_file = open('%s/%s.txt'%(args.output,seq),'w')
 
     print("Processing %s"%(seq))
     for frame in range(int(seq_dets[:,0].max())):
@@ -268,7 +270,7 @@ if __name__ == '__main__':
 
       if(display):
         ax1 = fig.add_subplot(111, aspect='equal')
-        fn = 'data/%s/img1/%06d.jpg'%(seq,frame)
+        fn = '%s/%s/img1/%06d.jpg'%(args.input,seq,frame)
         im =io.imread(fn)
         ax1.imshow(im)
         plt.title(seq+' Tracked Targets')

@@ -16,11 +16,16 @@ print(__doc__)
 
 import pandas as pd
 import os
+import argparse
 
-output_filename = 'seqs.csv'
+parser = argparse.ArgumentParser()
+parser.add_argument("--input",help="path to MOT dataset")
+parser.add_argument("--tracks",help="path to predicted tracks")
+parser.add_argument("--output",help="output path to save seq.csv")
+args = parser.parse_args()
 
-sequences = [i for i in os.listdir('data') if os.path.isdir('data/'+i)]
-seq_set_trks = set([i[:-4] for i in os.listdir('tracks') if i.endswith('txt')])
+sequences = [i for i in os.listdir(args.input)]
+seq_set_trks = set([i[:-4] for i in os.listdir(args.tracks) if i.endswith('txt')])
 seq_set_dets = set(sequences)
 for seq in sequences:
     if not seq in seq_set_trks:
@@ -29,13 +34,13 @@ sequences = sorted(list(seq_set_dets))
 
 seqs = {}
 seqs['name'] = sequences
-seqs['dpath'] = ['data/%s/det/det.txt'%(seq) for seq in sequences]
-seqs['mpath'] = ['data/%s/det/timestamps.txt'%(seq) for seq in sequences]
-seqs['gpath'] = ['data/%s/gt/gt.txt'%(seq) for seq in sequences]
-seqs['tpath'] = ['tracks/%s.txt'%(seq) for seq in sequences]
+seqs['dpath'] = ['%s/%s/det/det.txt'%(args.input,seq) for seq in sequences]
+seqs['mpath'] = ['%s/%s/det/timestamps.txt'%(args.input,seq) for seq in sequences]
+seqs['gpath'] = ['%s/%s/gt/gt.txt'%(args.input,seq) for seq in sequences]
+seqs['tpath'] = ['%s/%s.txt'%(args.tracks,seq) for seq in sequences]
 
 seqs_df = pd.DataFrame(seqs)
 seqs_df = seqs_df[['name','dpath','tpath','mpath','gpath']] # sort
 
-seqs_df.to_csv(output_filename,index=False,header=True)
+seqs_df.to_csv(args.output,index=False,header=True)
 
