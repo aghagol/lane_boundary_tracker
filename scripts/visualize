@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd modules/visualizeMOT
+cd modules/visualize
 
 #clean up past runs
 rm -f data
@@ -10,7 +10,7 @@ rm -f seqs.csv
 
 #link to data
 ln -s ../preprocess/out data
-ln -s ../sort/output tracks
+ln -s ../trackers/sort/output tracks
 
 echo $(date) "Making a list of sequences"
 ./make_seq_list.py >> log.txt

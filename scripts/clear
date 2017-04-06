@@ -8,7 +8,7 @@ rm -rf out/
 rm -f log.txt
 cd ../..
 
-cd modules/evaluateMOT
+cd modules/evaluate
 rm -f data
 rm -f tracks
 rm -rf stat_out/
@@ -17,13 +17,13 @@ rm -f log.txt
 rm -f seqs.csv
 cd ../..
 
-cd modules/sort
+cd modules/trackers/sort
 rm -f data
 rm -rf output/
 rm -f log.txt
-cd ../..
+cd ../../..
 
-cd modules/visualizeMOT
+cd modules/visualize
 rm -f data
 rm -f tracks
 rm -f log.txt
