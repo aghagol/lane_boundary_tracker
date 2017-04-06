@@ -50,12 +50,6 @@ for seq_idx,seq in seqs.iterrows():
   else:
     trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
 
-  # center
-  dets[:,2] += dets[:,4]/2.
-  dets[:,3] += dets[:,5]/2.
-  trks[:,2] += trks[:,4]/2.
-  trks[:,3] += trks[:,5]/2.
-
   n_frames = int(dets[:,0].max())
   frame = 1
   while frame < n_frames:
