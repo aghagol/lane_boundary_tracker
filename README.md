@@ -1,14 +1,14 @@
-# batch_scripts
+# lane_boundary_tracker
 
-Batch scripts for preprocessing, processing (tracking), visualization and evaluation
+Batch scripts for preprocessing, processing (tracking), visualization and evaluation for lane boundary tracking algorithm.
 
-To run the complete "pipeline", run 
+To run the complete process, run 
 
 ```sh
 ./scripts/runall
 ```
 
-The `runall` scripts runs the following scripts except for visualization script `./scripts/visualize`:
+The `runall` scripts runs the following scripts except for visualization, which can be run separately through `./scripts/visualize`:
 
 ## Preprocessing:
 
@@ -21,7 +21,7 @@ This script:
  - Extracts detection points and tracking ground-truth CSV files from JSON files
  - Optional: applies detection noise and drop
 
-## Tracking:
+## (Lane boundary) Tracking:
 
 ```sh
 ./scripts/sort
