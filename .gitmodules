@@ -1,9 +1,6 @@
 [submodule "visualizeMOT"]
 	path = modules/visualizeMOT
 	url = https://github.com/aghagol/visualizeMOT.git
-[submodule "rnntracking"]
-	path = modules/rnntracking
-	url = https://github.com/aghagol/rnntracking.git
 [submodule "evaluateMOT"]
 	path = modules/evaluateMOT
 	url = https://github.com/aghagol/evaluateMOT.git
