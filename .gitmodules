@@ -1,6 +1,3 @@
-[submodule "preprocess"]
-	path = modules/preprocess
-	url = https://github.com/aghagol/preprocess.git
 [submodule "sort"]
 	path = modules/sort
 	url = https://github.com/aghagol/sort.git
