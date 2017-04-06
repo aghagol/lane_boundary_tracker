@@ -1,6 +1,3 @@
-[submodule "sort"]
-	path = modules/sort
-	url = https://github.com/aghagol/sort.git
 [submodule "visualizeMOT"]
 	path = modules/visualizeMOT
 	url = https://github.com/aghagol/visualizeMOT.git
