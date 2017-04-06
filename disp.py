@@ -57,6 +57,7 @@ for seq_idx,seq in seqs.iterrows():
     try:
       dets_cur = dets[dets[:,0]==frame,2:4]
       if not dets_cur.any():
+        frame +=1
         continue
 
       ax.cla()
@@ -85,6 +86,8 @@ for seq_idx,seq in seqs.iterrows():
       ax.set_title('frame %d/%d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
       plt.pause(args.delay)
 
+      frame +=1
+
     except KeyboardInterrupt:
       print('')
       print('=================================================')
@@ -101,6 +104,4 @@ for seq_idx,seq in seqs.iterrows():
         if inp=='f': fixed_axes = not fixed_axes
         if inp=='q': exit('')
         if inp=='s': break
-
-    frame +=1
 
