@@ -16,8 +16,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input", help="a CSV file with 3 columns: \
-  name (sequence name), dpath (path to detections CSV) and tpath (path to tracking results CSV).")
+parser.add_argument("--input", help="a CSV file with 5 columns: \
+  name (sequence name), dpath (path to detections CSV), tpath (path to tracking results CSV), \
+  mpath (path to frame timestamps CSV) and gpath (path to groundtruth CSV).")
 parser.add_argument("--delay",type=float,default=.01,help="delay in seconds for each frame.")
 parser.add_argument("--margin",type=int,default=10,help="add this many pixels to plot margins.")
 parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth \
