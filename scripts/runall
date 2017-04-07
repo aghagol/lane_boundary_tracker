@@ -8,11 +8,7 @@ while [[ "$#" > 1 ]]; do case $1 in
 done
 
 if [[ -z "$output_runall" ]] ; then
-  echo "Enter path to output results: "
-  read -e output_runall
-  if [[ -z "$output_runall" ]] ; then
-    exit 1
-  fi
+  echo "Usage: runall --input [path] --output [path]"; exit 1
 fi
 
 mkdir $output_runall
