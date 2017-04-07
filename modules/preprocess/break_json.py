@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """
 This script breaks a large drive-based JSON into small surface-based JSONs
-Place drive-based JSONs in `drive_jsons` directory
-Code outputs surface-based JSONs into `ss_jsons` directory
-(code automatically creates subdirectories for each drive)
 """
 print(__doc__)
 
