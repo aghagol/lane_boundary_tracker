@@ -84,7 +84,7 @@ for seq_idx,seq in seqs.iterrows():
         trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
         ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
 
-      ax.set_title('frame %d/%d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
+      ax.set_title('frame %05d/%05d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
       plt.pause(args.delay)
 
       frame +=1
