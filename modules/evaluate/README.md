@@ -1,12 +1,14 @@
 # evaluateMOT
-My evaluation code for MOT
+Evaluation code for MOT
 
 ## Input:
- - Tracking output: a set of polylines
- - Groundtruth: a set of polylines
 
-## Output: 
+Each comparison is made between:
+ - the tracking result: a set of polylines in a CSV file (MOT format) and
+ - the groundtruth: a set of polylines in a CSV file (MOT format)
 
-Precision/Accuracy of tracking predictions
+## Output:
+
+Precision/Accuracy of tracking
 
 
