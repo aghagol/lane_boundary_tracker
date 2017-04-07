@@ -2,11 +2,12 @@
 """ 
 Creating a list of sequences as input to disp.py
 
-output CSV has 3 columns:
+output CSV has 5 columns:
   name..............this is the sequence name
   dpath.............this is the detection file path
   mpath.............this is the frame timestamps file path (if any)
   tpath.............this is the track file path
+  gpath.............this is the groundtruth file path
 
 Make a symbolic link `data` to MOT dataset
 Make a symbolic link `tracks` to output of tracker
