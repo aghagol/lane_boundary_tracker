@@ -31,7 +31,7 @@ import argparse
 from filterpy.kalman import KalmanFilter
 
 @jit
-def iou(bb_test,bb_gt):
+def iou(bb_test,bb_gt): #intersection over union
   """
   Computes IUO between two bboxes in the form [x1,y1,x2,y2]
   """
@@ -132,7 +132,7 @@ class KalmanBoxTracker(object):
     """
     return convert_x_to_bbox(self.kf.x)
 
-def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.3):
+def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.01):
   """
   Assigns detections to tracked object (both represented as bounding boxes)
 
@@ -220,7 +220,8 @@ class Sort(object):
     i = len(self.trackers)
     for trk in reversed(self.trackers):
         d = trk.get_state()[0]
-        if((trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
+        # if((trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
+        if True: #always write trackers to output
           ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
@@ -255,7 +256,7 @@ if __name__ == '__main__':
   
   sequences = os.listdir(args.input)
   for seq in sequences:
-    mot_tracker = Sort() #create instance of the SORT tracker
+    mot_tracker = Sort(max_age=5,min_hits=3) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 

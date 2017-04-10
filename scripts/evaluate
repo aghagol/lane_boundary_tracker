@@ -28,5 +28,5 @@ do
   ./modules/evaluate/pymot/pymot.py -a $output_evaluate/jsons/$i/groundtruth.json -b $output_evaluate/jsons/$i/hypotheses.json > $output_evaluate/stat/$i.stat
 done
 
-echo $(date) "Running evaluation (groundtruth.json vs hypotheses.json)"
+echo $(date) "Summarizing the stats"
 ./modules/evaluate/evaluate.py --input $output_evaluate/stat/

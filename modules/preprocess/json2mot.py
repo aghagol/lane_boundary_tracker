@@ -21,13 +21,16 @@ data_dir = args.input+'/'
 output_dir = args.output+'/'
 
 param = {
+  'step_size':3, #pose subsampling
   'pixel_size':1., #in meters
   'object_size':10., #in meters
   'image_nrows':100, #minimum size
   'image_ncols':100, #minimum size
-  'drop_rate':.1,
-  'min_dets':2,
+  'drop_rate':.2, #drop detections
+  'min_dets':10, #minimum #dets on a sequence to be included
 }
+
+print(param)
 
 skipped = 0
 processed = 0

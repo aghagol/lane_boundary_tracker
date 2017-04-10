@@ -20,6 +20,7 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
   with open(input_file_path) as data_file:
     data = json.load(data_file)['fromPosePointToSamplePoints']
   timestamps = sorted([int(k) for k in data])
+  timestamps = [t for i,t in enumerate(timestamps) if not i%parameters['step_size']]
 
   det_lon = np.array([float(p['longitude']) for t in timestamps for p in data['%d'%t]['samplepoints']])
   det_lat = np.array([float(p['latitude']) for t in timestamps for p in data['%d'%t]['samplepoints']])
@@ -36,13 +37,20 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
 
   w = haversine(lon_min,lat_min,lon_max,lat_min)
   h = haversine(lon_min,lat_min,lon_min,lat_max)
-  image_nrows = h *zoom
-  image_ncols = w *zoom
+  image_nrows = max(h*zoom,1)
+  image_ncols = max(w*zoom,1)
   parameters['image_nrows'] = max(int(image_nrows),parameters['image_nrows'])
   parameters['image_ncols'] = max(int(image_ncols),parameters['image_ncols'])
 
-  det_row = (det_lat-lat_min) / (lat_max-lat_min) *image_nrows
-  det_col = (det_lon-lon_min) / (lon_max-lon_min) *image_ncols
+  if lat_max==lat_min:
+    det_row = np.ones_like(det_lat)
+  else:
+    det_row = (det_lat-lat_min)/(lat_max-lat_min)*image_nrows
+
+  if lon_max==lon_min:
+    det_col = np.ones_like(det_lon)
+  else:
+    det_col = (det_lon-lon_min)/(lon_max-lon_min)*image_ncols
 
   # write to output
   out = np.zeros((len(det_timestamps),10),dtype=object)

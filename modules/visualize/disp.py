@@ -20,7 +20,7 @@ parser.add_argument("--input", help="a CSV file with 5 columns: \
   name (sequence name), dpath (path to detections CSV), tpath (path to tracking results CSV), \
   mpath (path to frame timestamps CSV) and gpath (path to groundtruth CSV).")
 parser.add_argument("--delay",type=float,default=.01,help="delay in seconds for each frame.")
-parser.add_argument("--margin",type=int,default=10,help="add this many pixels to plot margins.")
+parser.add_argument("--margin",type=int,default=0,help="add this many pixels to plot margins.")
 parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth \
   instead of computer tracks.")
 parser.add_argument("--fixed-axes",action='store_true',help="Use fixed axes for display.")
@@ -33,7 +33,7 @@ seqs = pd.read_csv(args.input)
 fig, ax = plt.subplots(1,1,figsize=(6,6))
 colors = np.random.rand(711,3) # create random colors for tracks
 
-w = 100. #display windows size
+w = 50. #display windows size
 for seq_idx,seq in seqs.iterrows():
 
   print('Working on sequence %s'%seqs.name[seq_idx])
