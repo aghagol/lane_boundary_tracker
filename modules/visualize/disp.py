@@ -76,7 +76,7 @@ for seq_idx,seq in seqs.iterrows():
 
       # plot the detections as filled dots
       for fr in range(max(frame-1,0),frame): #tail
-        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color='0.75')
+        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color='0.5')
       ax.plot(dets_cur[:,0],dets_cur[:,1],'o',color='k')
 
       # get active tracks and plot them
