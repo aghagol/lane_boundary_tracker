@@ -15,6 +15,8 @@ fi
 
 mkdir $output_visualize
 
+echo $(date) >> $output_visualize/log.txt
+
 echo $(date) "Making a list of sequences"
 ./modules/visualize/make_seq_list.py --input $input_visualize --tracks $tracks_visualize --output $output_visualize/seqs.csv >> $output_visualize/log.txt
 

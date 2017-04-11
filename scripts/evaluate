@@ -15,6 +15,8 @@ fi
 
 mkdir $output_evaluate
 
+echo $(date) >> $output_evaluate/log.txt
+
 echo $(date) "Making a list of sequences"
 ./modules/evaluate/make_seq_list.py --input $input_evaluate --tracks $tracks_evaluate --output $output_evaluate/seqs.csv >> $output_evaluate/log.txt
 

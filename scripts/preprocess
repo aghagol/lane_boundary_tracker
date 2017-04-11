@@ -14,6 +14,8 @@ fi
 
 mkdir $output_preprocess
 
+echo $(date) >> $output_preprocess/log.txt
+
 #input_preprocess is either a folder of drive JSONs (to be broken into surface JSONs) 
 #or a folder of folders each containing a drive or surface JSON
 count=`ls -1 $input_preprocess/*.json 2>/dev/null | wc -l`
