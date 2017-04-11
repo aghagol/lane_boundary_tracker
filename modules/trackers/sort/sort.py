@@ -78,7 +78,7 @@ class KalmanBoxTracker(object):
   This class represents the internel state of individual tracked objects observed as bbox.
   """
   count = 0
-  def __init__(self,bbox):
+  def __init__(self,bbox,initial_motion_state=(0,0,0)):
     """
     Initialises a tracker using initial bounding box.
     """
@@ -87,13 +87,15 @@ class KalmanBoxTracker(object):
     self.kf.F = np.array([[1,0,0,0,1,0,0],[0,1,0,0,0,1,0],[0,0,1,0,0,0,1],[0,0,0,1,0,0,0],  [0,0,0,0,1,0,0],[0,0,0,0,0,1,0],[0,0,0,0,0,0,1]])
     self.kf.H = np.array([[1,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0]])
 
-    self.kf.R[2:,2:] *= 10.
+    self.kf.R[2:,2:] *= 1. #default is 10
     self.kf.P[4:,4:] *= 1000. #give high uncertainty to the unobservable initial velocities
-    self.kf.P *= 10.
+    self.kf.P *= 10. #default is 10
     self.kf.Q[-1,-1] *= 0.01
     self.kf.Q[4:,4:] *= 0.01
+    # self.kf.Q[:] = 0.01 #for testing
 
     self.kf.x[:4] = convert_bbox_to_z(bbox)
+    # self.kf.x[4:] = np.array(initial_motion_state).reshape(3,1)
     self.time_since_update = 0
     self.id = KalmanBoxTracker.count
     KalmanBoxTracker.count += 1
@@ -132,7 +134,7 @@ class KalmanBoxTracker(object):
     """
     return convert_x_to_bbox(self.kf.x)
 
-def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.1): #iou_threshold=0.3 default
+def associate_detections_to_trackers(detections,trackers,iou_threshold=0.3):
   """
   Assigns detections to tracked object (both represented as bounding boxes)
 
@@ -205,7 +207,7 @@ class Sort(object):
     trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
     for t in reversed(to_del):
       self.trackers.pop(t)
-    matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks)
+    matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,iou_threshold=0.3)
 
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
@@ -214,14 +216,23 @@ class Sort(object):
         trk.update(dets[d,:][0])
 
     #create and initialise new trackers for unmatched detections
+
+    # compute average motion for new track initialization (mohammad's add-on)
+    avg_motion = np.zeros((3,1))
+    # if len(self.trackers)>0 and self.frame_count>1:
+    #   for trk in self.trackers:
+    #     avg_motion += trk.kf.x[4:]
+    #   avg_motion /= len(self.trackers)
+
     for i in unmatched_dets:
-        trk = KalmanBoxTracker(dets[i,:]) 
+        # trk = KalmanBoxTracker(dets[i,:])
+        trk = KalmanBoxTracker(dets[i,:],avg_motion) 
         self.trackers.append(trk)
     i = len(self.trackers)
     for trk in reversed(self.trackers):
         d = trk.get_state()[0]
         # if((trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-        if True: #always write trackers to output
+        if True:
           ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
@@ -256,7 +267,7 @@ if __name__ == '__main__':
   
   sequences = os.listdir(args.input)
   for seq in sequences:
-    mot_tracker = Sort(max_age=3,min_hits=3) #create instance of the SORT tracker
+    mot_tracker = Sort(max_age=5,min_hits=2) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 

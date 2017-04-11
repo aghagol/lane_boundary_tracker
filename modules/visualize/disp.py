@@ -29,6 +29,7 @@ parser.add_argument("--window-size",type=float,default=100.,help="Display window
 args = parser.parse_args()
 fixed_axes = args.fixed_axes
 w = args.window_size
+delay = args.delay
 
 seqs = pd.read_csv(args.input)
 
@@ -86,15 +87,16 @@ for seq_idx,seq in seqs.iterrows():
         ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
 
       ax.set_title('frame %05d/%05d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
-      plt.pause(args.delay)
+      plt.pause(delay)
 
       frame +=1
 
     except KeyboardInterrupt:
       print('')
       print('=================================================')
-      print('...Enter j[number] to jump to frame')
-      print('...Enter w[number] to adjust window width')
+      print('...Enter j[int] to jump to frame')
+      print('...Enter w[float] to adjust window width')
+      print('...Enter d[float] to adjust delay')
       print('...Enter f to toggle display axes fit')
       print('...Enter q to quit')
       print('...Enter s to skip sequence and continue with next')
@@ -103,6 +105,7 @@ for seq_idx,seq in seqs.iterrows():
       if len(inp.strip()):
         if inp[0]=='j': frame = int(inp[1:])-1
         if inp[0]=='w': w = float(inp[1:])
+        if inp[0]=='d': delay = float(inp[1:])
         if inp=='f': fixed_axes = not fixed_axes
         if inp=='q': exit('')
         if inp=='s': break
