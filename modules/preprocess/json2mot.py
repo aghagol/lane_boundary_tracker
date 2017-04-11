@@ -26,7 +26,7 @@ param = {
   'object_size':10., #in meters
   'image_nrows':100, #minimum size
   'image_ncols':100, #minimum size
-  'drop_rate':0, #drop detections
+  'drop_rate':.3, #drop detections
   'min_dets':10, #minimum #dets on a sequence to be included
   'n_perfect_dets':3, #at the start of seq, this many perfect dets
 }

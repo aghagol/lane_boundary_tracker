@@ -78,7 +78,7 @@ class KalmanBoxTracker(object):
   This class represents the internel state of individual tracked objects observed as bbox.
   """
   count = 0
-  def __init__(self,bbox,initial_motion_state=(0,0,0)):
+  def __init__(self,bbox,initial_velocity=np.array((3,1))):
     """
     Initialises a tracker using initial bounding box.
     """
@@ -95,7 +95,7 @@ class KalmanBoxTracker(object):
     # self.kf.Q[:] = 0.01 #for testing
 
     self.kf.x[:4] = convert_bbox_to_z(bbox)
-    # self.kf.x[4:] = np.array(initial_motion_state).reshape(3,1)
+    self.kf.x[4:] = initial_velocity
     self.time_since_update = 0
     self.id = KalmanBoxTracker.count
     KalmanBoxTracker.count += 1
@@ -217,16 +217,15 @@ class Sort(object):
 
     #create and initialise new trackers for unmatched detections
 
-    # compute average motion for new track initialization (mohammad's add-on)
-    avg_motion = np.zeros((3,1))
-    # if len(self.trackers)>0 and self.frame_count>1:
-    #   for trk in self.trackers:
-    #     avg_motion += trk.kf.x[4:]
-    #   avg_motion /= len(self.trackers)
+    #compute average motion for track initialization (mohammad's add-on)
+    tracker_states = [np.array(trk.kf.x) for trk in self.trackers]
+    if len(tracker_states):
+      avg_velocity = np.array(tracker_states).mean(axis=0)[4:].reshape(3,1)
+    else:
+      avg_velocity = np.zeros((3,1))
 
     for i in unmatched_dets:
-        # trk = KalmanBoxTracker(dets[i,:])
-        trk = KalmanBoxTracker(dets[i,:],avg_motion) 
+        trk = KalmanBoxTracker(dets[i,:],avg_velocity)
         self.trackers.append(trk)
     i = len(self.trackers)
     for trk in reversed(self.trackers):
