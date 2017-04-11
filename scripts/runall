@@ -15,7 +15,7 @@ if [[ $input_runall ]] ; then
   if mkdir $output_runall ; then
     scripts/preprocess --input $input_runall --output $output_runall/preprocess
     scripts/sort --input $output_runall/preprocess/mot --output $output_runall/sort
-    scripts/evaluate --input $output_runall/preprocess/mot --tracks $output_runall/sort/tracks --output $output_runall/evaluate
+    # scripts/evaluate --input $output_runall/preprocess/mot --tracks $output_runall/sort/tracks --output $output_runall/evaluate
   else
     echo "Output dir exists.. please enter a new path for output!"
   fi

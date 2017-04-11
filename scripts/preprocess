@@ -14,8 +14,15 @@ fi
 
 mkdir $output_preprocess
 
-echo $(date) "Breaking up big (drive) JSONs into small (surface) JSONs"
-./modules/preprocess/break_json.py --input $input_preprocess --output $output_preprocess/surface_jsons >> $output_preprocess/log.txt
-
-echo $(date) "Saving JSONs in MOT format"
-./modules/preprocess/json2mot.py --input $output_preprocess/surface_jsons --output $output_preprocess/mot >> $output_preprocess/log.txt
+#input_preprocess is either a folder of drive JSONs (to be broken into surface JSONs) 
+#or a folder of folders each containing a drive or surface JSON
+count=`ls -1 $input_preprocess/*.json 2>/dev/null | wc -l`
+if [[ $count != 0 ]] ; then
+  echo $(date) "Breaking up big (drive) JSONs into small (surface) JSONs"
+  ./modules/preprocess/break_json.py --input $input_preprocess --output $output_preprocess/surface_jsons >> $output_preprocess/log.txt
+  echo $(date) "Saving JSONs in MOT format"
+  ./modules/preprocess/json2mot.py --input $output_preprocess/surface_jsons --output $output_preprocess/mot >> $output_preprocess/log.txt
+else
+  echo $(date) "Saving JSONs in MOT format"
+  ./modules/preprocess/json2mot.py --input $input_preprocess --output $output_preprocess/mot >> $output_preprocess/log.txt
+fi

@@ -45,28 +45,27 @@ for drive in os.listdir(data_dir):
     os.makedirs(det_out)
     state = motutil.json_to_mot_det(data_dir+drive+'/'+surface, det_out+'det.txt', param)
     if state==1:
-      print('\tDrive %s_%s: too large! Skipping...'%(drive,surface))
-      skipped +=1
-      os.rmdir(det_out)
-      os.rmdir(output_dir+'%s_%s/'%(drive,surface_name))
-    elif state==2:
-      print('\tDrive %s_%s: too few detections! Skipping...'%(drive,surface))
-      skipped +=1
-      os.rmdir(det_out)
-      os.rmdir(output_dir+'%s_%s/'%(drive,surface_name))
-    else:
+      print('\tDrive %s_%s: too large! Skipping image generation.'%(drive,surface))
       #save timestamps
       motutil.store_json_timestamps(data_dir+drive+'/'+surface, det_out+'timestamps.txt')
-      #save images
-      img_out = output_dir+'%s_%s/img1/'%(drive,surface_name)
-      os.makedirs(img_out)
-      Image.fromarray(np.zeros((param['image_nrows'],param['image_ncols']))).convert('RGB').save(img_out+'000001.jpg')
       #save groundtruth
       gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)
       os.makedirs(gt_out)
       motutil.json_to_mot_gt(data_dir+drive+'/'+surface, gt_out+'gt.txt', param)
-      processed +=1
-
-print('Stats:\n\tSkipped=%d, Processed=%d'%(skipped,processed))
-
+    elif state==2:
+      print('\tDrive %s_%s: too few detections! Skipping the sequence.'%(drive,surface))
+      skipped +=1
+      os.rmdir(det_out)
+      os.rmdir(output_dir+'%s_%s/'%(drive,surface_name))
+    elif state==0:
+      #save timestamps
+      motutil.store_json_timestamps(data_dir+drive+'/'+surface, det_out+'timestamps.txt')
+      #save groundtruth
+      gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)
+      os.makedirs(gt_out)
+      motutil.json_to_mot_gt(data_dir+drive+'/'+surface, gt_out+'gt.txt', param)
+      #save images
+      img_out = output_dir+'%s_%s/img1/'%(drive,surface_name)
+      os.makedirs(img_out)
+      Image.fromarray(np.zeros((param['image_nrows'],param['image_ncols']))).convert('RGB').save(img_out+'000001.jpg')
 

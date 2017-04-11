@@ -24,16 +24,17 @@ parser.add_argument("--margin",type=int,default=0,help="add this many pixels to 
 parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth \
   instead of computer tracks.")
 parser.add_argument("--fixed-axes",action='store_true',help="Use fixed axes for display.")
+parser.add_argument("--window-size",type=float,default=100.,help="Display window size.")
 
 args = parser.parse_args()
 fixed_axes = args.fixed_axes
+w = args.window_size
 
 seqs = pd.read_csv(args.input)
 
 fig, ax = plt.subplots(1,1,figsize=(6,6))
 colors = np.random.rand(711,3) # create random colors for tracks
 
-w = 50. #display windows size
 for seq_idx,seq in seqs.iterrows():
 
   print('Working on sequence %s'%seqs.name[seq_idx])
@@ -74,8 +75,8 @@ for seq_idx,seq in seqs.iterrows():
 
       # plot the detections as filled dots
       for fr in range(max(frame-1,0),frame): #tail
-        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'r.')
-      ax.plot(dets_cur[:,0],dets_cur[:,1],'k.')
+        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color='0.75')
+      ax.plot(dets_cur[:,0],dets_cur[:,1],'o',color='k')
 
       # get active tracks and plot them
       trks_active = trks[trks[:,0]==frame,:]

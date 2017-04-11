@@ -37,13 +37,6 @@ def json_to_mot_det(input_file_path, output_file_path, parameters):
   parameters['image_nrows'] = max(int(image_nrows),parameters['image_nrows'])
   parameters['image_ncols'] = max(int(image_ncols),parameters['image_ncols'])
   
-  if max(image_nrows,image_ncols)>10000:
-    print('\tWidth= %f (meters)'%(w))
-    print('\tHeight= %f (meters)'%(h))
-    print('\tZoom= %f'%(zoom))
-    print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
-    return 1
-  
   if lat_max==lat_min:
     det_row = np.ones_like(det_lat)
   else:
@@ -70,9 +63,19 @@ def json_to_mot_det(input_file_path, output_file_path, parameters):
   #drop detections at drop_rate rate
   if parameters['drop_rate']<1:
     out = out[np.random.rand(out.shape[0])>parameters['drop_rate'],:]
+
+  #make sure there are enough detections in this sequence
   if out.shape[0]<parameters['min_dets']:
     return 2
 
   out = pd.DataFrame(out)
   out.to_csv(output_file_path, header=None, index=False)
-  return 0
+
+  if max(image_nrows,image_ncols)>10000:
+    print('\tWidth= %f (meters)'%(w))
+    print('\tHeight= %f (meters)'%(h))
+    print('\tZoom= %f'%(zoom))
+    print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
+    return 1
+  else:
+    return 0

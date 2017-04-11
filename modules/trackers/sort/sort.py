@@ -132,7 +132,7 @@ class KalmanBoxTracker(object):
     """
     return convert_x_to_bbox(self.kf.x)
 
-def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.01):
+def associate_detections_to_trackers(detections,trackers,iou_threshold = 0.1): #iou_threshold=0.3 default
   """
   Assigns detections to tracked object (both represented as bounding boxes)
 
@@ -256,7 +256,7 @@ if __name__ == '__main__':
   
   sequences = os.listdir(args.input)
   for seq in sequences:
-    mot_tracker = Sort(max_age=5,min_hits=3) #create instance of the SORT tracker
+    mot_tracker = Sort(max_age=3,min_hits=3) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 
