@@ -75,8 +75,8 @@ for seq_idx,seq in seqs.iterrows():
         ax.set_ylim([ylim_low-args.margin,ylim_low+w+args.margin])
 
       # plot the detections as filled dots
-      det_tail_color={1:'.5',2:'.65',3:'.8'}
-      for fr in range(max(frame-3,0),frame): #tail
+      det_tail_color={1:'.5',2:'.65',3:'.8',4:'.9'}
+      for fr in range(max(frame-4,0),frame): #tail
         ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color=det_tail_color[frame-fr])
       ax.plot(dets_cur[:,0],dets_cur[:,1],'o',color='k')
 

@@ -21,4 +21,4 @@ echo $(date) "Making a list of sequences"
 ./modules/visualize/make_seq_list.py --input $input_visualize --tracks $tracks_visualize --output $output_visualize/seqs.csv >> $output_visualize/log.txt
 
 echo $(date) "Display"
-./modules/visualize/disp.py --input $output_visualize/seqs.csv --delay .05
+./modules/visualize/disp.py --input $output_visualize/seqs.csv --delay .05 --window-size 200
