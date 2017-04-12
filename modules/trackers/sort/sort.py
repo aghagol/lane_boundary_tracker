@@ -207,7 +207,12 @@ class Sort(object):
     trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
     for t in reversed(to_del):
       self.trackers.pop(t)
-    matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,iou_threshold=0.3)
+
+    #drop iou_theshold when there are no existing trackers (mohammad)
+    if len([trk for trk in self.trackers if trk.hits>0]):
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,iou_threshold=0.7)
+    else:
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,iou_threshold=0.3)
 
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
@@ -218,7 +223,7 @@ class Sort(object):
     #create and initialise new trackers for unmatched detections
 
     #compute average motion for track initialization (mohammad's add-on)
-    tracker_states = [np.array(trk.kf.x) for trk in self.trackers]
+    tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
     if len(tracker_states):
       avg_velocity = np.array(tracker_states).mean(axis=0)[4:].reshape(3,1)
     else:
