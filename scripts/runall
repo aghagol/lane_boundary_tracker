@@ -21,15 +21,27 @@ if [[ $input_runall ]] ; then
 fi
 
 echo "Evaluate?"
-select ans in Yes No ; do case $ans in
-    Yes) scripts/evaluate --input $output_runall/preprocess/mot --tracks $output_runall/sort/tracks --output $output_runall/evaluate;;
+select ans in Yes No ; do
+  case $ans in
+    Yes)
+      rm -rf $output_runall/evaluate
+      scripts/evaluate \
+        --input $output_runall/preprocess/mot \
+        --tracks $output_runall/sort/tracks \
+        --output $output_runall/evaluate;;
   esac
   break
 done
 
 echo "Visualize?"
-select ans in Yes No ; do case $ans in
-    Yes) scripts/visualize --input $output_runall/preprocess/mot --tracks $output_runall/sort/tracks --output $output_runall/visualize;;
+select ans in Yes No ; do
+  case $ans in
+    Yes)
+      rm -rf $output_runall/visualize
+      scripts/visualize \
+        --input $output_runall/preprocess/mot \
+        --tracks $output_runall/sort/tracks \
+        --output $output_runall/visualize;;
   esac
   break
 done

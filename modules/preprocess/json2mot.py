@@ -26,9 +26,9 @@ param = {
   'object_size':10., #in meters
   'image_nrows':100, #minimum size
   'image_ncols':100, #minimum size
-  'drop_rate':0, #drop detections
   'min_dets':10, #minimum #dets on a sequence to be included
-  'n_starter_frames':3, #at the start of seq, this many perfect frames
+  'recall':.7, #recall ratio
+  'keep':3, #at the start of seq, keep this many perfect frames
 }
 
 print(param)

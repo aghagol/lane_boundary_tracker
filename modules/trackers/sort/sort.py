@@ -266,8 +266,7 @@ if __name__ == '__main__':
     plt.ion()
     fig = plt.figure() 
   
-  if not os.path.exists(args.output):
-    os.makedirs(args.output)
+  os.makedirs(args.output)
   
   sequences = os.listdir(args.input)
   for seq in sequences:
