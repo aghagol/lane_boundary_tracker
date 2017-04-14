@@ -12,5 +12,5 @@ args = parser.parse_args()
 with open(args.param) as fparam:
   param = json.load(fparam)
 
-print('Config: Sampling interval = %d meters'%(param['step_size']))
-print('Config: Recall rate = %04.2f%%'%(param['recall']*100))
+print('...Sampling interval = %d meters'%(param['step_size']))
+print('...Recall rate = %04.2f%%'%(param['recall']*100))

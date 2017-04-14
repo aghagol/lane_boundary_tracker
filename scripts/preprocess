@@ -23,11 +23,10 @@ if [[ $count != 0 ]] ; then
   echo $(date) "Breaking up big (drive) JSONs into small (surface) JSONs"
   ./modules/preprocess/break_json.py --input $input_preprocess --output $output_preprocess/surface_jsons >> $output_preprocess/log.txt
   echo $(date) "Saving JSONs in MOT format"
-  ./modules/preprocess/print_param.py --param ./modules/preprocess/param.json
   ./modules/preprocess/json2mot.py \
     --input $output_preprocess/surface_jsons \
     --output $output_preprocess/mot \
-    --param ./modules/preprocess/param.json \
+    --param ./mot_config.json \
     >> $output_preprocess/log.txt
 else
   echo $(date) "Saving JSONs in MOT format"
