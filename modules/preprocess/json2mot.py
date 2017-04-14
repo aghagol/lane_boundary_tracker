@@ -10,27 +10,31 @@ import os
 from PIL import Image
 import numpy as np
 import argparse
+import json
 
 import motutil
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input",help="path to input JSONs")
 parser.add_argument("--output",help="output path to MOT dataset")
+parser.add_argument("--param",help="path to parameters JSON file")
 args = parser.parse_args()
 data_dir = args.input+'/'
 output_dir = args.output+'/'
 
-param = {
-  'step_size':3, #pose subsampling
-  'pixel_size':1., #in meters
-  'object_size':10., #in meters
-  'image_nrows':100, #minimum size
-  'image_ncols':100, #minimum size
-  'min_dets':10, #minimum #dets on a sequence to be included
-  'recall':.7, #recall ratio
-  'keep':3, #at the start of seq, keep this many perfect frames
-}
-
+'''
+param:
+  step_size..........................pose subsampling
+  pixel_size.........................in meters
+  object_size........................in meters
+  image_nrows........................minimum size
+  image_ncols........................minimum size
+  min_dets'..........................minimum #dets on a sequence to be included
+  recall.............................recall ratio
+  keep...............................at the start of seq, keep this many perfect frames
+'''
+with open(args.param) as fparam:
+  param = json.load(fparam)
 print(param)
 
 skipped = 0

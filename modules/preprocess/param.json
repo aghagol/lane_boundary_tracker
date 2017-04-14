@@ -1,0 +1,10 @@
+{
+    "step_size": 3, 
+    "image_nrows": 100, 
+    "object_size": 10.0, 
+    "recall": 0.7, 
+    "image_ncols": 100, 
+    "min_dets": 10, 
+    "pixel_size": 1.0, 
+    "keep": 3
+}
