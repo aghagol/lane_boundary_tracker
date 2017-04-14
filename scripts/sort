@@ -17,4 +17,9 @@ mkdir $output_sort
 echo $(date) >> $output_sort/log.txt
 
 echo $(date) "Running SORT tracker"
-./modules/trackers/sort/sort.py --input $input_sort --output $output_sort/tracks >> $output_sort/log.txt
+./modules/trackers/sort/sort.py \
+  --input $input_sort \
+  --output $output_sort/tracks \
+  >> $output_sort/log.txt
+
+

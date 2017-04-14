@@ -6,10 +6,10 @@ import argparse
 import json
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--param",help="path to parameters JSON file")
+parser.add_argument("--config",help="path to config file")
 args = parser.parse_args()
 
-with open(args.param) as fparam:
+with open(args.config) as fparam:
   param = json.load(fparam)
 
 print('...Sampling interval = %d meters'%(param['step_size']))

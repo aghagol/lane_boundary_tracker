@@ -18,16 +18,26 @@ mkdir $output_evaluate
 echo $(date) >> $output_evaluate/log.txt
 
 echo $(date) "Making a list of sequences"
-./modules/evaluate/make_seq_list.py --input $input_evaluate --tracks $tracks_evaluate --output $output_evaluate/seqs.csv >> $output_evaluate/log.txt
+./modules/evaluate/make_seq_list.py \
+	--input $input_evaluate \
+	--tracks $tracks_evaluate \
+	--output $output_evaluate/seqs.csv \
+	>> $output_evaluate/log.txt
 
 echo $(date) "Converting MOT to JSONs"
-./modules/evaluate/mot2json.py --input $output_evaluate/seqs.csv --output $output_evaluate/jsons >> $output_evaluate/log.txt
+./modules/evaluate/mot2json.py \
+	--input $output_evaluate/seqs.csv \
+	--output $output_evaluate/jsons \
+	>> $output_evaluate/log.txt
 
 echo $(date) "PYMOT: computing the stats"
 mkdir $output_evaluate/stat
 for i in $(ls $input_evaluate)
 do
-  ./modules/evaluate/pymot/pymot.py -a $output_evaluate/jsons/$i/groundtruth.json -b $output_evaluate/jsons/$i/hypotheses.json > $output_evaluate/stat/$i.stat
+  ./modules/evaluate/pymot/pymot.py \
+  	-a $output_evaluate/jsons/$i/groundtruth.json \
+  	-b $output_evaluate/jsons/$i/hypotheses.json \
+  	> $output_evaluate/stat/$i.stat
 done
 
 echo $(date) "Summarizing the stats"

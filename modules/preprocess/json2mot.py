@@ -17,7 +17,7 @@ import motutil
 parser = argparse.ArgumentParser()
 parser.add_argument("--input",help="path to input JSONs")
 parser.add_argument("--output",help="output path to MOT dataset")
-parser.add_argument("--param",help="path to parameters JSON file")
+parser.add_argument("--config",help="path to config file")
 args = parser.parse_args()
 data_dir = args.input+'/'
 output_dir = args.output+'/'
@@ -33,7 +33,7 @@ param:
   recall.............................recall ratio
   keep...............................at the start of seq, keep this many perfect frames
 '''
-with open(args.param) as fparam:
+with open(args.config) as fparam:
   param = json.load(fparam)
 print(param)
 
