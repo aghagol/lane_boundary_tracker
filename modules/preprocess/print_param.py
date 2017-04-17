@@ -12,4 +12,4 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.load(fparam)["preprocess"]
 
-print('...Generate fake detections = %s meters'%(param['fake_dets']))
+print('...Generate fake detections = %s'%(param['fake_dets']))

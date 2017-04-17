@@ -1,9 +1,9 @@
 {
 	"preprocess":
 	{
-		"pixel_size": 1.0, 
-		"object_size": 10.0, 		
-		"fake_dets": true
+		"pixel_size": 1.0,
+		"object_size": 10.0,
+		"fake_dets": false
 	},
 	"sort":
 	{

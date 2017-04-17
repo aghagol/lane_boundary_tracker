@@ -38,7 +38,7 @@ for drive in os.listdir(data_dir):
   print('Working on drive %s'%drive)
 
   pose_filename = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('csv')]
-  if not len(pose_filename)==1: exit('Exactly one pose file is allowed!')
+  if not len(pose_filename)==1: exit('\nQuiting... %d pose files in %s\n'%(len(pose_filename),data_dir+drive))
   pose_filename = pose_filename[0]
 
   det_out = output_dir+'%s/det/'%(drive)

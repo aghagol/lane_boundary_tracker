@@ -23,14 +23,14 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
     for filename in os.listdir(input_file_path+prefix+chunk):
       if not filename.endswith('tllai'): continue
       try:
-        dets = np.vstack([dets,np.loadtxt(input_file_path+prefix+chunk+'/'+filename)])
+        dets = np.vstack([dets,np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',')])
       except NameError:
-        dets = np.loadtxt(input_file_path+prefix+chunk+'/'+filename)
+        dets = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',')
   dets = dets[:,[1,2,3,0]] #re-order columns to mimic pose data
 
   #extract vehicle pose information
-  pose = np.load(input_file_path+'/'+pose_filename)
-  timestamp_to_frame_idx = dict(enumerate(pose[:,3],start=1))
+  pose = np.loadtxt(input_file_path+'/'+pose_filename)
+  timestamp_to_frame_idx = {k:v for v,k in enumerate(pose[:,3],start=1)}
 
   #round detections' timestamps to closest ones in the pose file (nearest neighbor)
   for i in range(dets.shape[0]):
@@ -48,7 +48,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   h = haversine(lon_min,lat_min,lon_min,lat_max)
   image_nrows = max(h*zoom,1)
   image_ncols = max(w*zoom,1)
-    
+
   if lat_max==lat_min:
     dets_row = np.ones_like(dets_lat)
   else:
