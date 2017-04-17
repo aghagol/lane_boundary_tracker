@@ -51,7 +51,11 @@ for seq_idx,seq in seqs.iterrows():
     if not os.path.exists(seq.gpath): exit("GT data not there!")
     trks = np.loadtxt(seq.gpath,delimiter=',')
   else:
-    trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
+    if not os.path.exists(seq.tpath):
+      print("No tracks file was found!")
+      trks = np.zeros((1,7))
+    else:
+      trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
 
   n_frames = int(dets[:,0].max())
   frame = 1
