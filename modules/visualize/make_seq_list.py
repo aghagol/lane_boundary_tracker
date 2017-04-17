@@ -25,13 +25,14 @@ parser.add_argument("--tracks",help="path to predicted tracks")
 parser.add_argument("--output",help="output path to save seq.csv")
 args = parser.parse_args()
 
-sequences = [i for i in os.listdir(args.input)]
-seq_set_trks = set([i[:-4] for i in os.listdir(args.tracks) if i.endswith('txt')])
-seq_set_dets = set(sequences)
-for seq in sequences:
-    if not seq in seq_set_trks:
-        seq_set_dets.remove(seq)
-sequences = sorted(list(seq_set_dets))
+sequences = sorted([i for i in os.listdir(args.input)])
+if os.path.exists(args.tracks):
+	seq_set_trks = set([i[:-4] for i in os.listdir(args.tracks) if i.endswith('txt')])
+	seq_set_dets = set(sequences)
+	for seq in sequences:
+	    if not seq in seq_set_trks:
+	        seq_set_dets.remove(seq)
+	sequences = sorted(list(seq_set_dets))
 
 seqs = {}
 seqs['name'] = sequences
