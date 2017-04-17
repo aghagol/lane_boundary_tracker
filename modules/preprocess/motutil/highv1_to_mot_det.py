@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 from haversine import haversine
 
-def json_to_mot_gt(input_file_path, output_file_path, parameters):
+def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, parameters):
   """
   Input: a JSON file (chucai's format)
-  Output: MOT-formatted gt.txt
+  Output: MOT-formatted det.txt
 
   usage:
     JSON_to_MOT_det(input_file_path, output_file_path, parameters)
@@ -16,21 +16,15 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
   """
   zoom = 1 / parameters['pixel_size']
 
-  import json
-  with open(input_file_path) as data_file:
-    data = json.load(data_file)['fromPosePointToSamplePoints']
+  pose = np.load(input_file_path+'/'+pose_filename)
+
   timestamps = sorted([int(k) for k in data])
   timestamps = [t for i,t in enumerate(timestamps) if not i%parameters['step_size']]
 
   det_lon = np.array([float(p['longitude']) for t in timestamps for p in data['%d'%t]['samplepoints']])
-  det_lat = np.array([float(p['latitude']) for t in timestamps for p in data['%d'%t]['samplepoints']])
-  
+  det_lat = np.array([float(p['latitude'])  for t in timestamps for p in data['%d'%t]['samplepoints']])
   det_timestamps = [t for t in timestamps for p in data['%d'%t]['samplepoints']]
   timestamp_to_frame_idx = dict(zip(timestamps,range(len(timestamps))))
-
-  det_id = [p['boundaryCurveID'] for t in timestamps for p in data['%d'%t]['samplepoints']]
-  det_id_set = set(det_id)
-  det_id_map = dict(zip(list(det_id_set),range(1,len(det_id_set)+1)))
 
   lat_min, lat_max = (det_lat.min(), det_lat.max())
   lon_min, lon_max = (det_lon.min(), det_lon.max())
@@ -41,7 +35,7 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
   image_ncols = max(w*zoom,1)
   parameters['image_nrows'] = max(int(image_nrows),parameters['image_nrows'])
   parameters['image_ncols'] = max(int(image_ncols),parameters['image_ncols'])
-
+  
   if lat_max==lat_min:
     det_row = np.ones_like(det_lat)
   else:
@@ -55,7 +49,7 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
   # write to output
   out = np.zeros((len(det_timestamps),10),dtype=object)
   out[:,0] = [timestamp_to_frame_idx[t]+1 for t in det_timestamps]
-  out[:,1] = [det_id_map[lb] for lb in det_id]
+  out[:,1] = -1
   out[:,2] = det_row
   out[:,3] = det_col
   out[:,4] = parameters['object_size'] *zoom
@@ -64,6 +58,23 @@ def json_to_mot_gt(input_file_path, output_file_path, parameters):
   out[:,7] = -1
   out[:,8] = -1
   out[:,9] = -1
+
+  #make sure there are enough detections in this sequence
+  if out.shape[0]<parameters['min_dets']:
+    return 2
+
+  #drop detections at drop_rate rate
+  if parameters['recall']<1:
+    out = out[np.logical_or(out[:,0]<=parameters['keep'],np.random.rand(out.shape[0])<parameters['recall']),:]
+
   out = pd.DataFrame(out)
   out.to_csv(output_file_path, header=None, index=False)
-  return 0
+
+  if max(image_nrows,image_ncols)>10000:
+    print('\tWidth= %f (meters)'%(w))
+    print('\tHeight= %f (meters)'%(h))
+    print('\tZoom= %f'%(zoom))
+    print('\tOutput image is %d x %d (pixels)'%(image_nrows,image_ncols))
+    return 1
+  else:
+    return 0

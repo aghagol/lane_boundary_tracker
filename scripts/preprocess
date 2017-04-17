@@ -34,7 +34,7 @@ if [[ $count != 0 ]] ; then
     >> $output_preprocess/log.txt
 else
   echo $(date) "Saving JSONs in MOT format"
-  ./modules/preprocess/json2mot.py \
+  ./modules/preprocess/highv1mot.py \
     --input $input_preprocess \
     --output $output_preprocess/mot \
     >> $output_preprocess/log.txt
