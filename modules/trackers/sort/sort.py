@@ -177,7 +177,12 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold=0.3):
 
 
 class Sort(object):
-  def __init__(self,max_age=1,min_hits=3,iou_threshold_high=0.3,iou_threshold_low=0.3):
+  def __init__(self,
+      max_age=1,
+      min_hits=3,
+      iou_threshold_high=0.3,
+      iou_threshold_low=0.3,
+    ):
     """
     Sets key parameters for SORT
     """
@@ -283,7 +288,7 @@ if __name__ == '__main__':
       max_age=param['max_age'],
       min_hits=param['min_hits'],
       iou_threshold_high=param['iou_threshold_high'],
-      iou_threshold_low=param['iou_threshold_low']
+      iou_threshold_low=param['iou_threshold_low'],
     ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections

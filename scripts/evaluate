@@ -30,7 +30,7 @@ echo $(date) "Converting MOT to JSONs"
 	--output $output_evaluate/jsons \
 	>> $output_evaluate/log.txt
 
-echo $(date) "PYMOT: computing the stats"
+echo $(date) "PYMOT: computing CLEAR MOT stats"
 mkdir $output_evaluate/stat
 for i in $(ls $input_evaluate)
 do
