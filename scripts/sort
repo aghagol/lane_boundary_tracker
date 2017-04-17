@@ -3,7 +3,8 @@
 while [[ "$#" > 1 ]]; do case $1 in
     --input) input_sort="$2";;
     --output) output_sort="$2";;
-    *) echo "Usage: sort --input [path] --output [path]"; exit 1;;
+		--config) config_sort="$2";;
+    *) echo "Usage: sort --input [path] --output [path] --config [path]"; exit 1;;
   esac; shift; shift
 done
 
@@ -17,9 +18,14 @@ mkdir $output_sort
 echo $(date) >> $output_sort/log.txt
 
 echo $(date) "Running SORT tracker"
+
+echo "SORT config:"
+./modules/trackers/sort/print_param.py --config $config_sort
+
 ./modules/trackers/sort/sort.py \
   --input $input_sort \
   --output $output_sort/tracks \
+  --config $config_sort \
   >> $output_sort/log.txt
 
 

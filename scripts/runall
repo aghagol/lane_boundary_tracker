@@ -12,7 +12,7 @@ if [[ -z "$output_runall" ]] ; then
 fi
 
 MOT_CONFIG="./conf.json"
-echo "Config:"
+echo "Preprecessing config:"
 ./modules/preprocess/print_param.py --config $MOT_CONFIG
 
 if [[ $input_runall ]] ; then
@@ -23,7 +23,8 @@ if [[ $input_runall ]] ; then
       --config $MOT_CONFIG
     ./scripts/sort \
       --input $output_runall/preprocess/mot \
-      --output $output_runall/sort
+      --output $output_runall/sort \
+      --config $MOT_CONFIG
   else
     echo "Output path not empty.. Please enter an empty path for outputs."
   fi

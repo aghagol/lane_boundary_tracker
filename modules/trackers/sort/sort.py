@@ -28,6 +28,7 @@ from sklearn.utils.linear_assignment_ import linear_assignment
 import glob
 import time
 import argparse
+import json
 from filterpy.kalman import KalmanFilter
 
 @jit
@@ -176,7 +177,7 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold=0.3):
 
 
 class Sort(object):
-  def __init__(self,max_age=1,min_hits=3):
+  def __init__(self,max_age=1,min_hits=3,iou_threshold_high=0.3,iou_threshold_low=0.3):
     """
     Sets key parameters for SORT
     """
@@ -184,6 +185,8 @@ class Sort(object):
     self.min_hits = min_hits
     self.trackers = []
     self.frame_count = 0
+    self.iou_threshold_high = iou_threshold_high
+    self.iou_threshold_low = iou_threshold_low
 
   def update(self,dets):
     """
@@ -210,9 +213,9 @@ class Sort(object):
 
     #drop iou_theshold when there are no existing trackers (mohammad)
     if len([trk for trk in self.trackers if trk.hits>0]):
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,iou_threshold=0.7)
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.iou_threshold_high)
     else:
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,iou_threshold=0.3)
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.iou_threshold_low)
 
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
@@ -252,6 +255,7 @@ def parse_args():
     parser.add_argument("--display",help='Display online tracker output',action='store_true')
     parser.add_argument("--input",help="path to MOT dataset")
     parser.add_argument("--output",help="output path to save tracking results")
+    parser.add_argument("--config",help="configuration JSON file")
     args = parser.parse_args()
     return args
 
@@ -261,6 +265,11 @@ if __name__ == '__main__':
   display = args.display
   total_time = 0.0
   total_frames = 0
+
+  with open(args.config) as fparam:
+    param = json.load(fparam)["sort"]
+  print(param)
+
   colours = np.random.rand(32,3) #used only for display
   if(display):
     plt.ion()
@@ -270,7 +279,12 @@ if __name__ == '__main__':
   
   sequences = os.listdir(args.input)
   for seq in sequences:
-    mot_tracker = Sort(max_age=5,min_hits=2) #create instance of the SORT tracker
+    mot_tracker = Sort(
+      max_age=param['max_age'],
+      min_hits=param['min_hits'],
+      iou_threshold_high=param['iou_threshold_high'],
+      iou_threshold_low=param['iou_threshold_low']
+    ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 

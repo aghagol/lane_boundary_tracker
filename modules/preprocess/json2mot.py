@@ -34,7 +34,7 @@ param:
   keep...............................at the start of seq, keep this many perfect frames
 '''
 with open(args.config) as fparam:
-  param = json.load(fparam)
+  param = json.load(fparam)["preprocess"]
 print(param)
 
 skipped = 0

@@ -10,7 +10,9 @@ parser.add_argument("--config",help="path to config file")
 args = parser.parse_args()
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["preprocess"]
+  param = json.load(fparam)["sort"]
 
-print('...Sampling interval = %d meters'%(param['step_size']))
-print('...Recall rate = %04.2f%%'%(param['recall']*100))
+print('...IOU threshold - high = %f'%(param['iou_threshold_high']))
+print('...IOU threshold - low = %f'%(param['iou_threshold_low']))
+print('...Max age = %d'%(param['max_age']))
+print('...Min hits = %d'%(param['min_hits']))
