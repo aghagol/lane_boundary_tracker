@@ -4,7 +4,7 @@ Batch scripts for preprocessing, processing (tracking), visualization and evalua
 
 To run the complete process, run 
 
-```sh
+```bash
 ./scripts/runall --input [path to input data] --output [path to hold temporary files]
 ```
 
@@ -14,7 +14,7 @@ The `runall` scripts runs the following scripts:
 
 ## Preprocessing:
 
-```sh
+```bash
 ./scripts/preprocess
 ```
 
@@ -25,7 +25,7 @@ This script:
 
 ## (Lane boundary) Tracking:
 
-```sh
+```bash
 ./scripts/sort
 ```
 
@@ -34,7 +34,7 @@ This script:
 
 ## Evaluation:
 
-```sh
+```bash
 ./scripts/evaluate
 ```
 
@@ -44,7 +44,7 @@ This script:
 
 ## Visualization:
 
-```sh
+```bash
 ./scripts/visualize
 ```
 
