@@ -5,8 +5,10 @@ Batch scripts for preprocessing, processing (tracking), visualization and evalua
 To run the complete process, run 
 
 ```sh
-./scripts/runall
+./scripts/runall --input [path to input data] --output [path to hold temporary files]
 ```
+
+The configuration file `conf.json` is located at the repository root.
 
 The `runall` scripts runs the following scripts except for visualization, which can be run separately through `./scripts/visualize`:
 
