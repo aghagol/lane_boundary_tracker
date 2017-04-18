@@ -10,7 +10,7 @@ To run the complete process, run
 
 The configuration file `conf.json` is located at the repository root.
 
-The `runall` scripts runs the following scripts except for visualization, which can be run separately through `./scripts/visualize`:
+The `runall` scripts runs the following scripts:
 
 ## Preprocessing:
 
