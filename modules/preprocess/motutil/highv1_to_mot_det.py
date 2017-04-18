@@ -17,6 +17,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   """
   zoom = 1 / parameters['pixel_size']
 
+  #store all detections in a single numpy array
   prefix = '/FuseToTLLAIOutput/'
   chunk_list = [i for i in os.listdir(input_file_path+prefix) if i.isdigit()]
   for chunk in chunk_list:
@@ -26,17 +27,38 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
         dets = np.vstack([dets,np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',')])
       except NameError:
         dets = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',')
-  dets = dets[:,[1,2,3,0]] #re-order columns to mimic pose data
+  dets = dets[:,[1,2,3,0]] #re-order columns according to pose format
 
   #extract vehicle pose information
   pose = np.loadtxt(input_file_path+'/'+pose_filename)
-  timestamp_to_frame_idx = {k:v for v,k in enumerate(pose[:,3],start=1)}
+  pose = pose[pose[:,3].argsort(),:] #sort points based on timestamps (probably already sorted)
+  timestamp_id = {k:v for v,k in enumerate(pose[:,3])}
 
   #round detections' timestamps to closest ones in the pose file (nearest neighbor)
   for i in range(dets.shape[0]):
     dets[i,3] = pose[np.argmin(abs(pose[:,3]-dets[i,3])),3]
 
-  dets = np.vstack([dets,pose])
+  #sort according to timestamps (probably not required)
+  dets = dets[dets[:,3].argsort(),:]
+
+  #augment detections with fake pose-based points
+  if parameters['fake_dets']:
+    dets_aug = []
+    for i in range(dets.shape[0]):
+      dets_aug.append(dets[i,:]) #add the detection itself
+      det_timestamp = dets[i,3]
+      #find the corresponding pose point and subsequent pose points
+      nn_pose_idx = timestamp_id[det_timestamp]
+      lla_offset = dets[i,:]-pose[nn_pose_idx,:]
+      for j in range(1,parameters['fake_dets_n']):
+        dets_aug.append(pose[nn_pose_idx+(j*parameters['pose_step']),:]+lla_offset)
+    dets = np.vstack(dets_aug)
+    dets = dets[dets[:,3].argsort(),:]  
+
+  #merge detections with pose (if desired) - for testing
+  if parameters['with_pose']:
+    dets = np.vstack([dets,pose[timestamp_id[dets[0,3]]:timestamp_id[dets[-1,3]]:parameters['pose_step']]])
+
   dets_lon = dets[:,0]
   dets_lat = dets[:,1]
   dets_timestamps = dets[:,3]
@@ -61,7 +83,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
 
   # write to output
   out = np.zeros((len(dets_timestamps),10),dtype=object)
-  out[:,0] = [timestamp_to_frame_idx[t]+1 for t in dets_timestamps]
+  out[:,0] = [timestamp_id[t]+1 for t in dets_timestamps]
   out[:,1] = -1
   out[:,2] = dets_row
   out[:,3] = dets_col

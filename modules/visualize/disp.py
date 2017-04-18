@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
+import json
 
 #this is an optional feature
 import warnings
@@ -25,11 +26,20 @@ parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth 
   instead of computer tracks.")
 parser.add_argument("--fixed-axes",action='store_true',help="Use fixed axes for display.")
 parser.add_argument("--window-size",type=float,default=100.,help="Display window size.")
+parser.add_argument("--config",help="configuration JSON file")
 
 args = parser.parse_args()
 fixed_axes = args.fixed_axes
 w = args.window_size
 delay = args.delay
+
+with open(args.config) as fparam:
+  param = json.load(fparam)["visualize"]
+print(param)
+
+#over-ride paramaters from config file
+if 'delay' in param: delay = param['delay']
+if 'window_size' in param: w = param['window_size']
 
 seqs = pd.read_csv(args.input)
 
@@ -50,12 +60,9 @@ for seq_idx,seq in seqs.iterrows():
   if args.groundtruth:
     if not os.path.exists(seq.gpath): exit("GT data not there!")
     trks = np.loadtxt(seq.gpath,delimiter=',')
-  else:
-    if not os.path.exists(seq.tpath):
-      print("No tracks file was found!")
-      trks = np.zeros((1,7))
-    else:
-      trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
+  elif param['show_tracks']:
+    if not os.path.exists(seq.tpath): exit("\nNo tracks file was found!\n")
+    trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
 
   n_frames = int(dets[:,0].max())
   frame = 1
@@ -85,11 +92,12 @@ for seq_idx,seq in seqs.iterrows():
       ax.plot(dets_cur[:,0],dets_cur[:,1],'o',color='k')
 
       # get active tracks and plot them
-      trks_active = trks[trks[:,0]==frame,:]
-      for trk_active in trks_active:
-        trk_idid = int(trk_active[1])
-        trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
-        ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
+      if param['show_tracks']:
+        trks_active = trks[trks[:,0]==frame,:]
+        for trk_active in trks_active:
+          trk_idid = int(trk_active[1])
+          trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
+          ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
 
       ax.set_title('frame %05d/%05d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
       plt.pause(delay)

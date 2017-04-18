@@ -8,8 +8,8 @@ while [[ "$#" > 1 ]]; do case $1 in
   esac; shift; shift
 done
 
-if [[ -z "$input_sort" ]] || [[ -z "$output_sort" ]] ; then
-  echo "Usage: sort --input [path] --output [path]"
+if [[ -z "$input_sort" ]] || [[ -z "$output_sort" ]] || [[ -z "$config_sort" ]] ; then
+  echo "Usage: sort --input [path] --output [path] --config [path]"
   exit 1
 fi
 

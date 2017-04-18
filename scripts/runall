@@ -38,7 +38,8 @@ select ans in Yes No ; do
       ./scripts/visualize \
         --input $output_runall/preprocess/mot \
         --tracks $output_runall/sort/tracks \
-        --output $output_runall/visualize;;
+        --output $output_runall/visualize \
+        --config $MOT_CONFIG;;
   esac
   break
 done

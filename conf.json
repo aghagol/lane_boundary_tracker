@@ -3,13 +3,22 @@
 	{
 		"pixel_size": 1.0,
 		"object_size": 10.0,
-		"fake_dets": false
+		"with_pose": true,
+		"pose_step": 1,
+		"fake_dets": true,
+		"fake_dets_n": 15
 	},
 	"sort":
 	{
 		"iou_threshold_high": 0.7,
 		"iou_threshold_low": 0.3,
-		"max_age":5,
+		"max_age":10,
 		"min_hits":2
+	},
+	"visualize":
+	{
+		"delay": 0.01,
+		"window_size": 200,
+		"show_tracks": true
 	}
 }
