@@ -10,8 +10,6 @@ parser.add_argument("--config",help="path to config file")
 args = parser.parse_args()
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["sort"]
+  param = json.load(fparam)["visualize"]
 
-print('...IoU threshold - high = %f'%(param['iou_threshold_high']))
-print('...IoU threshold - low = %f'%(param['iou_threshold_low']))
-print('...Max age (after last update) = %d'%(param['max_age_since_update']))
+print('...Omitting tracks that span less than %d frames'%(param['min_track_length']))

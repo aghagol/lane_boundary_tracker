@@ -26,6 +26,10 @@ echo $(date) "Making a list of sequences"
   >> $output_visualize/log.txt
 
 echo $(date) "Display"
+
+echo "Visualization config:"
+./modules/visualize/print_param.py --config $config_visualize
+
 ./modules/visualize/disp.py \
   --input $output_visualize/seqs.csv \
   --config $config_visualize

@@ -35,7 +35,6 @@ delay = args.delay
 
 with open(args.config) as fparam:
   param = json.load(fparam)["visualize"]
-print(param)
 
 #over-ride paramaters from config file
 if 'delay' in param: delay = param['delay']
@@ -96,7 +95,9 @@ for seq_idx,seq in seqs.iterrows():
         trks_active = trks[trks[:,0]==frame,:]
         for trk_active in trks_active:
           trk_idid = int(trk_active[1])
-          trk_tail = trks[np.logical_and(trks[:,1]==trk_idid,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
+          trk_active_frames = (trks[:,1]==trk_idid)
+          if trk_active_frames.sum()<param['min_track_length']: continue
+          trk_tail = trks[np.logical_and(trk_active_frames,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
           ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
 
       ax.set_title('frame %05d/%05d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))

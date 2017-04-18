@@ -15,7 +15,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
     pixel_size................pixel size in meters
     object_size...............target size in meters
   """
-  zoom = 1 / parameters['pixel_size']
+  zoom = 1. / parameters['pixel_size']
 
   #store all detections in a single numpy array
   prefix = '/FuseToTLLAIOutput/'
@@ -34,24 +34,33 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   pose = pose[pose[:,3].argsort(),:] #sort points based on timestamps (probably already sorted)
   timestamp_id = {k:v for v,k in enumerate(pose[:,3])}
 
+  #smooth the pose
+  from scipy.ndimage.filters import gaussian_filter1d
+  pose[:,0:2] = gaussian_filter1d(pose[:,0:2],sigma=10,axis=0,mode='nearest')
+  
   #round detections' timestamps to closest ones in the pose file (nearest neighbor)
   for i in range(dets.shape[0]):
     dets[i,3] = pose[np.argmin(abs(pose[:,3]-dets[i,3])),3]
 
-  #sort according to timestamps (probably not required)
+  #sort detections according to timestamps (probably already sorted)
   dets = dets[dets[:,3].argsort(),:]
 
-  #augment detections with fake pose-based points
+  #augment detections with fake (pose-based) points
   if parameters['fake_dets']:
     dets_aug = []
     for i in range(dets.shape[0]):
       dets_aug.append(dets[i,:]) #add the detection itself
-      det_timestamp = dets[i,3]
-      #find the corresponding pose point and subsequent pose points
-      nn_pose_idx = timestamp_id[det_timestamp]
-      lla_offset = dets[i,:]-pose[nn_pose_idx,:]
+      det_timestamp_id = timestamp_id[dets[i,3]]
+      lla_offset = dets[i,:]-pose[det_timestamp_id,:]
+      discard_fake_point = False
       for j in range(1,parameters['fake_dets_n']):
-        dets_aug.append(pose[nn_pose_idx+(j*parameters['pose_step']),:]+lla_offset)
+        fake_det = pose[det_timestamp_id+(j*parameters['pose_step']),:]+lla_offset
+        for k in range(max(i-100,0),min(i+100,dets.shape[0])):
+          if haversine(dets[k,0],dets[k,1],fake_det[0],fake_det[1])<parameters['fake_dets_min_dist']:
+            discard_fake_point = True
+            break
+        if discard_fake_point: break
+        dets_aug.append(fake_det)
     dets = np.vstack(dets_aug)
     dets = dets[dets[:,3].argsort(),:]  
 

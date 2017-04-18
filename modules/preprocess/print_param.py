@@ -12,4 +12,7 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.load(fparam)["preprocess"]
 
-print('...Generate fake detections = %s'%(param['fake_dets']))
+if param['fake_dets']:
+	print('...Adding %d fake points after each detection (about %d meters apart)'%(param['fake_dets_n'],param['pose_step']))
+if param['with_pose']:
+	print('...Including pose points as detections')

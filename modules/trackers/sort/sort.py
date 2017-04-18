@@ -88,16 +88,15 @@ class KalmanBoxTracker(object):
     self.kf.F = np.array([[1,0,0,0,1,0,0],[0,1,0,0,0,1,0],[0,0,1,0,0,0,1],[0,0,0,1,0,0,0],  [0,0,0,0,1,0,0],[0,0,0,0,0,1,0],[0,0,0,0,0,0,1]])
     self.kf.H = np.array([[1,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0]])
 
-    self.kf.R[2:,2:] *= 1. #default is 10
-    self.kf.P[4:,4:] *= 1000. #give high uncertainty to the unobservable initial velocities
-    self.kf.P *= 10. #default is 10
-    self.kf.Q[-1,-1] *= 0.01
-    self.kf.Q[4:,4:] *= 0.01
-    # self.kf.Q[:] = 0.01 #for testing
+    # self.kf.R[2:,2:] *= 1. #default is 10
+    # self.kf.P[4:,4:] *= 1000. #give high uncertainty to the unobservable initial velocities
+    # self.kf.P *= 10. #default is 10
+    # self.kf.Q[-1,-1] *= 0.01
+    # self.kf.Q[4:,4:] *= 0.01
 
     self.kf.x[:4] = convert_bbox_to_z(bbox)
     self.kf.x[4:] = initial_velocity
-    self.time_since_update = 0
+    self.age_since_update = 0
     self.id = KalmanBoxTracker.count
     KalmanBoxTracker.count += 1
     self.history = []
@@ -109,7 +108,7 @@ class KalmanBoxTracker(object):
     """
     Updates the state vector with observed bbox.
     """
-    self.time_since_update = 0
+    self.age_since_update = 0
     self.history = []
     self.hits += 1
     self.hit_streak += 1
@@ -123,9 +122,9 @@ class KalmanBoxTracker(object):
       self.kf.x[6] *= 0.0
     self.kf.predict()
     self.age += 1
-    if(self.time_since_update>0):
+    if(self.age_since_update>0):
       self.hit_streak = 0
-    self.time_since_update += 1
+    self.age_since_update += 1
     self.history.append(convert_x_to_bbox(self.kf.x))
     return self.history[-1]
 
@@ -178,7 +177,7 @@ def associate_detections_to_trackers(detections,trackers,iou_threshold=0.3):
 
 class Sort(object):
   def __init__(self,
-      max_age=1,
+      max_age_since_update=1,
       min_hits=3,
       iou_threshold_high=0.3,
       iou_threshold_low=0.3,
@@ -186,12 +185,12 @@ class Sort(object):
     """
     Sets key parameters for SORT
     """
-    self.max_age = max_age
+    self.max_age_since_update = max_age_since_update
     self.min_hits = min_hits
-    self.trackers = []
-    self.frame_count = 0
     self.iou_threshold_high = iou_threshold_high
     self.iou_threshold_low = iou_threshold_low
+    self.trackers = []
+    self.frame_count = 0
 
   def update(self,dets):
     """
@@ -216,11 +215,12 @@ class Sort(object):
     for t in reversed(to_del):
       self.trackers.pop(t)
 
-    #drop iou_theshold when there are no existing trackers (mohammad)
+    #----------------------------drop iou_theshold when there are no existing trackers (mohammad)
     if len([trk for trk in self.trackers if trk.hits>0]):
       matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.iou_threshold_high)
     else:
       matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.iou_threshold_low)
+    #--------------------------------------------------------------------------------------------
 
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
@@ -229,26 +229,26 @@ class Sort(object):
         trk.update(dets[d,:][0])
 
     #create and initialise new trackers for unmatched detections
-
-    #compute average motion for track initialization (mohammad's add-on)
+    #---------------but first compute average motion for track initialization (mohammad's add-on)
     tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
     if len(tracker_states):
       avg_velocity = np.array(tracker_states).mean(axis=0)[4:].reshape(3,1)
     else:
       avg_velocity = np.zeros((3,1))
-
+    #--------------------------------------------------------------------------------------------
     for i in unmatched_dets:
         trk = KalmanBoxTracker(dets[i,:],avg_velocity)
         self.trackers.append(trk)
+
     i = len(self.trackers)
     for trk in reversed(self.trackers):
         d = trk.get_state()[0]
-        # if((trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-        if(trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits):
+        # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
+        if True: #mohammad: output all tracks
           ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
-        if(trk.time_since_update > self.max_age):
+        if(trk.age_since_update > self.max_age_since_update):
           self.trackers.pop(i)
     if(len(ret)>0):
       return np.concatenate(ret)
@@ -285,8 +285,7 @@ if __name__ == '__main__':
   sequences = os.listdir(args.input)
   for seq in sequences:
     mot_tracker = Sort(
-      max_age=param['max_age'],
-      min_hits=param['min_hits'],
+      max_age_since_update=param['max_age_since_update'],
       iou_threshold_high=param['iou_threshold_high'],
       iou_threshold_low=param['iou_threshold_low'],
     ) #create instance of the SORT tracker

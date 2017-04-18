@@ -19,7 +19,7 @@ echo $(date) >> $output_sort/log.txt
 
 echo $(date) "Running SORT tracker"
 
-echo "SORT config:"
+echo "SORT tracker config:"
 ./modules/trackers/sort/print_param.py --config $config_sort
 
 ./modules/trackers/sort/sort.py \
