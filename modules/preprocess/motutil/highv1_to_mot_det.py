@@ -69,6 +69,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
     start_idx = max(timestamp_id[dets[0,3]]-10,0)
     stop_idx = min(start_idx+10,pose.shape[0])
     dets = np.vstack([dets,pose[start_idx:stop_idx:parameters['pose_step']]])
+    dets = dets[dets[:,3].argsort(),:]
 
   dets_lon = dets[:,0]
   dets_lat = dets[:,1]
@@ -94,7 +95,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
 
   # write to output
   out = np.zeros((len(dets_timestamps),10),dtype=object)
-  out[:,0] = [timestamp_id[t]+1 for t in dets_timestamps]
+  out[:,0] = [timestamp_id[t]-timestamp_id[dets[0,3]]+1 for t in dets_timestamps]
   out[:,1] = -1
   out[:,2] = dets_row
   out[:,3] = dets_col

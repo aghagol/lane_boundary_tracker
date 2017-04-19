@@ -93,12 +93,13 @@ for seq_idx,seq in seqs.iterrows():
       # get active tracks and plot them
       if param['show_tracks']:
         trks_active = trks[trks[:,0]==frame,:]
-        for trk_active in trks_active:
-          trk_idid = int(trk_active[1])
-          trk_active_frames = (trks[:,1]==trk_idid)
-          if trk_active_frames.sum()<param['min_track_length']: continue
-          trk_tail = trks[np.logical_and(trk_active_frames,np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000)),:]
-          ax.plot(trk_tail[:,2],trk_tail[:,3],color=colors[trk_idid%711,:])
+        for trk_curr in trks_active:
+          trk_curr_id = int(trk_curr[1])
+          trk_curr_tail = trks[trks[:,1]==trk_curr_id,:]
+          if trk_curr_tail.shape[0]<param['min_track_length']: continue
+          trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]<=frame,:]
+          trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>frame-1000,:]
+          ax.plot(trk_curr_tail[:,2],trk_curr_tail[:,3],color=colors[trk_curr_id%711,:])
 
       ax.set_title('frame %05d/%05d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
       plt.pause(delay)
