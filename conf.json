@@ -14,18 +14,18 @@
 	{
 		"iou_threshold_high": 0.7,
 		"iou_threshold_low": 0.3,
-		"max_age_after_last_update": 1
+		"max_age_after_last_update": 5
 	},
 	"visualize":
 	{
 		"delay": 0.05,
 		"window_size": 100,
 		"show_tracks": true,
-		"min_track_length": 5
+		"min_track_length": 1
 	},
 	"postprocess":
 	{
-		"stitch": false, 
+		"stitch": true, 
 		"output_fuse": false, 
 		"gating_thresh": 1, 
 		"affinity_thresh": 1

@@ -12,8 +12,8 @@ def fuse(trks,param):
 	affinity = np.zeros((len(trk_id_id),len(trk_id_id)),dtype=int)
 	for frame in range(1,int(trks[:,0].max())+1):
 		trks_active = trks[trks[:,0]==frame,:]
-		trks_pdist = squareform(pdist(trks_active[:,2:4],metric='euclidean'))
 		ids = [trk_id_id[trk_id] for trk_id in trks_active[:,1]]
+		trks_pdist = squareform(pdist(trks_active[:,2:4],metric='euclidean'))
 		affinity[np.ix_(ids,ids)] += (trks_pdist<param['gating_thresh'])
 	np.fill_diagonal(affinity,0)
 
@@ -22,9 +22,12 @@ def fuse(trks,param):
 	id_map = {trk_id:trk_id for trk_id in trk_id_id}
 	for trk_id_1,id_id_1 in trk_id_id.iteritems():
 		for trk_id_2,id_id_2 in trk_id_id.iteritems():
-			if affinity[id_id_1,id_id_2]>param['affinity_thresh']:
-				id_map[trk_id_1] = min(id_map[trk_id_1],id_map[trk_id_2])
-				id_map[trk_id_2] = min(id_map[trk_id_1],id_map[trk_id_2])
+			if affinity[id_id_1,id_id_2]>=param['affinity_thresh']:
+				# print('\tfusing track %d and %d'%(trk_id_1,trk_id_2))
+				new_id = min(id_map[trk_id_1],id_map[trk_id_2])
+				id_map[trk_id_1] = new_id
+				id_map[trk_id_2] = new_id
+	trks[:,1] = [id_map[trk_id] for trk_id in trks[:,1]] #WARNING: over-riding track id's
 
 	#use tracking confidence scores to remove weaker tracks (duplicates)
 	out = []
