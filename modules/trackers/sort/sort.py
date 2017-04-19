@@ -285,7 +285,7 @@ if __name__ == '__main__':
   sequences = os.listdir(args.input)
   for seq in sequences:
     mot_tracker = Sort(
-      max_age_since_update=param['max_age_since_update'],
+      max_age_since_update=param['max_age_after_last_update'],
       iou_threshold_high=param['iou_threshold_high'],
       iou_threshold_low=param['iou_threshold_low'],
     ) #create instance of the SORT tracker

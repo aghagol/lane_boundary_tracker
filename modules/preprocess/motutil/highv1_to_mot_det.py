@@ -53,20 +53,22 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
       det_timestamp_id = timestamp_id[dets[i,3]]
       lla_offset = dets[i,:]-pose[det_timestamp_id,:]
       discard_fake_point = False
-      for j in range(1,parameters['fake_dets_n']):
+      for j in range(parameters['fake_dets_n']):
         fake_det = pose[det_timestamp_id+(j*parameters['pose_step']),:]+lla_offset
-        for k in range(max(i-100,0),min(i+100,dets.shape[0])):
+        for k in range(i+1,min(i+100,dets.shape[0])): #check if future detections are close by
           if haversine(dets[k,0],dets[k,1],fake_det[0],fake_det[1])<parameters['fake_dets_min_dist']:
             discard_fake_point = True
             break
         if discard_fake_point: break
         dets_aug.append(fake_det)
     dets = np.vstack(dets_aug)
-    dets = dets[dets[:,3].argsort(),:]  
+    dets = dets[dets[:,3].argsort(),:]
 
-  #merge detections with pose (if desired) - for testing
-  if parameters['with_pose']:
-    dets = np.vstack([dets,pose[timestamp_id[dets[0,3]]:timestamp_id[dets[-1,3]]:parameters['pose_step']]])
+  #merge detections with pose (if desired) - for KF state initialization
+  if parameters['start_with_pose']:
+    start_idx = max(timestamp_id[dets[0,3]]-10,0)
+    stop_idx = min(start_idx+10,pose.shape[0])
+    dets = np.vstack([dets,pose[start_idx:stop_idx:parameters['pose_step']]])
 
   dets_lon = dets[:,0]
   dets_lat = dets[:,1]

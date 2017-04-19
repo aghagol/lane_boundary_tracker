@@ -2,23 +2,23 @@
 	"preprocess":
 	{
 		"pixel_size": 1,
-		"object_size": 7,
-		"with_pose": true,
+		"object_size": 3,
+		"start_with_pose": false,
 		"pose_step": 1,
 		"fake_dets": true,
-		"fake_dets_n": 10,
+		"fake_dets_n": 50,
 		"fake_dets_min_dist": 1
 	},
 	"sort":
 	{
-		"iou_threshold_high": 0.7,
+		"iou_threshold_high": 0.3,
 		"iou_threshold_low": 0.3,
-		"max_age_since_update": 10
+		"max_age_after_last_update": 5
 	},
 	"visualize":
 	{
-		"delay": 0.1,
-		"window_size": 50,
+		"delay": 0.05,
+		"window_size": 100,
 		"show_tracks": true,
 		"min_track_length": 20
 	}

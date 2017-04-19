@@ -14,4 +14,4 @@ with open(args.config) as fparam:
 
 print('...IoU threshold - high = %f'%(param['iou_threshold_high']))
 print('...IoU threshold - low = %f'%(param['iou_threshold_low']))
-print('...Max age (after last update) = %d'%(param['max_age_since_update']))
+print('...Max age (after last update) = %d'%(param['max_age_after_last_update']))
