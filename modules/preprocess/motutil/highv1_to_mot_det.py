@@ -35,9 +35,10 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   timestamp_id = {k:v for v,k in enumerate(pose[:,3])}
 
   #smooth the pose
-  from scipy.ndimage.filters import gaussian_filter1d
-  pose[:,0:2] = gaussian_filter1d(pose[:,0:2],sigma=10,axis=0,mode='nearest')
-  
+  if parameters['smooth_pose']:
+    from scipy.ndimage.filters import gaussian_filter1d
+    pose[:,0:2] = gaussian_filter1d(pose[:,0:2],sigma=10,axis=0,mode='nearest')
+
   #round detections' timestamps to closest ones in the pose file (nearest neighbor)
   for i in range(dets.shape[0]):
     dets[i,3] = pose[np.argmin(abs(pose[:,3]-dets[i,3])),3]
@@ -71,34 +72,17 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
     dets = np.vstack([dets,pose[start_idx:stop_idx:parameters['pose_step']]])
     dets = dets[dets[:,3].argsort(),:]
 
-  dets_lon = dets[:,0]
-  dets_lat = dets[:,1]
-  dets_timestamps = dets[:,3]
-
-  lat_min, lat_max = (dets_lat.min(), dets_lat.max())
-  lon_min, lon_max = (dets_lon.min(), dets_lon.max())
-
+  lon_min, lon_max = (dets[:,0].min(), dets[:,0].max())
+  lat_min, lat_max = (dets[:,1].min(), dets[:,1].max())
   w = haversine(lon_min,lat_min,lon_max,lat_min)
   h = haversine(lon_min,lat_min,lon_min,lat_max)
-  image_nrows = max(h*zoom,1)
-  image_ncols = max(w*zoom,1)
-
-  if lat_max==lat_min:
-    dets_row = np.ones_like(dets_lat)
-  else:
-    dets_row = (dets_lat-lat_min)/(lat_max-lat_min)*image_nrows
-
-  if lon_max==lon_min:
-    dets_col = np.ones_like(dets_lon)
-  else:
-    dets_col = (dets_lon-lon_min)/(lon_max-lon_min)*image_ncols
 
   # write to output
-  out = np.zeros((len(dets_timestamps),10),dtype=object)
-  out[:,0] = [timestamp_id[t]-timestamp_id[dets[0,3]]+1 for t in dets_timestamps]
+  out = np.zeros((dets.shape[0],10),dtype=object)
+  out[:,0] = [timestamp_id[t]-timestamp_id[dets[0,3]]+1 for t in dets[:,3]]
   out[:,1] = -1
-  out[:,2] = dets_row
-  out[:,3] = dets_col
+  out[:,2] = (dets[:,1]-lat_min)/(lat_max-lat_min)*h*zoom
+  out[:,3] = (dets[:,0]-lon_min)/(lon_max-lon_min)*w*zoom
   out[:,4] = parameters['object_size'] *zoom
   out[:,5] = parameters['object_size'] *zoom
   out[:,6] = 1

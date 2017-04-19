@@ -25,6 +25,11 @@ if [[ $input_runall ]] ; then
       --input $output_runall/preprocess/mot \
       --output $output_runall/sort \
       --config $MOT_CONFIG
+    ./scripts/postprocess \
+      --input $output_runall/preprocess/mot \
+      --tracks $output_runall/sort/tracks \
+      --output $output_runall/postprocess \
+      --config $MOT_CONFIG
   else
     echo "Output path not empty.. Please enter an empty path for outputs."
   fi
@@ -37,7 +42,7 @@ select ans in Yes No ; do
       rm -rf $output_runall/visualize
       ./scripts/visualize \
         --input $output_runall/preprocess/mot \
-        --tracks $output_runall/sort/tracks \
+        --tracks $output_runall/postprocess/tracks \
         --output $output_runall/visualize \
         --config $MOT_CONFIG;;
   esac

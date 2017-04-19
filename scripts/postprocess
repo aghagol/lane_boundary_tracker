@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+while [[ "$#" > 1 ]]; do case $1 in
+    --input) input_postprocess="$2";;
+    --tracks) tracks_postprocess="$2";;
+    --output) output_postprocess="$2";;
+    --config) config_postprocess="$2";;
+    *) echo "Usage: postprocess --input [path] --tracks [path] --output [path] --config [path]"; exit 1;;
+  esac; shift; shift
+done
+
+if  [[ -z "$input_postprocess" ]] || \
+    [[ -z "$tracks_postprocess" ]] || \
+    [[ -z "$output_postprocess" ]] || \
+    [[ -z "$config_postprocess" ]] ; then
+  echo "Usage: postprocess --input [path] --tracks [path] --output [path] --config [path]"
+  exit 1
+fi
+
+mkdir $output_postprocess
+
+echo $(date) >> $output_postprocess/log.txt
+
+echo "Postprocessing config:"
+./modules/postprocess/print_param.py --config $config_postprocess
+
+./modules/postprocess/make_seq_list.py \
+  --input $input_postprocess \
+  --tracks $tracks_postprocess \
+  --output $output_postprocess/seqs.csv \
+  >> $output_postprocess/log.txt
+
+echo $(date) "Postprocessing: Stitching the tracklets"
+
+./modules/postprocess/stitch_tracklets.py \
+  --input $output_postprocess/seqs.csv \
+  --output $output_postprocess/tracks \
+  --config $config_postprocess \
+  >> $output_postprocess/log.txt

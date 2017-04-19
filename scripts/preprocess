@@ -17,7 +17,7 @@ mkdir $output_preprocess
 
 echo $(date) >> $output_preprocess/log.txt
 
-echo $(date) "Saving detections in MOT format"
+echo $(date) "Preprocessing: Saving detections in MOT format"
 ./modules/preprocess/highv1mot.py \
   --input $input_preprocess \
   --output $output_preprocess/mot \

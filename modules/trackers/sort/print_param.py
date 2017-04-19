@@ -12,6 +12,6 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.load(fparam)["sort"]
 
-print('...IoU threshold - high = %f'%(param['iou_threshold_high']))
-print('...IoU threshold - low = %f'%(param['iou_threshold_low']))
+print('...IoU threshold - high = %g'%(param['iou_threshold_high']))
+print('...IoU threshold - low = %g'%(param['iou_threshold_low']))
 print('...Max age (after last update) = %d'%(param['max_age_after_last_update']))

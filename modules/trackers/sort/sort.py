@@ -88,11 +88,11 @@ class KalmanBoxTracker(object):
     self.kf.F = np.array([[1,0,0,0,1,0,0],[0,1,0,0,0,1,0],[0,0,1,0,0,0,1],[0,0,0,1,0,0,0],  [0,0,0,0,1,0,0],[0,0,0,0,0,1,0],[0,0,0,0,0,0,1]])
     self.kf.H = np.array([[1,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0]])
 
-    # self.kf.R[2:,2:] *= 1. #default is 10
-    # self.kf.P[4:,4:] *= 1000. #give high uncertainty to the unobservable initial velocities
-    # self.kf.P *= 10. #default is 10
-    # self.kf.Q[-1,-1] *= 0.01
-    # self.kf.Q[4:,4:] *= 0.01
+    self.kf.R[2:,2:] *= 10. #default is 10
+    self.kf.P[4:,4:] *= 1000. #give high uncertainty to the unobservable initial velocities
+    self.kf.P *= 10. #default is 10
+    self.kf.Q[-1,-1] *= 0.01
+    self.kf.Q[4:,4:] *= 0.01
 
     self.kf.x[:4] = convert_bbox_to_z(bbox)
     self.kf.x[4:] = initial_velocity
@@ -103,6 +103,7 @@ class KalmanBoxTracker(object):
     self.hits = 0
     self.hit_streak = 0
     self.age = 0
+    self.confidence = .1
 
   def update(self,bbox):
     """
@@ -112,6 +113,7 @@ class KalmanBoxTracker(object):
     self.history = []
     self.hits += 1
     self.hit_streak += 1
+    self.confidence = 1.
     self.kf.update(convert_bbox_to_z(bbox))
 
   def predict(self):
@@ -125,6 +127,7 @@ class KalmanBoxTracker(object):
     if(self.age_since_update>0):
       self.hit_streak = 0
     self.age_since_update += 1
+    self.confidence *= .95
     self.history.append(convert_x_to_bbox(self.kf.x))
     return self.history[-1]
 
@@ -245,7 +248,7 @@ class Sort(object):
         d = trk.get_state()[0]
         # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
         if True: #mohammad: output all tracks
-          ret.append(np.concatenate((d,[trk.id+1])).reshape(1,-1)) # +1 as MOT benchmark requires positive
+          ret.append(np.concatenate((d,[trk.id+1],[trk.confidence])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
         if(trk.age_since_update > self.max_age_since_update):
@@ -253,20 +256,15 @@ class Sort(object):
     if(len(ret)>0):
       return np.concatenate(ret)
     return np.empty((0,5))
-    
-def parse_args():
-    """Parse input arguments."""
-    parser = argparse.ArgumentParser(description='SORT demo')
-    parser.add_argument("--display",help='Display online tracker output',action='store_true')
-    parser.add_argument("--input",help="path to MOT dataset")
-    parser.add_argument("--output",help="output path to save tracking results")
-    parser.add_argument("--config",help="configuration JSON file")
-    args = parser.parse_args()
-    return args
 
 if __name__ == '__main__':
-  
-  args = parse_args()
+
+  parser = argparse.ArgumentParser(description='SORT demo')
+  parser.add_argument("--display",help='Display online tracker output',action='store_true')
+  parser.add_argument("--input",help="path to MOT dataset")
+  parser.add_argument("--output",help="output path to save tracking results")
+  parser.add_argument("--config",help="configuration JSON file")
+  args = parser.parse_args()
   display = args.display
   total_time = 0.0
   total_frames = 0
@@ -279,9 +277,9 @@ if __name__ == '__main__':
   if(display):
     plt.ion()
     fig = plt.figure() 
-  
+
   os.makedirs(args.output)
-  
+
   sequences = os.listdir(args.input)
   for seq in sequences:
     mot_tracker = Sort(
@@ -298,7 +296,7 @@ if __name__ == '__main__':
     for frame in range(int(seq_dets[:,0].max())):
       frame += 1 #detection and frame numbers begin at 1
       dets = seq_dets[seq_dets[:,0]==frame,2:7]
-      dets[:,2:4] += dets[:,0:2] #convert to [x1,y1,w,h] to [x1,y1,x2,y2]
+      dets[:,2:4] += dets[:,0:2] #convert [x1,y1,w,h] to [x1,y1,x2,y2]
       total_frames += 1
 
       if(display):
@@ -314,8 +312,8 @@ if __name__ == '__main__':
       total_time += cycle_time
 
       for d in trackers:
-        print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1'%(frame,d[4],d[0],d[1],d[2]-d[0],d[3]-d[1]),file=out_file)
-          
+        print('%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,-1,-1,-1'%(frame,d[4],d[0],d[1],d[2]-d[0],d[3]-d[1],d[5]),file=out_file)
+
         if(display):
           d = d.astype(np.uint32)
           ax1.add_patch(patches.Rectangle((d[0],d[1]),d[2]-d[0],d[3]-d[1],fill=False,lw=3,ec=colours[d[4]%32,:]))
