@@ -7,7 +7,7 @@
 		"pose_step": 1,
 		"smooth_pose": false,
 		"fake_dets": true,
-		"fake_dets_n": 20,
+		"fake_dets_n": 50,
 		"fake_dets_min_dist": 1
 	},
 	"sort":
@@ -28,6 +28,7 @@
 		"stitch": true, 
 		"output_fuse": false, 
 		"gating_thresh": 1, 
-		"affinity_thresh": 1
+		"affinity_thresh_min": 1,
+		"affinity_thresh_max": 20
 	}
 }

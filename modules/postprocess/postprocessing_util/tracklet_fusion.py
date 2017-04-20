@@ -26,7 +26,7 @@ def fuse(tracks,param):
 	node_label = {node:node for node in node2lb}
 	for node_1 in node2lb:
 		for node_2 in node2lb:
-			if A[node_1,node_2]>=param['affinity_thresh']:
+			if A[node_1,node_2]>=param['affinity_thresh_min'] and A[node_1,node_2]<=param['affinity_thresh_max']:
 				new_label = min(node_label[node_1],node_label[node_2])
 				node_label[node_1] = new_label
 				node_label[node_2] = new_label
