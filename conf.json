@@ -7,14 +7,14 @@
 		"pose_step": 1,
 		"smooth_pose": false,
 		"fake_dets": true,
-		"fake_dets_n": 50,
+		"fake_dets_n": 20,
 		"fake_dets_min_dist": 1
 	},
 	"sort":
 	{
 		"iou_threshold_high": 0.7,
 		"iou_threshold_low": 0.3,
-		"max_age_after_last_update": 5
+		"max_age_after_last_update": 2
 	},
 	"visualize":
 	{
