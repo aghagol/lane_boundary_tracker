@@ -44,4 +44,5 @@ def fuse(tracks,param):
 			else:
 				out.append(current_track)
 	out = np.vstack(out)
+	out = out[out[:,5]>0,:5] #remove the guide
 	return out

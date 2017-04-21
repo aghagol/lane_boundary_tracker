@@ -42,14 +42,15 @@ if 'window_size' in param: w = param['window_size']
 
 seqs = pd.read_csv(args.input)
 
-fig, ax = plt.subplots(1,1,figsize=(6,6))
+fig, ax = plt.subplots(1,1,figsize=(9,9))
 colors = np.random.rand(711,3) # create random colors for tracks
 
 for seq_idx,seq in seqs.iterrows():
 
   print('Working on sequence %s'%seqs.name[seq_idx])
 
-  dets = np.loadtxt(seq.dpath,delimiter=',')[:,:6]
+  dets = np.loadtxt(seq.dpath,delimiter=',')
+  dets = dets[dets[:,6]>0,:6] #discard fake detections
 
   if os.path.exists(seq.mpath):
     timestamps = np.loadtxt(seq.mpath,delimiter=',')
@@ -85,14 +86,13 @@ for seq_idx,seq in seqs.iterrows():
         ax.set_ylim([ylim_low-args.margin,ylim_low+w+args.margin])
 
       # plot the detections as filled dots
-      det_tail_color={1:'.5',2:'.65',3:'.8',4:'.9'}
-      for fr in range(max(frame-4,0),frame): #tail
-        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color=det_tail_color[frame-fr])
+      for fr in range(max(frame-1000,0),frame): #tail
+        ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color='k')
       ax.plot(dets_cur[:,0],dets_cur[:,1],'o',color='k')
 
       # get active tracks and plot them
       if param['show_tracks']:
-        trks_active = trks[trks[:,0]==frame,:]
+        trks_active = trks[np.logical_and(trks[:,0]<=frame,trks[:,0]>frame-1000),:]
         for trk_curr in trks_active:
           trk_curr_id = int(trk_curr[1])
           trk_curr_tail = trks[trks[:,1]==trk_curr_id,:]

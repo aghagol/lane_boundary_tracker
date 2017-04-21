@@ -20,14 +20,13 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   #store all detections in a single numpy array
   prefix = '/FuseToTLLAIOutput/'
   chunk_list = [i for i in os.listdir(input_file_path+prefix) if i.isdigit()]
+  dets = []
   for chunk in chunk_list:
     for filename in os.listdir(input_file_path+prefix+chunk):
-      if not filename.endswith('tllai'): continue
-      try:
-        dets = np.vstack([dets,np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',')])
-      except NameError:
-        dets = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',')
-  dets = dets[:,[1,2,3,0]] #re-order columns according to pose format
+      if filename.endswith('tllai'):
+        dets.append(np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=','))
+  dets = np.vstack(dets)
+  dets = dets[:,[1,2,3,0]] #TLLA ---> LLAT
 
   #extract vehicle pose information
   pose = np.loadtxt(input_file_path+'/'+pose_filename)
@@ -39,7 +38,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
     from scipy.ndimage.filters import gaussian_filter1d
     pose[:,0:2] = gaussian_filter1d(pose[:,0:2],sigma=10,axis=0,mode='nearest')
 
-  #round detections' timestamps to closest ones in the pose file (nearest neighbor)
+  #round detections' timestamps to closest ones in the pose file (nearest neighbor quantization)
   for i in range(dets.shape[0]):
     dets[i,3] = pose[np.argmin(abs(pose[:,3]-dets[i,3])),3]
 
@@ -50,18 +49,19 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   if parameters['fake_dets']:
     dets_aug = []
     for i in range(dets.shape[0]):
-      dets_aug.append(dets[i,:]) #add the detection itself
+      dets_aug.append(np.concatenate((dets[i,:],[1])).reshape(1,-1)) #add the detection itself
       det_timestamp_id = timestamp_id[dets[i,3]]
       lla_offset = dets[i,:]-pose[det_timestamp_id,:]
+      assert lla_offset[3]==0 #mohammad: to be remove
       discard_fake_point = False
-      for j in range(parameters['fake_dets_n']):
+      for j in range(1,parameters['fake_dets_n']+1):
         fake_det = pose[det_timestamp_id+(j*parameters['pose_step']),:]+lla_offset
         for k in range(i+1,min(i+100,dets.shape[0])): #check if future detections are close by
           if haversine(dets[k,0],dets[k,1],fake_det[0],fake_det[1])<parameters['fake_dets_min_dist']:
             discard_fake_point = True
             break
         if discard_fake_point: break
-        dets_aug.append(fake_det)
+        dets_aug.append(np.concatenate((fake_det,[0])).reshape(1,-1))
     dets = np.vstack(dets_aug)
     dets = dets[dets[:,3].argsort(),:]
 
@@ -69,7 +69,9 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   if parameters['start_with_pose']:
     start_idx = max(timestamp_id[dets[0,3]]-10,0)
     stop_idx = min(start_idx+10,pose.shape[0])
-    dets = np.vstack([dets,pose[start_idx:stop_idx:parameters['pose_step']]])
+    pose_guide = pose[start_idx:stop_idx:parameters['pose_step'],:]
+    pose_guide = np.hstack([pose_guide,np.zeros((pose_guide.shape[0],1))])
+    dets = np.vstack([pose_guide,dets])
     dets = dets[dets[:,3].argsort(),:]
 
   lon_min, lon_max = (dets[:,0].min(), dets[:,0].max())
@@ -85,7 +87,7 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   out[:,3] = (dets[:,0]-lon_min)/(lon_max-lon_min)*w*zoom
   out[:,4] = parameters['object_size'] *zoom
   out[:,5] = parameters['object_size'] *zoom
-  out[:,6] = 1
+  out[:,6] = dets[:,4].astype(int)
   out[:,7] = -1
   out[:,8] = -1
   out[:,9] = -1

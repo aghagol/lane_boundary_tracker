@@ -22,23 +22,15 @@ args = parser.parse_args()
 data_dir = args.input+'/'
 output_dir = args.output+'/'
 
-'''
-param:
-  pixel_size.........................in meters
-  object_size........................in meters
-  fake_dets..........................False/True
-'''
 with open(args.config) as fparam:
   param = json.load(fparam)["preprocess"]
 print(param)
 
-skipped = 0
-processed = 0
 for drive in os.listdir(data_dir):
   print('Working on drive %s'%drive)
 
   pose_filename = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('csv')]
-  if not len(pose_filename)==1: exit('\nQuiting... %d pose files in %s\n'%(len(pose_filename),data_dir+drive))
+  assert len(pose_filename)==1, 'ERROR: found %d pose files in %s'%(len(pose_filename),data_dir+drive)
   pose_filename = pose_filename[0]
 
   det_out = output_dir+'%s/det/'%(drive)

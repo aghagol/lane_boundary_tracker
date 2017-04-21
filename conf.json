@@ -18,8 +18,8 @@
 	},
 	"visualize":
 	{
-		"delay": 0.05,
-		"window_size": 100,
+		"delay": 0.01,
+		"window_size": 150,
 		"show_tracks": true,
 		"min_track_length": 1
 	},

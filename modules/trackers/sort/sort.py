@@ -57,7 +57,7 @@ class KalmanBoxTracker(object):
     # self.kf.P *= 10. #default is 10
     # self.kf.Q[2:,2:] *= 0.01
 
-    self.kf.x[:2] = pos
+    self.kf.x[:2] = pos[:2]
     self.kf.x[2:] = initial_velocity
     self.age_since_update = 0
     self.id = KalmanBoxTracker.count
@@ -67,17 +67,19 @@ class KalmanBoxTracker(object):
     self.hit_streak = 0
     self.age = 0
     self.confidence = .1
+    self.curr_det = pos.squeeze() #mohammad
 
   def update(self,pos):
     """
     Updates the state vector with observations
     """
+    self.curr_det = pos.squeeze()
     self.age_since_update = 0
     self.history = []
     self.hits += 1
     self.hit_streak += 1
     self.confidence = 1.
-    self.kf.update(pos)
+    self.kf.update(pos[:2])
 
   def predict(self):
     """
@@ -91,6 +93,8 @@ class KalmanBoxTracker(object):
     self.confidence *= .95
     # self.history.append(self.kf.x)
     # return self.history[-1]
+    print(self.kf.x.shape)
+    self.curr_det = np.concatenate([self.kf.x[:2].squeeze(),[0]])
     return self.kf.x
 
   def get_state(self):
@@ -159,7 +163,7 @@ class Sort(object):
   def update(self,dets):
     """
     Params:
-      dets - a numpy array of detections in the format [[x,y],[x,y],...]
+      dets - a numpy array of detections in the format [[x,y,score],[x,y,score],...]
     Requires: this method must be called once for each frame even with empty detections.
     Returns the a similar array, where the last column is the object ID.
 
@@ -181,16 +185,16 @@ class Sort(object):
 
     #----------------------------drop d2t_sim_theshold when there are no existing trackers (mohammad)
     if len([trk for trk in self.trackers if trk.hits>0]):
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.d2t_dist_threshold_tight)
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,self.d2t_dist_threshold_tight)
     else:
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.d2t_dist_threshold_loose)
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,self.d2t_dist_threshold_loose)
     #--------------------------------------------------------------------------------------------
 
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
       if(t not in unmatched_trks):
         d = matched[np.where(matched[:,1]==t)[0],0]
-        trk.update(dets[d,:].reshape(2,1))
+        trk.update(dets[d,:].reshape(3,1))
 
     #create and initialise new trackers for unmatched detections
     #---------------but first compute average motion for track initialization (mohammad's add-on)
@@ -201,15 +205,16 @@ class Sort(object):
       avg_velocity = np.zeros((2,1))
     #--------------------------------------------------------------------------------------------
     for i in unmatched_dets:
-        trk = KalmanBoxTracker(dets[i,:].reshape(2,1),avg_velocity)
+        trk = KalmanBoxTracker(dets[i,:].reshape(3,1),avg_velocity)
         self.trackers.append(trk)
 
     i = len(self.trackers)
     for trk in reversed(self.trackers):
-        d = trk.get_state().squeeze()
+        # d = trk.get_state().squeeze()
+        d = trk.curr_det
         # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-        if True: #mohammad: output all tracks
-          ret.append(np.concatenate(([trk.id+1],d[:2],[trk.confidence])).reshape(1,-1)) # +1 as MOT benchmark requires positive
+        if True: #mohammad: output all tracks except guides and only when associated with a detection
+          ret.append(np.concatenate(([trk.id+1],d,[trk.confidence])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
         if(trk.age_since_update > self.max_age_since_update):
@@ -249,7 +254,7 @@ if __name__ == '__main__':
     print("Processing %s"%(seq))
     for frame in range(int(seq_dets[:,0].max())):
       frame += 1 #detection and frame numbers begin at 1
-      dets = seq_dets[seq_dets[:,0]==frame,2:4].reshape(-1,2)
+      dets = seq_dets[seq_dets[:,0]==frame,:][:,[2,3,6]].reshape(-1,3)
       total_frames += 1
 
       start_time = time.time()
@@ -258,7 +263,7 @@ if __name__ == '__main__':
       total_time += cycle_time
 
       for d in trackers:
-        print('%d,%d,%.2f,%.2f,%.2f'%(frame,d[0],d[1],d[2],d[3]),file=out_file)
+        print('%d,%d,%.2f,%.2f,%.2f,%.2f'%(frame,d[0],d[1],d[2],d[4],d[3]),file=out_file)
 
     out_file.close()
 
