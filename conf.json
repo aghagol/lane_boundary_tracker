@@ -12,8 +12,8 @@
 	},
 	"sort":
 	{
-		"iou_threshold_high": 0.7,
-		"iou_threshold_low": 0.3,
+		"d2t_sim_threshold_tight": 3,
+		"d2t_sim_threshold_loose": 5,
 		"max_age_after_last_update": 2
 	},
 	"visualize":

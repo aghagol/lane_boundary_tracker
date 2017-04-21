@@ -40,7 +40,7 @@ def fuse(tracks,param):
 			current_track = active_tracks[active_tracks[:,1]==label,:]
 			if current_track.shape[0]>1: #check for overlaps
 				#keep the tracked point with highest confidence
-				out.append(current_track[np.argmax(current_track[:,6]),:])
+				out.append(current_track[np.argmax(current_track[:,-1]),:])
 			else:
 				out.append(current_track)
 	out = np.vstack(out)

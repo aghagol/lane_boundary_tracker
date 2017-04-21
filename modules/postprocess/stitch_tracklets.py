@@ -41,14 +41,14 @@ for seq_idx,seq in seqs.iterrows():
     continue
 
   #read sequence data (detections, tracks, ...)
-  dets = np.loadtxt(seq.dpath,delimiter=',')
-  if os.path.exists(seq.mpath): timestamps = np.loadtxt(seq.mpath,delimiter=',')
+  # dets = np.loadtxt(seq.dpath,delimiter=',')
+  # if os.path.exists(seq.mpath): timestamps = np.loadtxt(seq.mpath,delimiter=',')
   if not os.path.exists(seq.tpath): exit("\nNo tracks file was found for postprocessing!\n")
   trks = np.loadtxt(seq.tpath,delimiter=',')
 
   out = postprocessing_util.fuse(trks,param)
 
-  fmt = ['%d','%d','%.2f','%.2f','%.2f','%.2f','%.2f','%d','%d','%d']
+  fmt = ['%d','%d','%.2f','%.2f','%.2f']
   np.savetxt('%s/%s.txt'%(args.output,seqs.name[seq_idx]),out,fmt=fmt,delimiter=',')
 
 
