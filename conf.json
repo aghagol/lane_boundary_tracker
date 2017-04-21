@@ -19,7 +19,7 @@
 	"visualize":
 	{
 		"delay": 0.01,
-		"window_size": 150,
+		"window_size": 200,
 		"show_tracks": true,
 		"min_track_length": 1
 	},
