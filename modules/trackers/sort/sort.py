@@ -31,21 +31,21 @@ import argparse
 import json
 from filterpy.kalman import KalmanFilter
 
-def d2t_sim(z,Hx): #intersection over union
+def d2t_sim(z,HFx): #detection to track similarity
   """
-  Computes similarity between a detection and a track's predicted value
+  Computes similarity between a detection (2x1 numpy array) to a prediction (2x1 numpy array)
   """
-  # return np.dot((z-Hx).T ,np.dot(np.inverse(S), (z-Hx)))
-  return np.exp(-np.sqrt(np.dot((z-Hx).T,(z-Hx))))
+  # return np.dot((z-HFx).T, np.dot(np.inverse(S),(z-HFx)))
+  return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
 
 class KalmanBoxTracker(object):
   """
-  This class represents the internel state of individual tracked objects observed as bbox.
+  This class represents the internel state of individual tracked objects
   """
   count = 0
-  def __init__(self,bbox,initial_velocity=np.array((2,1))):
+  def __init__(self,pos,initial_velocity=np.zeros((2,1))):
     """
-    Initialises a tracker using initial bounding box.
+    Initialises a tracker
     """
     #define constant velocity model
     self.kf = KalmanFilter(dim_x=4, dim_z=2)
@@ -57,7 +57,7 @@ class KalmanBoxTracker(object):
     # self.kf.P *= 10. #default is 10
     # self.kf.Q[2:,2:] *= 0.01
 
-    self.kf.x[:2] = bbox.reshape(2,1)
+    self.kf.x[:2] = pos
     self.kf.x[2:] = initial_velocity
     self.age_since_update = 0
     self.id = KalmanBoxTracker.count
@@ -68,16 +68,16 @@ class KalmanBoxTracker(object):
     self.age = 0
     self.confidence = .1
 
-  def update(self,bbox):
+  def update(self,pos):
     """
-    Updates the state vector with observed bbox.
+    Updates the state vector with observations
     """
     self.age_since_update = 0
     self.history = []
     self.hits += 1
     self.hit_streak += 1
     self.confidence = 1.
-    self.kf.update(bbox)
+    self.kf.update(pos)
 
   def predict(self):
     """
@@ -89,8 +89,9 @@ class KalmanBoxTracker(object):
       self.hit_streak = 0
     self.age_since_update += 1
     self.confidence *= .95
-    self.history.append(self.kf.x)
-    return self.history[-1]
+    # self.history.append(self.kf.x)
+    # return self.history[-1]
+    return self.kf.x
 
   def get_state(self):
     """
@@ -98,10 +99,9 @@ class KalmanBoxTracker(object):
     """
     return self.kf.x
 
-def associate_detections_to_trackers(detections,trackers,d2t_sim_threshold=0.3):
+def associate_detections_to_trackers(detections,trackers,d2t_dist_threshold):
   """
-  Assigns detections to tracked object (both represented as bounding boxes)
-
+  Assigns detections (d x 2 numpy array) to tracked object (t x 2 numpy array)
   Returns 3 lists of matches, unmatched_detections and unmatched_trackers
   """
   if(len(trackers)==0):
@@ -125,7 +125,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_sim_threshold=0.3):
   #filter out matched with low d2t_sim
   matches = []
   for m in matched_indices:
-    if(d2t_sim_matrix[m[0],m[1]]<np.exp(-d2t_sim_threshold)):
+    if(d2t_sim_matrix[m[0],m[1]]<np.exp(-d2t_dist_threshold)):
       unmatched_detections.append(m[0])
       unmatched_trackers.append(m[1])
     else:
@@ -143,16 +143,16 @@ class Sort(object):
   def __init__(self,
       max_age_since_update=1,
       min_hits=3,
-      d2t_sim_threshold_tight=1,
-      d2t_sim_threshold_loose=3,
+      d2t_dist_threshold_tight=1,
+      d2t_dist_threshold_loose=3,
     ):
     """
     Sets key parameters for SORT
     """
     self.max_age_since_update = max_age_since_update
     self.min_hits = min_hits
-    self.d2t_sim_threshold_tight = d2t_sim_threshold_tight
-    self.d2t_sim_threshold_loose = d2t_sim_threshold_loose
+    self.d2t_dist_threshold_tight = d2t_dist_threshold_tight
+    self.d2t_dist_threshold_loose = d2t_dist_threshold_loose
     self.trackers = []
     self.frame_count = 0
 
@@ -181,9 +181,9 @@ class Sort(object):
 
     #----------------------------drop d2t_sim_theshold when there are no existing trackers (mohammad)
     if len([trk for trk in self.trackers if trk.hits>0]):
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.d2t_sim_threshold_tight)
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.d2t_dist_threshold_tight)
     else:
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.d2t_sim_threshold_loose)
+      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets,trks,self.d2t_dist_threshold_loose)
     #--------------------------------------------------------------------------------------------
 
     #update matched trackers with assigned detections
@@ -196,12 +196,12 @@ class Sort(object):
     #---------------but first compute average motion for track initialization (mohammad's add-on)
     tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
     if len(tracker_states):
-      avg_velocity = np.array(tracker_states).mean(axis=0)[2:4].reshape(2,1)
+      avg_velocity = np.array(tracker_states).mean(axis=0)[2:].reshape(2,1)
     else:
       avg_velocity = np.zeros((2,1))
     #--------------------------------------------------------------------------------------------
     for i in unmatched_dets:
-        trk = KalmanBoxTracker(dets[i,:],avg_velocity)
+        trk = KalmanBoxTracker(dets[i,:].reshape(2,1),avg_velocity)
         self.trackers.append(trk)
 
     i = len(self.trackers)
@@ -209,7 +209,6 @@ class Sort(object):
         d = trk.get_state().squeeze()
         # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
         if True: #mohammad: output all tracks
-          print(d)
           ret.append(np.concatenate(([trk.id+1],d[:2],[trk.confidence])).reshape(1,-1)) # +1 as MOT benchmark requires positive
         i -= 1
         #remove dead tracklet
@@ -239,8 +238,8 @@ if __name__ == '__main__':
   for seq in sequences:
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],
-      d2t_sim_threshold_tight=param['d2t_sim_threshold_tight'],
-      d2t_sim_threshold_loose=param['d2t_sim_threshold_loose'],
+      d2t_dist_threshold_tight=param['d2t_dist_threshold_tight'],
+      d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
     ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
@@ -250,7 +249,7 @@ if __name__ == '__main__':
     print("Processing %s"%(seq))
     for frame in range(int(seq_dets[:,0].max())):
       frame += 1 #detection and frame numbers begin at 1
-      dets = seq_dets[seq_dets[:,0]==frame,2:4]
+      dets = seq_dets[seq_dets[:,0]==frame,2:4].reshape(-1,2)
       total_frames += 1
 
       start_time = time.time()

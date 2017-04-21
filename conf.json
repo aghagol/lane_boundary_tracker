@@ -12,8 +12,8 @@
 	},
 	"sort":
 	{
-		"d2t_sim_threshold_tight": 3,
-		"d2t_sim_threshold_loose": 5,
+		"d2t_dist_threshold_tight": 3,
+		"d2t_dist_threshold_loose": 5,
 		"max_age_after_last_update": 2
 	},
 	"visualize":
