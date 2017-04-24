@@ -45,11 +45,14 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   #sort detections according to timestamps (probably already sorted)
   dets = dets[dets[:,3].argsort(),:]
 
+  #add a column of ones to dets
+  dets = np.hstack((dets,np.ones((dets.shape[0],1))))
+
   #augment detections with fake (pose-based) points
   if parameters['fake_dets']:
     dets_aug = []
     for i in range(dets.shape[0]):
-      dets_aug.append(np.concatenate((dets[i,:],[1])).reshape(1,-1)) #add the detection itself
+      dets_aug.append(dets[i,:].reshape(1,-1)) #add the detection itself
       det_timestamp_id = timestamp_id[dets[i,3]]
       lla_offset = dets[i,:]-pose[det_timestamp_id,:]
       assert lla_offset[3]==0 #mohammad: to be remove
