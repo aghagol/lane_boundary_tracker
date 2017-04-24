@@ -29,17 +29,16 @@ print(param)
 for drive in os.listdir(data_dir):
   print('Working on drive %s'%drive)
 
-  pose_filename = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('csv')]
-  assert len(pose_filename)==1, 'ERROR: found %d pose files in %s'%(len(pose_filename),data_dir+drive)
-  pose_filename = pose_filename[0]
+  pose_path = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('csv')]
+  assert len(pose_path)==1, 'ERROR: found %d pose files in %s'%(len(pose_path),data_dir+drive)
+  pose_path = data_dir+drive+'/'+pose_path[0]
 
   det_out = output_dir+'%s/det/'%(drive)
   os.makedirs(det_out)
 
-  state = motutil.highv1_to_mot_det(data_dir+drive, pose_filename, det_out+'det.txt', param)
-
-  #save timestamps
-  motutil.store_highv1_timestamps(data_dir+drive, pose_filename, det_out+'timestamps.txt')
+  motutil.index_TLLA_points(data_dir+drive,det_out+'detections.txt',param)
+  motutil.highv1_to_mot_det(det_out+'detections.txt',pose_path,det_out+'det.txt',param)
+  motutil.store_highv1_timestamps(pose_path,det_out+'timestamps.txt') #save timestamps
 
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)

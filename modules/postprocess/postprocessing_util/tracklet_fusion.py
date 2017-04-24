@@ -30,7 +30,7 @@ def fuse(tracks,param):
 				new_label = min(node_label[node_1],node_label[node_2])
 				node_label[node_1] = new_label
 				node_label[node_2] = new_label
-	tracks[:,1] = [node_label[lb2node[lb]] for lb in tracks[:,1]] #WARNING: over-riding lb names
+	tracks[:,1] = [node_label[lb2node[lb]]+1 for lb in tracks[:,1]] #WARNING: over-riding lb names
 
 	#Use tracking confidence scores to remove the overlap
 	out = []
@@ -44,5 +44,4 @@ def fuse(tracks,param):
 			else:
 				out.append(current_track)
 	out = np.vstack(out)
-	out = out[out[:,5]>0,:5] #remove the guide
 	return out

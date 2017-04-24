@@ -8,10 +8,6 @@ output CSV has 5 columns:
   mpath.............this is the frame timestamps file path (if any)
   tpath.............this is the track file path
   gpath.............this is the groundtruth file path
-
-Make a symbolic link `data` to MOT dataset
-Make a symbolic link `tracks` to output of tracker
-
 """
 print(__doc__)
 

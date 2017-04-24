@@ -13,3 +13,6 @@ with open(args.config) as fparam:
   param = json.load(fparam)["visualize"]
 
 print('...Omitting tracks that span less than %d frames'%(param['min_track_length']))
+
+if param['output_fuse']:
+	print('...Converting tracking results to fuse format')

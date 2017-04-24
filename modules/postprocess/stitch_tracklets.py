@@ -48,7 +48,7 @@ for seq_idx,seq in seqs.iterrows():
 
   out = postprocessing_util.fuse(trks,param)
 
-  fmt = ['%d','%d','%.2f','%.2f','%.2f']
+  fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
   np.savetxt('%s/%s.txt'%(args.output,seqs.name[seq_idx]),out,fmt=fmt,delimiter=',')
 
 

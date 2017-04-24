@@ -1,9 +1,9 @@
 import numpy as np
-import pandas as pd
-import os
+# import pandas as pd
+# import os
 from haversine import haversine
 
-def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, parameters):
+def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   """
   Input: a JSON file (chucai's format)
   Output: MOT-formatted det.txt
@@ -17,85 +17,73 @@ def highv1_to_mot_det(input_file_path, pose_filename, output_file_path, paramete
   """
   zoom = 1. / parameters['pixel_size']
 
-  #store all detections in a single numpy array
-  prefix = '/FuseToTLLAIOutput/'
-  chunk_list = [i for i in os.listdir(input_file_path+prefix) if i.isdigit()]
-  dets = []
-  for chunk in chunk_list:
-    for filename in os.listdir(input_file_path+prefix+chunk):
-      if filename.endswith('tllai'):
-        dets.append(np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=','))
-  dets = np.vstack(dets)
-  dets = dets[:,[1,2,3,0]] #TLLA ---> LLAT
+  #load detections from txt file
+  dets = np.loadtxt(input_file_path,delimiter=',')
+
+  #ignore altitude for now
+  dets = dets[:,:4]
 
   #extract vehicle pose information
-  pose = np.loadtxt(input_file_path+'/'+pose_filename)
-  pose = pose[pose[:,3].argsort(),:] #sort points based on timestamps (probably already sorted)
-  timestamp_id = {k:v for v,k in enumerate(pose[:,3])}
+  pose = np.loadtxt(pose_path)[:,[3,0,1]] #save in TLL format
+  pose = np.hstack((np.zeros((pose.shape[0],1)).reshape(-1,1),pose)) #add a column for flags
+  pose = pose[pose[:,1].argsort(),:] #sort points based on timestamps (probably already sorted)
+  timestamp_id = {k:v for v,k in enumerate(pose[:,1])}
 
   #smooth the pose
   if parameters['smooth_pose']:
     from scipy.ndimage.filters import gaussian_filter1d
-    pose[:,0:2] = gaussian_filter1d(pose[:,0:2],sigma=10,axis=0,mode='nearest')
+    pose[:,2:4] = gaussian_filter1d(pose[:,2:4],sigma=10,axis=0,mode='nearest')
 
   #round detections' timestamps to closest ones in the pose file (nearest neighbor quantization)
   for i in range(dets.shape[0]):
-    dets[i,3] = pose[np.argmin(abs(pose[:,3]-dets[i,3])),3]
+    dets[i,1] = pose[np.argmin(abs(pose[:,1]-dets[i,1])),1]
 
-  #sort detections according to timestamps (probably already sorted)
-  dets = dets[dets[:,3].argsort(),:]
-
-  #add a column of ones to dets
-  dets = np.hstack((dets,np.ones((dets.shape[0],1))))
+  # #re-sort detections according to timestamps
+  # dets = dets[dets[:,1].argsort(),:]
 
   #augment detections with fake (pose-based) points
   if parameters['fake_dets']:
     dets_aug = []
     for i in range(dets.shape[0]):
       dets_aug.append(dets[i,:].reshape(1,-1)) #add the detection itself
-      det_timestamp_id = timestamp_id[dets[i,3]]
+      det_timestamp_id = timestamp_id[dets[i,1]]
       lla_offset = dets[i,:]-pose[det_timestamp_id,:]
-      assert lla_offset[3]==0 #mohammad: to be remove
+      lla_offset[0] = 0 #since this is a guide (fake detection)
       discard_fake_point = False
       for j in range(1,parameters['fake_dets_n']+1):
         fake_det = pose[det_timestamp_id+(j*parameters['pose_step']),:]+lla_offset
         for k in range(i+1,min(i+100,dets.shape[0])): #check if future detections are close by
-          if haversine(dets[k,0],dets[k,1],fake_det[0],fake_det[1])<parameters['fake_dets_min_dist']:
+          if haversine(dets[k,2],dets[k,3],fake_det[2],fake_det[3])<parameters['fake_dets_min_dist']:
             discard_fake_point = True
             break
         if discard_fake_point: break
-        dets_aug.append(np.concatenate((fake_det,[0])).reshape(1,-1))
+        dets_aug.append(fake_det.reshape(1,-1))
     dets = np.vstack(dets_aug)
-    dets = dets[dets[:,3].argsort(),:]
+    dets = dets[dets[:,1].argsort(),:] #re-sort
 
-  #merge detections with pose (if desired) - for KF state initialization
+  #add pose for KF initialization
   if parameters['start_with_pose']:
-    start_idx = max(timestamp_id[dets[0,3]]-10,0)
+    start_idx = max(timestamp_id[dets[0,1]]-10,0)
     stop_idx = min(start_idx+10,pose.shape[0])
     pose_guide = pose[start_idx:stop_idx:parameters['pose_step'],:]
-    pose_guide = np.hstack([pose_guide,np.zeros((pose_guide.shape[0],1))])
     dets = np.vstack([pose_guide,dets])
-    dets = dets[dets[:,3].argsort(),:]
+    dets = dets[dets[:,1].argsort(),:] #re-sort
 
-  lon_min, lon_max = (dets[:,0].min(), dets[:,0].max())
-  lat_min, lat_max = (dets[:,1].min(), dets[:,1].max())
+  lon_min, lon_max = (dets[:,2].min(), dets[:,2].max())
+  lat_min, lat_max = (dets[:,3].min(), dets[:,3].max())
   w = haversine(lon_min,lat_min,lon_max,lat_min)
   h = haversine(lon_min,lat_min,lon_min,lat_max)
 
   # write to output
-  out = np.zeros((dets.shape[0],10),dtype=object)
-  out[:,0] = [timestamp_id[t]-timestamp_id[dets[0,3]]+1 for t in dets[:,3]]
+  out = np.zeros((dets.shape[0],7),dtype=object)
+  out[:,0] = [timestamp_id[t]-timestamp_id[dets[0,1]]+1 for t in dets[:,1]]
   out[:,1] = -1
-  out[:,2] = (dets[:,1]-lat_min)/(lat_max-lat_min)*h*zoom
-  out[:,3] = (dets[:,0]-lon_min)/(lon_max-lon_min)*w*zoom
+  out[:,2] = (dets[:,3]-lat_min)/(lat_max-lat_min)*h*zoom
+  out[:,3] = (dets[:,2]-lon_min)/(lon_max-lon_min)*w*zoom
   out[:,4] = parameters['object_size'] *zoom
   out[:,5] = parameters['object_size'] *zoom
-  out[:,6] = dets[:,4].astype(int)
-  out[:,7] = -1
-  out[:,8] = -1
-  out[:,9] = -1
+  out[:,6] = dets[:,0].astype(int)
 
-  out = pd.DataFrame(out)
-  out.to_csv(output_file_path, header=None, index=False)
-
-  return 0
+  fmt = ['%05d','%d','%011.5f','%011.5f','%05d','%05d','%05d']
+  with open(output_file_path,'w') as fout:
+    np.savetxt(fout,out,fmt=fmt,delimiter=',')

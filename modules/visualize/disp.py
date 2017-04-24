@@ -51,7 +51,7 @@ for seq_idx,seq in seqs.iterrows():
   print('Working on sequence %s'%seqs.name[seq_idx])
 
   dets = np.loadtxt(seq.dpath,delimiter=',')
-  dets = dets[dets[:,6]>0,:6] #discard fake detections
+  dets = dets[dets[:,6]>0,:] #remove the guide
 
   if os.path.exists(seq.mpath):
     timestamps = np.loadtxt(seq.mpath,delimiter=',')
@@ -64,13 +64,14 @@ for seq_idx,seq in seqs.iterrows():
   elif param['show_tracks']:
     if not os.path.exists(seq.tpath): exit("\nNo tracks file was found!\n")
     trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
+    trks = trks[trks[:,4]>0,:] #remove the guide
 
   n_frames = int(dets[:,0].max())
   frame = 1
   while frame < n_frames:
 
     try:
-      dets_cur = dets[dets[:,0]==frame,2:4]
+      dets_cur = dets[dets[:,0]==frame,:]
       if not dets_cur.any():
         frame +=1
         continue
@@ -81,15 +82,15 @@ for seq_idx,seq in seqs.iterrows():
         ax.set_xlim([dets[:,2].min()-args.margin,dets[:,2].max()+args.margin])
         ax.set_ylim([dets[:,3].min()-args.margin,dets[:,3].max()+args.margin])
       else:
-        xlim_low = np.floor(np.median(dets_cur[:,0])/w)*w
-        ylim_low = np.floor(np.median(dets_cur[:,1])/w)*w
+        xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w
+        ylim_low = np.floor(np.median(dets_cur[:,3])/w)*w
         ax.set_xlim([xlim_low-args.margin,xlim_low+w+args.margin])
         ax.set_ylim([ylim_low-args.margin,ylim_low+w+args.margin])
 
       # plot the detections as filled dots
       for fr in range(max(frame-frame_buffer_size,0),frame): #tail
         ax.plot(dets[dets[:,0]==fr,2],dets[dets[:,0]==fr,3],'o',color='k')
-      ax.plot(dets_cur[:,0],dets_cur[:,1],'o',color='k')
+      ax.plot(dets_cur[:,2],dets_cur[:,3],'o',color='k')
 
       # get active tracks and plot them
       if param['show_tracks']:

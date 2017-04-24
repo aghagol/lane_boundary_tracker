@@ -14,6 +14,3 @@ with open(args.config) as fparam:
 
 if param['stitch']:
 	print('...Stitching tracklets')
-
-if param['output_fuse']:
-	print('...Converting tracking results to fuse format')
