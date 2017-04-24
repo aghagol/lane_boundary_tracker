@@ -29,7 +29,7 @@ print(param)
 for drive in os.listdir(data_dir):
   print('Working on drive %s'%drive)
 
-  pose_path = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('csv')]
+  pose_path = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('pose.csv')]
   assert len(pose_path)==1, 'ERROR: found %d pose files in %s'%(len(pose_path),data_dir+drive)
   pose_path = data_dir+drive+'/'+pose_path[0]
 

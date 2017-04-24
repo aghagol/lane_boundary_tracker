@@ -10,6 +10,5 @@ parser.add_argument("--config",help="path to config file")
 args = parser.parse_args()
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["visualize"]
+  param = json.load(fparam)["fuse"]
 
-print('...Omitting tracks that span less than %d frames'%(param['min_track_length']))

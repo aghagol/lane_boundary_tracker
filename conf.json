@@ -21,8 +21,7 @@
 		"delay": 0.1,
 		"window_size": 200,
 		"show_tracks": true,
-		"min_track_length": 1, 
-		"output_fuse": false
+		"min_track_length": 1
 	},
 	"postprocess":
 	{
@@ -30,5 +29,9 @@
 		"gating_thresh": 1, 
 		"affinity_thresh_min": 1,
 		"affinity_thresh_max": 20
+	},
+	"fuse":
+	{
+		"fuse": true
 	}
 }
