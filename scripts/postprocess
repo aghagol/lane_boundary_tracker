@@ -5,15 +5,15 @@ while [[ "$#" > 1 ]]; do case $1 in
     --tracks) tracks_postprocess="$2";;
     --output) output_postprocess="$2";;
     --config) config_postprocess="$2";;
-    *) echo "Usage: postprocess --input [path] --tracks [path] --output [path] --config [path]"; exit 1;;
+    *) echo "Usage: postprocess --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$input_postprocess" ]] || \
+if  [[ -z "$input_postprocess"  ]] || \
     [[ -z "$tracks_postprocess" ]] || \
     [[ -z "$output_postprocess" ]] || \
     [[ -z "$config_postprocess" ]] ; then
-  echo "Usage: postprocess --input [path] --tracks [path] --output [path] --config [path]"
+  echo "Usage: postprocess --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file"
   exit 1
 fi
 

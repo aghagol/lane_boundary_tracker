@@ -17,15 +17,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-from numba import jit
-import os.path
+# from numba import jit
+import os
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from skimage import io
+# import matplotlib.pyplot as plt
+# import matplotlib.patches as patches
+# from skimage import io
 from sklearn.utils.linear_assignment_ import linear_assignment
-import glob
+# import glob
 import time
 import argparse
 import json
@@ -43,7 +42,7 @@ class KalmanBoxTracker(object):
   This class represents the internel state of individual tracked objects
   """
   count = 0
-  def __init__(self,pos,initial_velocity=np.zeros((2,1))):
+  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0):
     """
     Initialises a tracker
     """
@@ -52,13 +51,12 @@ class KalmanBoxTracker(object):
     self.kf.F = np.array([[1,0,1,0],[0,1,0,1],[0,0,1,0],[0,0,0,1]])
     self.kf.H = np.array([[1,0,0,0],[0,1,0,0]])
 
-    # self.kf.R[2:,2:] *= 10. #default is 10
-    # self.kf.P[2:,2:] *= 1000. #give high uncertainty to the unobservable initial velocities
-    # self.kf.P *= 10. #default is 10
-    # self.kf.Q[2:,2:] *= 0.01
+    # self.kf.P *= 10. #(initial) state variance/uncertainty - default 10
+    # self.kf.P[2:,2:] *= 1000. #motion variance/uncertainty - default 1000
+    # self.kf.Q[2:,2:] *= 0.01 #model-induced state variance/uncertainty - default 0.01
+    # self.kf.R[2:,2:] *= 10. #observation variance/uncertainty - default 10
 
-    self.kf.x[:2] = pos[:2]
-    self.kf.x[2:] = initial_velocity
+    self.kf.x = initial_state
     self.age_since_update = 0
     self.id = KalmanBoxTracker.count
     KalmanBoxTracker.count += 1
@@ -67,19 +65,21 @@ class KalmanBoxTracker(object):
     self.hit_streak = 0
     self.age = 0
     self.confidence = .1
-    self.curr_det = pos.squeeze() #mohammad
+    self.ret = initial_state[:2]
+    self.det_idx = det_idx
 
-  def update(self,pos):
+  def update(self,target_location,det_idx=0):
     """
     Updates the state vector with observations
     """
-    self.curr_det = pos.squeeze()
+    self.ret = target_location
+    self.det_idx = det_idx
     self.age_since_update = 0
     self.history = []
     self.hits += 1
     self.hit_streak += 1
     self.confidence = 1.
-    self.kf.update(pos[:2])
+    self.kf.update(target_location[:2])
 
   def predict(self):
     """
@@ -91,11 +91,12 @@ class KalmanBoxTracker(object):
       self.hit_streak = 0
     self.age_since_update += 1
     self.confidence *= .95
+    print(self.kf.x.shape)
+    self.ret = self.kf.x[:2]
+    self.det_idx = 0
+    return self.kf.x
     # self.history.append(self.kf.x)
     # return self.history[-1]
-    print(self.kf.x.shape)
-    self.curr_det = np.concatenate([self.kf.x[:2].squeeze(),[0]])
-    return self.kf.x
 
   def get_state(self):
     """
@@ -163,7 +164,7 @@ class Sort(object):
   def update(self,dets):
     """
     Params:
-      dets - a numpy array of detections in the format [[x,y,score],[x,y,score],...]
+      dets - a numpy array of detections in the format [[x,y,idx],[x,y,idx],...]
     Requires: this method must be called once for each frame even with empty detections.
     Returns the a similar array, where the last column is the object ID.
 
@@ -175,9 +176,9 @@ class Sort(object):
     to_del = []
     ret = []
     for t,trk in enumerate(trks):
-      pos = self.trackers[t].predict()
-      trk[:] = [pos[0], pos[1]]
-      if(np.any(np.isnan(pos))):
+      target_location = self.trackers[t].predict()
+      trk[:] = [target_location[0], target_location[1]]
+      if(np.any(np.isnan(target_location))):
         to_del.append(t)
     trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
     for t in reversed(to_del):
@@ -194,7 +195,7 @@ class Sort(object):
     for t,trk in enumerate(self.trackers):
       if(t not in unmatched_trks):
         d = matched[np.where(matched[:,1]==t)[0],0]
-        trk.update(dets[d,:].reshape(3,1))
+        trk.update(dets[d,:2].reshape(2,1),det_idx=dets[d,2])
 
     #create and initialise new trackers for unmatched detections
     #---------------but first compute average motion for track initialization (mohammad's add-on)
@@ -205,20 +206,27 @@ class Sort(object):
       avg_velocity = np.zeros((2,1))
     #--------------------------------------------------------------------------------------------
     for i in unmatched_dets:
-        trk = KalmanBoxTracker(dets[i,:].reshape(3,1),avg_velocity)
-        self.trackers.append(trk)
+      initial_state = np.concatenate((dets[i,:2].reshape(2,1),avg_velocity))
+      trk = KalmanBoxTracker(initial_state,det_idx=dets[i,2])
+      self.trackers.append(trk)
 
     i = len(self.trackers)
     for trk in reversed(self.trackers):
-        # d = trk.get_state().squeeze()
-        d = trk.curr_det
-        # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-        if True: #mohammad: output all tracks except guides and only when associated with a detection
-          ret.append(np.concatenate(([trk.id+1],d,[trk.confidence])).reshape(1,-1)) # +1 as MOT benchmark requires positive
-        i -= 1
-        #remove dead tracklet
-        if(trk.age_since_update > self.max_age_since_update):
-          self.trackers.pop(i)
+      # d = trk.get_state().squeeze()
+      d = trk.ret.squeeze() #customized return value
+      # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
+      if True: #mohammad: output all
+        ret_item = []
+        ret_item.append(trk.id+1) # +1 as MOT benchmark requires positive
+        ret_item.append(d[0])
+        ret_item.append(d[1])
+        ret_item.append(trk.det_idx)
+        ret_item.append(trk.confidence)
+        ret.append(np.array(ret_item).reshape((1,-1)))
+      i -= 1
+      #remove dead tracklets
+      if(trk.age_since_update > self.max_age_since_update):
+        self.trackers.pop(i)
     if(len(ret)>0):
       return np.concatenate(ret)
     return np.empty((0,2))
@@ -254,7 +262,7 @@ if __name__ == '__main__':
     print("Processing %s"%(seq))
     for frame in range(int(seq_dets[:,0].max())):
       frame += 1 #detection and frame numbers begin at 1
-      dets = seq_dets[seq_dets[:,0]==frame,:][:,[2,3,6]].reshape(-1,3)
+      dets = seq_dets[seq_dets[:,0]==frame,:][:,[2,3,6]].reshape(-1,3) #format: [x,y,idx]
       total_frames += 1
 
       start_time = time.time()

@@ -16,7 +16,7 @@ import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",help="path to MOT dataset")
+parser.add_argument("--input", help="path to MOT dataset")
 parser.add_argument("--tracks",help="path to predicted tracks")
 parser.add_argument("--output",help="output path to save seq.csv")
 args = parser.parse_args()

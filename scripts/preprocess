@@ -4,12 +4,12 @@ while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_preprocess="$2";;
     --output) output_preprocess="$2";;
     --config) config_preprocess="$2";;
-    *) echo "Usage: preprocess --input [path] --output [path] --config [path]"; exit 1;;
+    *) echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file"; exit 1;;
   esac; shift; shift
 done
 
 if [[ -z "$input_preprocess" ]] || [[ -z "$output_preprocess" ]] || [[ -z "$config_preprocess" ]] ; then
-  echo "Usage: preprocess --input [path] --output [path] --config [path]"
+  echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file"
   exit 1
 fi
 

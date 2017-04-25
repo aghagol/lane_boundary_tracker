@@ -6,12 +6,16 @@ while [[ "$#" > 1 ]]; do case $1 in
     --output) output_fuse="$2";;
     --config) config_fuse="$2";;
     --input-root) input_root="$2";;
-    *) echo "Usage: fuse --input [path] --tracks [path] --output [path] --config [path] --input-root [path]"; exit 1;;
+    *) echo "Usage: fuse --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file --input-root path/to/drive_data"; exit 1;;
   esac; shift; shift
 done
 
-if [[ -z "$input_fuse" ]] || [[ -z "$tracks_fuse" ]] || [[ -z "$output_fuse" ]] || [[ -z "$config_fuse" ]] || [[ -z "$input_root" ]] ; then
-  echo "Usage: fuse --input [path] --tracks [path] --output [path] --config [path] --input-root [path]"
+if  [[ -z "$input_fuse"   ]] || \
+    [[ -z "$tracks_fuse"  ]] || \
+    [[ -z "$output_fuse"  ]] || \
+    [[ -z "$config_fuse"  ]] || \
+    [[ -z "$input_root"   ]] ; then
+  echo "Usage: fuse --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file --input-root path/to/drive_data"
   exit 1
 fi
 

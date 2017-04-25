@@ -12,4 +12,4 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.load(fparam)["visualize"]
 
-print('...Omitting tracks that span less than %d frames'%(param['min_track_length']))
+print('...Omitting tracks shorter than %d'%(param['min_track_length']))

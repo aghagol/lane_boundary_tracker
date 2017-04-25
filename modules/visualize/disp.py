@@ -18,12 +18,11 @@ warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", help="a CSV file with 5 columns: \
-  name (sequence name), dpath (path to detections CSV), tpath (path to tracking results CSV), \
-  mpath (path to frame timestamps CSV) and gpath (path to groundtruth CSV).")
+  name (sequence name), dpath (path to detections), tpath (path to tracking results), \
+  mpath (path to frame timestamps) and gpath (path to groundtruth - optional).")
 parser.add_argument("--delay",type=float,default=.01,help="delay in seconds for each frame.")
 parser.add_argument("--margin",type=int,default=0,help="add this many pixels to plot margins.")
-parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth \
-  instead of computer tracks.")
+parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth.")
 parser.add_argument("--fixed-axes",action='store_true',help="Use fixed axes for display.")
 parser.add_argument("--window-size",type=float,default=100.,help="Display window size.")
 parser.add_argument("--config",help="configuration JSON file")
