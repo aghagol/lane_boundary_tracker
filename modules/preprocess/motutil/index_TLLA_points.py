@@ -1,7 +1,5 @@
 import numpy as np
-import pandas as pd
 import os
-from haversine import haversine
 
 def index_TLLA_points(input_file_path,output_file_path,parameters):
   """
@@ -24,7 +22,7 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
   #add detection index in a new column
   dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))
 
-  #remove duplicates
+  #remove duplicates (nearest neighbor?)
 
   #save result to CSV file
   fmt = ['%05d','%d','%.10f','%.10f','%.10f']

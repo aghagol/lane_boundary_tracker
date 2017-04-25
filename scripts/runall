@@ -20,7 +20,7 @@ if [[ $data_dir ]] ; then
     ./scripts/preprocess  --input $data_dir             --output $cache/preprocess  --config $MOT_CONFIG
     ./scripts/sort        --input $cache/preprocess/mot --output $cache/sort        --config $MOT_CONFIG
     ./scripts/postprocess --input $cache/preprocess/mot --output $cache/postprocess --config $MOT_CONFIG  --tracks $cache/sort/tracks
-    ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --input-root $data_dir  
+    # ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --input-root $data_dir  
     # ./scripts/evaluate    --input $cache/preprocess/mot --output $cache/evaluate    --config $MOT_CONFIG  --tracks $cache/sort/tracks
   else
     echo "Output path is not empty.. Please enter an empty path for outputs."
@@ -28,11 +28,12 @@ if [[ $data_dir ]] ; then
 fi
 
 echo "Visualize?"
-select ans in Yes No ; do
+select ans in Yes No
+do
   case $ans in
     Yes)
       rm -rf $cache/visualize
-      ./scripts/visualize --input $cache/preprocess/mot --output $cache/visualize   --config $MOT_CONFIG  --tracks $cache/postprocess/tracks;;
+      ./scripts/visualize --input $cache/preprocess/mot --output $cache/visualize --config $MOT_CONFIG --tracks $cache/postprocess/tracks;;
   esac
   break
 done

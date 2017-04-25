@@ -4,6 +4,7 @@ This is a 2-pass algorithm for fusing/stitching tracklets
 import numpy as np
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
+import networkx as nx
 
 def fuse(tracks,param):
 	#Each track is associated with a lane boundary (second column in tracks array)
@@ -20,26 +21,29 @@ def fuse(tracks,param):
 		A[np.ix_(active_nodes,active_nodes)] += (active_nodes_pdist<param['gating_thresh'])
 	np.fill_diagonal(A,0) #no self-loops allowed
 
-	#Mark tracks for fusion (assign a common label to multiple tracks)
-	#I use a region growing approach seeding from node 1
-	#=find connected components of graph (for now)
-	node_label = {node:node for node in node2lb}
-	for node_1 in node2lb:
-		for node_2 in node2lb:
-			if A[node_1,node_2]>=param['affinity_thresh_min'] and A[node_1,node_2]<=param['affinity_thresh_max']:
-				new_label = min(node_label[node_1],node_label[node_2])
-				node_label[node_1] = new_label
-				node_label[node_2] = new_label
-	tracks[:,1] = [node_label[lb2node[lb]]+1 for lb in tracks[:,1]] #WARNING: over-riding lb names
+	#Mark tracks for fusion by finding connected components of the tracklets graph:
+	# G = nx.from_numpy_matrix(np.logical_and(A>=param['affinity_thresh_min'],A<=param['affinity_thresh_max']))
+	G = nx.from_numpy_matrix(A>=param['affinity_thresh_min'])
+	node_label = {node:k for k,comp_set in enumerate(nx.connected_components(G)) for node in comp_set}
+	tracks[:,1] = map(lambda lb: node_label[lb2node[lb]]+1,tracks[:,1]) #WARNING: over-writing lb values
 
-	#Use tracking confidence scores to remove the overlap
+	#	#Old approach: alternatively, we can use region growing seeding from node 1:
+	# node_label = {node:node for node in node2lb}
+	# for node_1 in sorted(node2lb):
+	# 	for node_2 in sorted(node2lb):
+	# 		if A[node_1,node_2]>=param['affinity_thresh_min'] and A[node_1,node_2]<=param['affinity_thresh_max']:
+	# 			new_label = min(node_label[node_1],node_label[node_2])
+	# 			node_label[node_1] = new_label
+	# 			node_label[node_2] = new_label
+	# tracks[:,1] = [node_label[lb2node[lb]]+1 for lb in tracks[:,1]] #WARNING: over-writing lb values
+
+	#Use tracking confidence scores to remove overlaps (keep points with highest confidences)
 	out = []
 	for frame in range(1,int(tracks[:,0].max())+1):
 		active_tracks = tracks[tracks[:,0]==frame,:]
 		for label in set(active_tracks[:,1]):
 			current_track = active_tracks[active_tracks[:,1]==label,:]
-			if current_track.shape[0]>1: #check for overlaps
-				#keep the tracked point with highest confidence
+			if current_track.shape[0]>1: #checking for overlaps
 				out.append(current_track[np.argmax(current_track[:,-1]),:])
 			else:
 				out.append(current_track)

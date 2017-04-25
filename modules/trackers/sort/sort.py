@@ -30,11 +30,11 @@ import argparse
 import json
 from filterpy.kalman import KalmanFilter
 
-def d2t_sim(z,HFx): #detection to track similarity
+def d2t_sim(z,HFx,S=np.identity(2)): #detection to track similarity
   """
   Computes similarity between a detection (2x1 numpy array) to a prediction (2x1 numpy array)
   """
-  # return np.dot((z-HFx).T, np.dot(np.inverse(S),(z-HFx)))
+  # return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.inverse(S),(z-HFx)))))
   return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
 
 class KalmanBoxTracker(object):

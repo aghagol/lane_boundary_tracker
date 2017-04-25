@@ -3,32 +3,33 @@
 	{
 		"pixel_size": 1,
 		"object_size": 10,
-		"start_with_pose": true,
-		"pose_step": 1,
-		"smooth_pose": false,
-		"fake_dets": true,
-		"fake_dets_n": 50,
-		"fake_dets_min_dist": 1
+		"start_with_pose": false,
+			"pose_step": 1,
+		"fake_dets": false,
+			"fake_dets_n": 2,
+			"fake_dets_pose_step": 1,
+			"fake_dets_min_dist": 3,
+		"smooth_pose": false
 	},
 	"sort":
 	{
 		"d2t_dist_threshold_tight": 3,
 		"d2t_dist_threshold_loose": 5,
-		"max_age_after_last_update": 2
+		"max_age_after_last_update": 20
 	},
 	"visualize":
 	{
-		"delay": 0.1,
-		"window_size": 200,
+		"delay": 0.2,
+		"window_size": 100,
 		"show_tracks": true,
 		"min_track_length": 1
 	},
 	"postprocess":
 	{
-		"stitch": true, 
-		"gating_thresh": 1, 
-		"affinity_thresh_min": 1,
-		"affinity_thresh_max": 20
+		"stitch": false,
+			"gating_thresh": 2,
+			"affinity_thresh_min": 1,
+			"affinity_thresh_max": 5
 	},
 	"fuse":
 	{
