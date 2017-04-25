@@ -10,10 +10,6 @@ import pandas as pd
 import argparse
 import json 
 
-#this is an optional feature
-import warnings
-warnings.filterwarnings("ignore")
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", help="CSV file containing paths")
 parser.add_argument("--input-root", help="path to dataset root")

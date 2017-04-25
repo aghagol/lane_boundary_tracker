@@ -1,4 +1,2 @@
 # preprocess
-
-`break_json.py` breaks a large drive-based JSON into smaller (surface-sized) JSONs. 
-`json2mot.py` creates an MOT sequence from each JSON file from previous stage.
+Data-specific scripts for arranging detections (input) in MOT format. Additionally, data-specific steps are taken to improve the tracking results.

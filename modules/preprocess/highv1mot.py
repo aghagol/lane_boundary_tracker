@@ -43,9 +43,9 @@ for drive in os.listdir(data_dir):
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)
   # os.makedirs(gt_out)
-  # motutil.json_to_mot_gt(data_dir+drive+'/'+surface, gt_out+'gt.txt', param)
+  # motutil.highv1_to_mot_gt(data_dir+drive+'/'+surface, gt_out+'gt.txt', param)
 
-  # #save images
+  # #save (fake) images
   # img_out = output_dir+'%s_%s/img1/'%(drive,surface_name)
   # os.makedirs(img_out)
   # Image.fromarray(np.zeros((param['image_nrows'],param['image_ncols']))).convert('RGB').save(img_out+'000001.jpg')

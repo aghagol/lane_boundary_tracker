@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import argparse
 import json
 
-#this is an optional feature
+#suppress matplotlib warnings
 import warnings
 warnings.filterwarnings("ignore")
 

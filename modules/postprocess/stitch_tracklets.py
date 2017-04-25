@@ -24,6 +24,7 @@ parser.add_argument("--output",help="output path to save tracklet fusion results
 parser.add_argument("--config",help="configuration JSON file")
 args = parser.parse_args()
 
+fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
 with open(args.config) as fparam:
   param = json.load(fparam)["postprocess"]
 print(param)
@@ -43,12 +44,10 @@ for seq_idx,seq in seqs.iterrows():
   #read sequence data (detections, tracks, ...)
   # dets = np.loadtxt(seq.dpath,delimiter=',')
   # if os.path.exists(seq.mpath): timestamps = np.loadtxt(seq.mpath,delimiter=',')
-  if not os.path.exists(seq.tpath): exit("\nNo tracks file was found for postprocessing!\n")
   trks = np.loadtxt(seq.tpath,delimiter=',')
 
   out = postprocessing_util.fuse(trks,param)
 
-  fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
   np.savetxt('%s/%s.txt'%(args.output,seqs.name[seq_idx]),out,fmt=fmt,delimiter=',')
 
 
