@@ -5,7 +5,7 @@ Batch scripts for preprocessing, processing (tracking), visualization and evalua
 To run the complete process, run 
 
 ```bash
-./scripts/runall --input [path to input data] --output [path to hold temporary files]
+./scripts/runall [--input path/to/data] --output path/to/tmp_folder
 ```
 
 The configuration file `conf.json` is located at the repository root.

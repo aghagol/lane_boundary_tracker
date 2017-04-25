@@ -44,7 +44,7 @@ for seq_idx,seq in seqs.iterrows():
   trks = trks[trks[:,4]>0,:] #remove the guide
 
   for lb_number,target_id in enumerate(sorted(set(trks[:,1]))):
-    dets_ids = trks[trks[:,1]==target_id,4].tolist()
+    dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
     out_fuse = []
     for det_id in dets_ids:
       out_fuse.append(dets[det_id-1,[2,3,4,1]].reshape(1,-1))
