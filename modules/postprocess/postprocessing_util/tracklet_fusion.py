@@ -22,8 +22,8 @@ def fuse(tracks,param):
 	np.fill_diagonal(A,0) #no self-loops allowed
 
 	#Mark tracks for fusion by finding connected components of the tracklets graph:
-	# G = nx.from_numpy_matrix(np.logical_and(A>=param['affinity_thresh_min'],A<=param['affinity_thresh_max']))
-	G = nx.from_numpy_matrix(A>=param['affinity_thresh_min'])
+	G = nx.from_numpy_matrix(np.logical_and(A>=param['affinity_thresh_min'],A<=param['affinity_thresh_max']))
+	# G = nx.from_numpy_matrix(A>=param['affinity_thresh_min'])
 	node_label = {node:k for k,comp_set in enumerate(nx.connected_components(G)) for node in comp_set}
 	tracks[:,1] = map(lambda lb: node_label[lb2node[lb]]+1,tracks[:,1]) #WARNING: over-writing lb values
 

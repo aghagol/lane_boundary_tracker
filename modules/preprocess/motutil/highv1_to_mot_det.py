@@ -23,9 +23,8 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   #discard altitude
   dets = dets[:,:4]
 
-  video_tracking = parameters['fake_dets'] or parameters['start_with_pose']
   #extract vehicle pose information
-  if video_tracking:
+  if parameters['video_tracking']:
     pose = np.loadtxt(pose_path)[:,[3,0,1]] #save in TLL format
     pose = np.hstack((np.zeros((pose.shape[0],1)).reshape(-1,1),pose)) #add a column for flags
     pose = pose[pose[:,1].argsort(),:] #sort points based on timestamps (probably already sorted)
@@ -34,7 +33,7 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
       dets[i,1] = pose[np.argmin(abs(pose[:,1]-dets[i,1])),1]
 
   #smooth the pose
-  if 'pose' in locals() and parameters['smooth_pose']:
+  if parameters['video_tracking'] and parameters['smooth_pose']:
     from scipy.ndimage.filters import gaussian_filter1d
     pose[:,2:4] = gaussian_filter1d(pose[:,2:4],sigma=10,axis=0,mode='nearest')    
 
@@ -42,7 +41,7 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   # dets = dets[dets[:,1].argsort(),:]
 
   #augment detections with fake (pose-based) points
-  if parameters['fake_dets']:
+  if parameters['video_tracking'] and parameters['fake_dets']:
     dets_aug = []
     for i in range(dets.shape[0]):
       dets_aug.append(dets[i,:].reshape(1,-1)) #add the detection itself
@@ -62,7 +61,7 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
     dets = dets[dets[:,1].argsort(),:] #re-sort
 
   #add pose for KF initialization
-  if parameters['start_with_pose']:
+  if parameters['video_tracking'] and parameters['start_with_pose']:
     start_idx = max(timestamp_id[dets[0,1]]-10,0)
     stop_idx = min(start_idx+10,pose.shape[0])
     pose_guide = pose[start_idx:stop_idx:parameters['pose_step'],:]
@@ -75,18 +74,18 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   h = haversine.dist(lon_min,lat_min,lon_min,lat_max)
 
   # write to output
-  fmt = ['%05d','%d','%011.5f','%011.5f','%05d','%05d','%05d']
-  out = np.zeros((dets.shape[0],7),dtype=object)
+  fmt = ['%05d','%d','%011.5f','%011.5f','%05d','%05d','%05d','%d']
+  out = np.zeros((dets.shape[0],8))
+  out[:,0] = range(1,out.shape[0]+1)
   out[:,1] = -1
   out[:,2] = (dets[:,3]-lat_min)/(lat_max-lat_min)*h*zoom
   out[:,3] = (dets[:,2]-lon_min)/(lon_max-lon_min)*w*zoom
   out[:,4] = parameters['object_size'] *zoom
   out[:,5] = parameters['object_size'] *zoom
-  out[:,6] = dets[:,0].astype(int)
-  if video_tracking:
+  out[:,6] = dets[:,0] #detection point's uniquely associated indices
+  out[:,7] = dets[:,1] #detection point's timestamp
+  if parameters['video_tracking']:
     out[:,0] = [timestamp_id[t]-timestamp_id[dets[0,1]]+1 for t in dets[:,1]]
-  else:
-    out[:,0] = dets[:,1]; fmt[0] = '%d'
   
   with open(output_file_path,'w') as fout:
     np.savetxt(fout,out,fmt=fmt,delimiter=',')

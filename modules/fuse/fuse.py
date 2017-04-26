@@ -47,7 +47,8 @@ for seq_idx,seq in seqs.iterrows():
     dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
     out_fuse = []
     for det_id in dets_ids:
-      out_fuse.append(dets[det_id-1,[2,3,4,1]].reshape(1,-1))
+      det_row = det_id-1 #NOTE: assuming det id's are sorted and synced with row numbers in tlla.txt
+      out_fuse.append(dets[det_row,[2,3,4,1]].reshape(1,-1))
     out_fuse = np.vstack(out_fuse)
 
     output_fuse = '%d_laneMarking_l2polyline.fuse'%(lb_number)

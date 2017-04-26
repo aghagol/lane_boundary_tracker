@@ -3,12 +3,13 @@
 	{
 		"pixel_size": 1,
 		"object_size": 10,
-		"start_with_pose": false,
+		"video_tracking": false,
+		"start_with_pose": true,
 			"pose_step": 1,
-		"fake_dets": false,
-			"fake_dets_n": 2,
+		"fake_dets": true,
+			"fake_dets_n": 50,
 			"fake_dets_pose_step": 1,
-			"fake_dets_min_dist": 3,
+			"fake_dets_min_dist": 2,
 		"smooth_pose": false
 	},
 	"sort":
@@ -19,8 +20,8 @@
 	},
 	"visualize":
 	{
-		"delay": 0.2,
-		"window_size": 100,
+		"delay": 0.01,
+		"window_size": 200,
 		"show_tracks": true,
 		"min_track_length": 1
 	},

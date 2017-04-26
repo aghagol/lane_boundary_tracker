@@ -36,9 +36,11 @@ for drive in os.listdir(data_dir):
   det_out = output_dir+'%s/det/'%(drive)
   os.makedirs(det_out)
 
-  motutil.index_TLLA_points(data_dir+drive,det_out+'detections.txt',param)
-  motutil.highv1_to_mot_det(det_out+'detections.txt',pose_path,det_out+'det.txt',param)
-  motutil.store_highv1_timestamps(pose_path,det_out+'timestamps.txt') #save timestamps
+  motutil.index_TLLA_points(data_dir+drive,det_out+'tlla.txt',param)
+  motutil.highv1_to_mot_det(det_out+'tlla.txt',pose_path,det_out+'det.txt',param)
+  
+  #save timestamps
+  # motutil.store_highv1_timestamps(pose_path,det_out+'timestamps.txt',param)
 
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)

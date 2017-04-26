@@ -32,8 +32,7 @@ if os.path.exists(args.tracks):
 
 seqs = {}
 seqs['name'] = sequences
-seqs['dpath'] = ['%s/%s/det/detections.txt'%(args.input,seq) for seq in sequences]
-seqs['mpath'] = ['%s/%s/det/timestamps.txt'%(args.input,seq) for seq in sequences]
+seqs['dpath'] = ['%s/%s/det/tlla.txt'%(args.input,seq) for seq in sequences]
 seqs['tpath'] = ['%s/%s.txt'%(args.tracks,seq) for seq in sequences]
 
 seqs_df = pd.DataFrame(seqs)

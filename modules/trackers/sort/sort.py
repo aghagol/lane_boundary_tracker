@@ -92,7 +92,6 @@ class KalmanBoxTracker(object):
       self.hit_streak = 0
     self.age_since_update += 1
     self.confidence *= .95
-    print(self.kf.x.shape)
     self.ret = self.kf.x[:2]
     self.det_idx = 0
     return self.kf.x
@@ -257,17 +256,19 @@ if __name__ == '__main__':
     ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
+    frame_timestamps = dict(zip(seq_dets[:,0],seq_dets[:,7]))
 
     out_file = open('%s/%s.txt'%(args.output,seq),'w')
 
+    frames = sorted(set(seq_dets[:,0]))
     print("Processing %s"%(seq))
     start_time = time.time()
-    for frame in range(seq_dets.shape[0]):
-      dets = seq_dets[frame,[2,3,6]].reshape(-1,3) #format: [x,y,index,timestamp]
-      dt = seq_dets[frame,0]-seq_dets[max(frame-1,0),0]
-      trackers = mot_tracker.update(dets,dt)
+    for frame_idx,frame in enumerate(frames):
+      dets = seq_dets[seq_dets[:,0]==frame,:]
+      dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
+      trackers = mot_tracker.update(dets[:,[2,3,6]].reshape(-1,3),dt) #det format: [x,y,index]
       for d in trackers:
-        print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame+1,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+        print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
     total_time = time.time() - start_time
     out_file.close()
 

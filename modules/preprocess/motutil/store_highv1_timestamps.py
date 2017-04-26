@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def store_highv1_timestamps(pose_path,output_file_path):
+def store_highv1_timestamps(pose_path,output_file_path,parameters):
   """
   Store a mapping between frame numbers and timestamps
   """

@@ -48,12 +48,8 @@ for seq_idx,seq in seqs.iterrows():
   print('Working on sequence %s'%seqs.name[seq_idx])
 
   dets = np.loadtxt(seq.dpath,delimiter=',')
-  # dets = dets[dets[:,6]>0,:] #remove the guide
-
-  if os.path.exists(seq.mpath):
-    timestamps = np.loadtxt(seq.mpath,delimiter=',')
-  else:
-    timestamps = np.zeros((dets.shape[0],2))
+  dets = dets[dets[:,6]>0,:] #remove the guide
+  frame_timestamps = dict(zip(dets[:,0],dets[:,7]))
 
   if args.groundtruth:
     if not os.path.exists(seq.gpath): exit("GT data not there!")
@@ -63,32 +59,33 @@ for seq_idx,seq in seqs.iterrows():
     trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
     trks = trks[trks[:,4]>0,:] #remove the predictions with no matches
 
-  n_frames = dets.shape[0] #each detection makes a frame
-  for frame in range(n_frames):
+  frames = sorted(frame_timestamps)
+  for frame_idx,frame in enumerate(frames):
 
     try:
-      dets_cur = dets[frame,:]
+      dets_cur = dets[dets[:,0]==frame,:]
       ax.cla()
-      xlim_low = np.floor(dets_cur[2]/w)*w
-      ylim_low = np.floor(dets_cur[3]/w)*w
+      xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w
+      ylim_low = np.floor(np.median(dets_cur[:,3])/w)*w
       ax.set_xlim([xlim_low-args.margin,xlim_low+w+args.margin])
       ax.set_ylim([ylim_low-args.margin,ylim_low+w+args.margin])
 
       # plot detections
-      start_frame = max(frame-frame_buffer_size,0)
-      ax.plot(dets[start_frame:frame,2],dets[start_frame:frame,3],'o',color='k')
+      for plot_frame_idx in range(max(frame_idx-frame_buffer_size,0),frame_idx):
+        ax.plot(dets[dets[:,0]==frames[plot_frame_idx],2],dets[dets[:,0]==frames[plot_frame_idx],3],'o',color='k')
 
       # plot tracks
+      start_frame = frames[max(frame_idx-frame_buffer_size,0)]
       if param['show_tracks']:
-        trks_active_set = set(trks[np.logical_and(trks[:,0]<=frame,trks[:,0]>start_frame),1])
+        trks_active_set = set(trks[np.logical_and(trks[:,0]<frame,trks[:,0]>start_frame),1])
         for trk_curr_id in trks_active_set:
           trk_curr_tail = trks[trks[:,1]==trk_curr_id,:]
           if trk_curr_tail.shape[0]<param['min_track_length']: continue
-          trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]<=frame,:]
+          trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]<frame,:]
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>start_frame,:]
           ax.plot(trk_curr_tail[:,2],trk_curr_tail[:,3],color=colors[trk_curr_id%711,:])
 
-      ax.set_title('frame %05d/%05d, time=%d'%(frame+1,n_frames,timestamps[frame,1]))
+      ax.set_title('frame number %05d/%05d, time=%d'%(frame_idx+1,len(frames),frame_timestamps[frame]))
       plt.pause(delay)
 
     except KeyboardInterrupt:
