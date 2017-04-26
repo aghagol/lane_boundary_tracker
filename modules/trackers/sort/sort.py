@@ -81,10 +81,11 @@ class KalmanBoxTracker(object):
     self.confidence = 1.
     self.kf.update(target_location[:2])
 
-  def predict(self):
+  def predict(self,dt=1):
     """
     Advances the state vector and returns the predicted bounding box estimate.
     """
+    self.kf.F = np.array([[1,0,dt,0],[0,1,0,dt],[0,0,1,0],[0,0,0,1]])
     self.kf.predict()
     self.age += 1
     if(self.age_since_update>0):
@@ -161,7 +162,7 @@ class Sort(object):
     self.trackers = []
     self.frame_count = 0
 
-  def update(self,dets):
+  def update(self,dets,dt=1):
     """
     Params:
       dets - a numpy array of detections in the format [[x,y,idx],[x,y,idx],...]
@@ -176,7 +177,7 @@ class Sort(object):
     to_del = []
     ret = []
     for t,trk in enumerate(trks):
-      target_location = self.trackers[t].predict()
+      target_location = self.trackers[t].predict(dt=dt)
       trk[:] = [target_location[0], target_location[1]]
       if(np.any(np.isnan(target_location))):
         to_del.append(t)
@@ -260,21 +261,17 @@ if __name__ == '__main__':
     out_file = open('%s/%s.txt'%(args.output,seq),'w')
 
     print("Processing %s"%(seq))
-    for frame in range(int(seq_dets[:,0].max())):
-      frame += 1 #detection and frame numbers begin at 1
-      dets = seq_dets[seq_dets[:,0]==frame,:][:,[2,3,6]].reshape(-1,3) #format: [x,y,idx]
-      total_frames += 1
-
-      start_time = time.time()
-      trackers = mot_tracker.update(dets)
-      cycle_time = time.time() - start_time
-      total_time += cycle_time
-
+    start_time = time.time()
+    for frame in range(seq_dets.shape[0]):
+      dets = seq_dets[frame,[2,3,6]].reshape(-1,3) #format: [x,y,index,timestamp]
+      dt = seq_dets[frame,0]-seq_dets[max(frame-1,0),0]
+      trackers = mot_tracker.update(dets,dt)
       for d in trackers:
-        print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
-
+        print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame+1,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+    total_time = time.time() - start_time
     out_file.close()
 
+  total_frames = seq_dets.shape[0]
   print("Total Tracking took: %.3f for %d frames or %.1f FPS"%(total_time,total_frames,total_frames/total_time))
 
 
