@@ -5,11 +5,12 @@
 		"object_size": 10,
 		"video_tracking": false,
 		"start_with_pose": true,
+			"head_start": 10,
 			"pose_step": 1,
 		"fake_dets": true,
 			"fake_dets_n": 50,
 			"fake_dets_pose_step": 1,
-			"fake_dets_min_dist": 2,
+			"fake_dets_min_dist": 0.3,
 		"smooth_pose": false
 	},
 	"sort":
@@ -20,7 +21,7 @@
 	},
 	"visualize":
 	{
-		"delay": 0.01,
+		"delay": 0.05,
 		"window_size": 200,
 		"show_tracks": true,
 		"min_track_length": 1
@@ -28,9 +29,9 @@
 	"postprocess":
 	{
 		"stitch": false,
-			"gating_thresh": 2,
+			"gating_thresh": 0.5,
 			"affinity_thresh_min": 1,
-			"affinity_thresh_max": 5
+			"affinity_thresh_max": 500
 	},
 	"fuse":
 	{

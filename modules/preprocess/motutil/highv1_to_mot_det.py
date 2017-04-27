@@ -62,8 +62,8 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
 
   #add pose for KF initialization
   if parameters['video_tracking'] and parameters['start_with_pose']:
-    start_idx = max(timestamp_id[dets[0,1]]-10,0)
-    stop_idx = min(start_idx+10,pose.shape[0])
+    start_idx = max(timestamp_id[dets[0,1]]-parameters['head_start'],0)
+    stop_idx = min(start_idx+1,pose.shape[0]-1)
     pose_guide = pose[start_idx:stop_idx:parameters['pose_step'],:]
     dets = np.vstack([pose_guide,dets])
     dets = dets[dets[:,1].argsort(),:] #re-sort

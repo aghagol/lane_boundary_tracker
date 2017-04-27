@@ -14,7 +14,7 @@ with open(args.config) as fparam:
 
 if param['video_tracking']:
 	print('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
-	print('WARNING: re-sampling timestamps for \"Video Processing\"')
+	print('WARNING: re-sampling timestamps for \"Video Tracking\"')
 	print('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
 
 if param['video_tracking'] and param['fake_dets']:

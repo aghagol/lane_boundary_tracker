@@ -14,10 +14,12 @@ def fuse(tracks,param):
 
 	#Compute track-to-track affinities
 	A = np.zeros((len(lb2node),len(lb2node)),dtype=int)
-	for frame in range(1,int(tracks[:,0].max())+1):
-		active_tracks = tracks[tracks[:,0]==frame,:]
-		active_nodes = [lb2node[lb] for lb in active_tracks[:,1]]
+	frames = np.unique(tracks[:,0])
+	for frame_idx,frame in enumerate(frames[:-1]):
+		active_tracks = tracks[np.logical_and(tracks[:,0]>=frame,tracks[:,0]<=frames[frame_idx+1]),:]
+		# active_tracks = tracks[np.logical_or(tracks[:,0]==frame,tracks[:,0]==frames[frame_idx+1]),:]
 		active_nodes_pdist = squareform(pdist(active_tracks[:,2:4],metric='euclidean'))
+		active_nodes = [lb2node[lb] for lb in active_tracks[:,1]] #I admit there will be duplicates in active_nodes
 		A[np.ix_(active_nodes,active_nodes)] += (active_nodes_pdist<param['gating_thresh'])
 	np.fill_diagonal(A,0) #no self-loops allowed
 

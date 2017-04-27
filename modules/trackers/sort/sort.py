@@ -225,7 +225,7 @@ class Sort(object):
         ret.append(np.array(ret_item).reshape((1,-1)))
       i -= 1
       #remove dead tracklets
-      if(trk.age_since_update > self.max_age_since_update):
+      if(trk.age_since_update >= self.max_age_since_update):
         self.trackers.pop(i)
     if(len(ret)>0):
       return np.concatenate(ret)
@@ -260,7 +260,7 @@ if __name__ == '__main__':
 
     out_file = open('%s/%s.txt'%(args.output,seq),'w')
 
-    frames = sorted(set(seq_dets[:,0]))
+    frames = sorted(frame_timestamps)
     print("Processing %s"%(seq))
     start_time = time.time()
     for frame_idx,frame in enumerate(frames):
