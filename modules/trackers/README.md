@@ -11,9 +11,9 @@
  	+ column 8: `detection's timestamp`
 
 
-## output format 
+## Output format 
 
- - `seq_name.txt`: This is MOT formatted input for the tracking algorithm
+ - `seq_name.txt`:
    + column 1: `target's frame number`
    + column 2: `target's unique identifier`
    + column 3: `target's pixel row`
