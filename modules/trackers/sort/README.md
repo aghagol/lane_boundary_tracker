@@ -92,7 +92,7 @@ Using the [MOT challenge devkit](https://motchallenge.net/devkit/) the method pr
 
 Below is the gist of how to instantiate and update SORT. See the `__main__` section of sort.py for a complete example.
 
-```python    
+```python
 from sort import *
 
 #create instance of SORT
@@ -111,9 +111,9 @@ track_bbs_ids = mot_tracker.update(detections)
 ## output format 
 
  - `seq_name.txt`: This is MOT formatted input for the tracking algorithm
-  + column 1: `target's frame number`
-  + column 2: `target's unique identifier`
-  + column 3: `target's pixel row`
-  + column 4: `target's pixel column`
-  + column 5: `matched detection's unique identifier` (zero if not matched)
-  + column 6: `confidence` (between 0 and 1)
+   + column 1: `target's frame number`
+   + column 2: `target's unique identifier`
+   + column 3: `target's pixel row`
+   + column 4: `target's pixel column`
+   + column 5: `matched detection's unique identifier` (zero if not matched)
+   + column 6: `confidence` (between 0 and 1)
