@@ -107,7 +107,7 @@ track_bbs_ids = mot_tracker.update(detections)
 # track_bbs_ids is a np array where each row contains a valid bounding box and track_id (last column)
 ...
 ```
- 
+
 ## output format 
 
  - `seq_name.txt`: This is MOT formatted input for the tracking algorithm
