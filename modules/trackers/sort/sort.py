@@ -53,8 +53,8 @@ class KalmanBoxTracker(object):
 
     # self.kf.P *= 10. #(initial) state variance/uncertainty - default 10
     # self.kf.P[2:,2:] *= 1000. #motion variance/uncertainty - default 1000
-    # self.kf.Q[2:,2:] *= 0.01 #model-induced state variance/uncertainty - default 0.01
-    # self.kf.R[2:,2:] *= 10. #observation variance/uncertainty - default 10
+    self.kf.Q[2:,2:] *= 0 #model-induced state variance/uncertainty - default 0.01
+    self.kf.R *= 100. #observation variance/uncertainty - default 10
 
     self.kf.x = initial_state
     self.age_since_update = 0
@@ -72,14 +72,15 @@ class KalmanBoxTracker(object):
     """
     Updates the state vector with observations
     """
-    self.ret = target_location
-    self.det_idx = det_idx
     self.age_since_update = 0
     self.history = []
     self.hits += 1
     self.hit_streak += 1
     self.confidence = 1.
     self.kf.update(target_location[:2])
+    # self.ret = target_location
+    self.ret = self.kf.x[:2]
+    self.det_idx = det_idx
 
   def predict(self,dt=1):
     """
