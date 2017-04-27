@@ -17,9 +17,8 @@ mkdir $output_sort
 
 echo $(date) >> $output_sort/log.txt
 
-echo $(date) "Tracking: Running the SORT tracker"
+echo $(date) "Tracking: SORT"
 
-echo "SORT tracker config:"
 ./modules/trackers/sort/print_param.py --config $config_sort
 
 ./modules/trackers/sort/sort.py \

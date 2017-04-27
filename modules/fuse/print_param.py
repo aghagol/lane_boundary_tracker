@@ -12,3 +12,5 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.load(fparam)["fuse"]
 
+if not param['enable']:
+	print('...Fusion is disabled')

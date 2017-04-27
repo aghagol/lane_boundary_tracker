@@ -4,14 +4,14 @@
 		"pixel_size": 1,
 		"object_size": 10,
 		"video_tracking": false,
-		"start_with_pose": true,
-			"head_start": 10,
-			"pose_step": 1,
-		"fake_dets": true,
-			"fake_dets_n": 50,
-			"fake_dets_pose_step": 1,
-			"fake_dets_min_dist": 0.3,
-		"smooth_pose": false
+				"start_with_pose": true,
+						"head_start": 10,
+						"pose_step": 1,
+				"fake_dets": true,
+						"fake_dets_n": 50,
+						"fake_dets_pose_step": 1,
+						"fake_dets_min_dist": 0.3,
+				"smooth_pose": false
 	},
 	"sort":
 	{
@@ -29,12 +29,12 @@
 	"postprocess":
 	{
 		"stitch": false,
-			"gating_thresh": 0.5,
-			"affinity_thresh_min": 1,
-			"affinity_thresh_max": 500
+				"gating_thresh": 0.5,
+				"affinity_thresh_min": 1,
+				"affinity_thresh_max": 500
 	},
 	"fuse":
 	{
-		"fuse": true
+		"enable": true
 	}
 }

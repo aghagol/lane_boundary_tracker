@@ -14,3 +14,5 @@ with open(args.config) as fparam:
 
 if param['stitch']:
 	print('...Stitching tracklets')
+else:
+	print('...Stitching is disabled')

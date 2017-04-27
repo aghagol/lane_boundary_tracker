@@ -57,7 +57,9 @@ for seq_idx,seq in seqs.iterrows():
 
     for row in range(out_fuse.shape[0]):
       timestamp = out_fuse[row,3]
-      out_fuse[row,3] = chunk_id['ChunkId'][np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)]
+      mask = np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)
+      assert mask.sum()==1, 'Each detection must belong to one and only one chunk'
+      out_fuse[row,3] = chunk_id['ChunkId'][mask]
     output_fuse = '%d_laneMarking.fuse'%(lb_number)
     with open(output_path+output_fuse,'w') as fout:
       np.savetxt(fout,out_fuse,fmt=fmt)

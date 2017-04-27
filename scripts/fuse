@@ -29,9 +29,8 @@ echo $(date) >> $output_fuse/log.txt
   --output $output_fuse/seqs.csv \
   >> $output_fuse/log.txt
 
-echo $(date) "Fusion of tracking output..."
+echo $(date) "Fusion for EarthScape viewing"
 
-echo "Fusion config:"
 ./modules/fuse/print_param.py --config $config_fuse
 
 ./modules/fuse/fuse.py \
