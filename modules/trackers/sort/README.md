@@ -44,7 +44,7 @@ If you find this repo useful in your research, please consider citing:
 0. [`FilterPy`](https://github.com/rlabbe/filterpy)
 
 ```bash
-$ pip search filterpy
+pip search filterpy
 ```
 
 
@@ -53,8 +53,8 @@ $ pip search filterpy
 To run the tracker with the provided detections:
 
 ```bash
-$ cd path/to/sort
-$ python sort.py
+cd path/to/sort
+python sort.py
 ```
 
 To display the results you need to:
@@ -63,13 +63,13 @@ To display the results you need to:
 0. Create a symbolic link to the dataset
 
 ```bash
-$ ln -s /path/to/MOT2015_challenge/data/2DMOT2015 mot_benchmark
+ln -s /path/to/MOT2015_challenge/data/2DMOT2015 mot_benchmark
 ```
 
 0. Run the demo with the `--display` flag
 
 ```bash
-$ python sort.py --display
+python sort.py --display
 ```
 
 
