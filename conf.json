@@ -16,14 +16,14 @@
 	},
 	"sort":
 	{
-		"d2t_dist_threshold_tight": 3,
-		"d2t_dist_threshold_loose": 5,
-		"max_age_after_last_update": 10
+		"d2t_dist_threshold_tight": 1,
+		"d2t_dist_threshold_loose": 3,
+		"max_age_after_last_update": 20
 	},
 	"visualize":
 	{
-		"delay": 0.05,
-		"window_size": 100,
+		"delay": 0.01,
+		"window_size": 200,
 		"show_tracks": true,
 		"min_track_length": 1
 	},
@@ -36,6 +36,6 @@
 	},
 	"fuse":
 	{
-		"enable": false
+		"enable": true
 	}
 }

@@ -60,7 +60,9 @@ for seq_idx,seq in seqs.iterrows():
     trks = trks[trks[:,4]>0,:] #remove the predictions with no matches
 
   frames = sorted(frame_timestamps)
-  for frame_idx,frame in enumerate(frames):
+  frame_idx = 0
+  while frame_idx<len(frames):
+    frame = frames[frame_idx]
 
     try:
       dets_cur = dets[dets[:,0]==frame,:]
@@ -87,6 +89,7 @@ for seq_idx,seq in seqs.iterrows():
 
       ax.set_title('frame number %05d/%05d, time=%d'%(frame_idx+1,len(frames),frame_timestamps[frame]))
       plt.pause(delay)
+      frame_idx +=1
 
     except KeyboardInterrupt:
       print('')
@@ -99,7 +102,7 @@ for seq_idx,seq in seqs.iterrows():
       inp = raw_input("...or just press Enter to resume: ")
       print('=================================================')
       if len(inp.strip()):
-        if inp[0]=='j': frame = int(inp[1:])-1
+        if inp[0]=='j': frame_idx = int(inp[1:])-1
         if inp[0]=='w': w = float(inp[1:])
         if inp[0]=='d': delay = float(inp[1:])
         if inp=='q': exit('')

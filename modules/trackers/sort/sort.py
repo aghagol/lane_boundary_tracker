@@ -34,8 +34,8 @@ def d2t_sim(z,HFx,S=np.identity(2)): #detection to track similarity
   """
   Computes similarity between a detection (2x1 numpy array) to a prediction (2x1 numpy array)
   """
-  # return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.inverse(S),(z-HFx)))))
-  return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
+  return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.linalg.inv(S),(z-HFx)))))
+  # return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
 
 class KalmanBoxTracker(object):
   """
@@ -53,7 +53,7 @@ class KalmanBoxTracker(object):
 
     # self.kf.P *= 10. #(initial) state variance/uncertainty - default 10
     # self.kf.P[2:,2:] *= 1000. #motion variance/uncertainty - default 1000
-    self.kf.Q[2:,2:] *= 0 #model-induced state variance/uncertainty - default 0.01
+    self.kf.Q[2:,2:] *= .00000001 #model-induced state variance/uncertainty - default 0.01
     self.kf.R *= 100. #observation variance/uncertainty - default 10
 
     self.kf.x = initial_state
