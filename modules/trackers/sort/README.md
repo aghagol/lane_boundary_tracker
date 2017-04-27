@@ -1,4 +1,4 @@
-SORT
+# SORT
 =====
 
 A simple online and realtime tracking algorithm for 2D multiple object tracking in video sequences.
@@ -42,7 +42,8 @@ If you find this repo useful in your research, please consider citing:
 0. [`scikit-learn`](http://scikit-learn.org/stable/)
 0. [`scikit-image`](http://scikit-image.org/download)
 0. [`FilterPy`](https://github.com/rlabbe/filterpy)
-```
+
+```bash
 $ pip search filterpy
 ```
 
@@ -51,7 +52,7 @@ $ pip search filterpy
 
 To run the tracker with the provided detections:
 
-```
+```bash
 $ cd path/to/sort
 $ python sort.py
 ```
@@ -60,13 +61,16 @@ To display the results you need to:
 
 0. Download the [2D MOT 2015 benchmark dataset](https://motchallenge.net/data/2D_MOT_2015/#download)
 0. Create a symbolic link to the dataset
-  ```
-  $ ln -s /path/to/MOT2015_challenge/data/2DMOT2015 mot_benchmark
-  ```
-0. Run the demo with the ```--display``` flag
-  ```
-  $ python sort.py --display
-  ```
+
+```bash
+$ ln -s /path/to/MOT2015_challenge/data/2DMOT2015 mot_benchmark
+```
+
+0. Run the demo with the `--display` flag
+
+```bash
+$ python sort.py --display
+```
 
 
 ### Main Results
@@ -86,20 +90,30 @@ Using the [MOT challenge devkit](https://motchallenge.net/devkit/) the method pr
 
 ### Using SORT in your own project
 
-Below is the gist of how to instantiate and update SORT. See the '__main__' section of sort.py for a complete example.
-    
-    from sort import *
-    
-    #create instance of SORT
-    mot_tracker = Sort() 
-    
-    # get detections
-    ...
-    
-    # update SORT
-    track_bbs_ids = mot_tracker.update(detections)
+Below is the gist of how to instantiate and update SORT. See the `__main__` section of sort.py for a complete example.
 
-    # track_bbs_ids is a np array where each row contains a valid bounding box and track_id (last column)
-    ...
-    
+```python    
+from sort import *
+
+#create instance of SORT
+mot_tracker = Sort() 
+
+# get detections
+...
+
+# update SORT
+track_bbs_ids = mot_tracker.update(detections)
+
+# track_bbs_ids is a np array where each row contains a valid bounding box and track_id (last column)
+...
+```
  
+## output format 
+
+ - `seq_name.txt`: This is MOT formatted input for the tracking algorithm
+  + column 1: `target's frame number`
+  + column 2: `target's unique identifier`
+  + column 3: `target's pixel row`
+  + column 4: `target's pixel column`
+  + column 5: `matched detection's unique identifier` (zero if not matched)
+  + column 6: `confidence` (between 0 and 1)
