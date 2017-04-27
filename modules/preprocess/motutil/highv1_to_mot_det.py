@@ -31,12 +31,11 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
     timestamp_id = {k:v for v,k in enumerate(pose[:,1])}
     for i in range(dets.shape[0]): #round detections' timestamps to closest ones in the pose file
       dets[i,1] = pose[np.argmin(abs(pose[:,1]-dets[i,1])),1]
+    dets = dets[dets[:,1].argsort(),:]
     #smooth the pose
     if parameters['smooth_pose']:
       from scipy.ndimage.filters import gaussian_filter1d
       pose[:,2:4] = gaussian_filter1d(pose[:,2:4],sigma=10,axis=0,mode='nearest')    
-    # #re-sort detections according to timestamps
-    # dets = dets[dets[:,1].argsort(),:]
     #augment detections with fake (pose-based) points
     if parameters['fake_dets']:
       dets_aug = []
@@ -55,8 +54,8 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
           if discard_fake_point: break
           dets_aug.append(fake_det.reshape(1,-1))
       dets = np.vstack(dets_aug)
-      dets = dets[dets[:,1].argsort(),:] #re-sort
-    #add pose for KF initialization
+      dets = dets[dets[:,1].argsort(),:] #re-sort!
+    #add pose points for KF initialization
     if parameters['start_with_pose']:
       start_idx = max(timestamp_id[dets[0,1]]-parameters['head_start'],0)
       stop_idx = min(start_idx+1,pose.shape[0]-1)

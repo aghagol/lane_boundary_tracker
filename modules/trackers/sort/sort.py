@@ -20,22 +20,18 @@ from __future__ import print_function
 # from numba import jit
 import os
 import numpy as np
-# import matplotlib.pyplot as plt
-# import matplotlib.patches as patches
-# from skimage import io
 from sklearn.utils.linear_assignment_ import linear_assignment
-# import glob
 import time
 import argparse
 import json
 from filterpy.kalman import KalmanFilter
 
-def d2t_sim(z,HFx,S=np.identity(2)): #detection to track similarity
+def d2t_sim(z,HFx): #detection to track similarity
   """
-  Computes similarity between a detection (2x1 numpy array) to a prediction (2x1 numpy array)
+  Computes similarity between a detection (2x1 numpy array) and a prediction (2x1 numpy array)
   """
-  return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.linalg.inv(S),(z-HFx)))))
-  # return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
+  # return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.linalg.inv(S),(z-HFx)))))
+  return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
 
 class KalmanBoxTracker(object):
   """
@@ -53,7 +49,7 @@ class KalmanBoxTracker(object):
 
     # self.kf.P *= 10. #(initial) state variance/uncertainty - default 10
     # self.kf.P[2:,2:] *= 1000. #motion variance/uncertainty - default 1000
-    self.kf.Q[2:,2:] *= .00000001 #model-induced state variance/uncertainty - default 0.01
+    self.kf.Q[2:,2:] *= 1e-8 #model-induced state variance/uncertainty - default 0.01
     self.kf.R *= 100. #observation variance/uncertainty - default 10
 
     self.kf.x = initial_state
@@ -99,12 +95,6 @@ class KalmanBoxTracker(object):
     # self.history.append(self.kf.x)
     # return self.history[-1]
 
-  def get_state(self):
-    """
-    Returns the current bounding box estimate.
-    """
-    return self.kf.x
-
 def associate_detections_to_trackers(detections,trackers,d2t_dist_threshold):
   """
   Assigns detections (d x 2 numpy array) to tracked object (t x 2 numpy array)
@@ -142,8 +132,6 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_threshold):
     matches = np.concatenate(matches,axis=0)
 
   return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
-
-
 
 class Sort(object):
   def __init__(self,
@@ -184,14 +172,12 @@ class Sort(object):
     trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
     for t in reversed(to_del):
       self.trackers.pop(t)
-
     #----------------------------drop d2t_sim_theshold when there are no existing trackers (mohammad)
     if len([trk for trk in self.trackers if trk.hits>0]):
       matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,self.d2t_dist_threshold_tight)
     else:
       matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,self.d2t_dist_threshold_loose)
     #--------------------------------------------------------------------------------------------
-
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
       if(t not in unmatched_trks):
@@ -213,7 +199,6 @@ class Sort(object):
 
     i = len(self.trackers)
     for trk in reversed(self.trackers):
-      # d = trk.get_state().squeeze()
       d = trk.ret.squeeze() #customized return value
       # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
       if True: #mohammad: output all
@@ -258,23 +243,20 @@ if __name__ == '__main__':
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
     frame_timestamps = dict(zip(seq_dets[:,0],seq_dets[:,7]))
-
-    out_file = open('%s/%s.txt'%(args.output,seq),'w')
-
     frames = sorted(frame_timestamps)
+    
     print("Processing %s"%(seq))
     start_time = time.time()
-    for frame_idx,frame in enumerate(frames):
-      dets = seq_dets[seq_dets[:,0]==frame,:]
-      dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
-      trackers = mot_tracker.update(dets[:,[2,3,6]].reshape(-1,3),dt) #det format: [x,y,index]
-      for d in trackers:
-        print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
-    total_time = time.time() - start_time
-    out_file.close()
 
-  total_frames = seq_dets.shape[0]
+    with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
+      for frame_idx,frame in enumerate(frames):
+        dets = seq_dets[seq_dets[:,0]==frame,:]
+        dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
+        trackers = mot_tracker.update(dets[:,[2,3,6]].reshape(-1,3),dt) #det format: [x,y,index]
+        for d in trackers:
+          print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+
+    total_time += time.time() - start_time
+    total_frames += seq_dets.shape[0]
   print("Total Tracking took: %.3f for %d frames or %.1f FPS"%(total_time,total_frames,total_frames/total_time))
-
-
 

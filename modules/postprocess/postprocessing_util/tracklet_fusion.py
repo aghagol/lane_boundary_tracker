@@ -17,7 +17,6 @@ def fuse(tracks,param):
 	frames = np.unique(tracks[:,0])
 	for frame_idx,frame in enumerate(frames[:-1]):
 		active_tracks = tracks[np.logical_and(tracks[:,0]>=frame,tracks[:,0]<=frames[frame_idx+1]),:]
-		# active_tracks = tracks[np.logical_or(tracks[:,0]==frame,tracks[:,0]==frames[frame_idx+1]),:]
 		active_nodes_pdist = squareform(pdist(active_tracks[:,2:4],metric='euclidean'))
 		active_nodes = [lb2node[lb] for lb in active_tracks[:,1]] #I admit there will be duplicates in active_nodes
 		A[np.ix_(active_nodes,active_nodes)] += (active_nodes_pdist<param['gating_thresh'])
@@ -25,19 +24,8 @@ def fuse(tracks,param):
 
 	#Mark tracks for fusion by finding connected components of the tracklets graph:
 	G = nx.from_numpy_matrix(np.logical_and(A>=param['affinity_thresh_min'],A<=param['affinity_thresh_max']))
-	# G = nx.from_numpy_matrix(A>=param['affinity_thresh_min'])
 	node_label = {node:k for k,comp_set in enumerate(nx.connected_components(G)) for node in comp_set}
 	tracks[:,1] = map(lambda lb: node_label[lb2node[lb]]+1,tracks[:,1]) #WARNING: over-writing lb values
-
-	#	#Old approach: alternatively, we can use region growing seeding from node 1:
-	# node_label = {node:node for node in node2lb}
-	# for node_1 in sorted(node2lb):
-	# 	for node_2 in sorted(node2lb):
-	# 		if A[node_1,node_2]>=param['affinity_thresh_min'] and A[node_1,node_2]<=param['affinity_thresh_max']:
-	# 			new_label = min(node_label[node_1],node_label[node_2])
-	# 			node_label[node_1] = new_label
-	# 			node_label[node_2] = new_label
-	# tracks[:,1] = [node_label[lb2node[lb]]+1 for lb in tracks[:,1]] #WARNING: over-writing lb values
 
 	#Use tracking confidence scores to remove overlaps (keep points with highest confidences)
 	out = []
