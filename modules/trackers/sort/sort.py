@@ -38,7 +38,7 @@ class KalmanBoxTracker(object):
   This class represents the internel state of individual tracked objects
   """
   count = 0
-  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0):
+  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0,motion_model_var=1,observation_var=1):
     """
     Initialises a tracker
     """
@@ -47,10 +47,10 @@ class KalmanBoxTracker(object):
     self.kf.F = np.array([[1,0,1,0],[0,1,0,1],[0,0,1,0],[0,0,0,1]])
     self.kf.H = np.array([[1,0,0,0],[0,1,0,0]])
 
-    # self.kf.P *= 10. #(initial) state variance/uncertainty - default 10
-    # self.kf.P[2:,2:] *= 1000. #motion variance/uncertainty - default 1000
-    self.kf.Q[2:,2:] *= 1e-8 #model-induced state variance/uncertainty - default 0.01
-    self.kf.R *= 100. #observation variance/uncertainty - default 10
+    # self.kf.P *= 10. #initial state variance/uncertainty - default 10
+    # self.kf.P[2:,2:] *= 1000. #initial motion variance/uncertainty - default 1000
+    self.kf.Q[2:,2:] *= motion_model_var #model-induced motion variance - default 0.01
+    self.kf.R *= observation_var #observation variance/uncertainty - default 10
 
     self.kf.x = initial_state
     self.age_since_update = 0
@@ -139,6 +139,8 @@ class Sort(object):
       min_hits=3,
       d2t_dist_threshold_tight=1,
       d2t_dist_threshold_loose=3,
+      motion_model_variance=1,
+      observation_variance=1,
     ):
     """
     Sets key parameters for SORT
@@ -147,6 +149,8 @@ class Sort(object):
     self.min_hits = min_hits
     self.d2t_dist_threshold_tight = d2t_dist_threshold_tight
     self.d2t_dist_threshold_loose = d2t_dist_threshold_loose
+    self.motion_model_variance = motion_model_variance
+    self.observation_variance = observation_variance
     self.trackers = []
     self.frame_count = 0
 
@@ -194,7 +198,10 @@ class Sort(object):
     #--------------------------------------------------------------------------------------------
     for i in unmatched_dets:
       initial_state = np.concatenate((dets[i,:2].reshape(2,1),avg_velocity))
-      trk = KalmanBoxTracker(initial_state,det_idx=dets[i,2])
+      trk = KalmanBoxTracker(initial_state,
+        det_idx=dets[i,2],
+        motion_model_var=self.motion_model_variance,
+        observation_var=self.observation_variance)
       self.trackers.append(trk)
 
     i = len(self.trackers)
@@ -239,6 +246,8 @@ if __name__ == '__main__':
       max_age_since_update=param['max_age_after_last_update'],
       d2t_dist_threshold_tight=param['d2t_dist_threshold_tight'],
       d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
+      motion_model_variance = param['motion_model_variance'],
+      observation_variance = param['observation_variance'],
     ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections

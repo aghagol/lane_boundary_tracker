@@ -32,6 +32,7 @@ for seq_idx,seq in seqs.iterrows():
 
   drive = seqs.name[seq_idx]
   print('Working on sequence %s'%drive)
+  os.makedirs(output_path+drive)
 
   chunk_id_path = [csv_file for csv_file in os.listdir(root_path+drive) if csv_file.endswith('_image.csv')]
   assert len(chunk_id_path)==1, 'ERROR: found %d pose files in %s'%(len(chunk_id_path),root_path+drive)
@@ -51,7 +52,7 @@ for seq_idx,seq in seqs.iterrows():
       out_fuse.append(dets[det_row,[2,3,4,1]].reshape(1,-1))
     out_fuse = np.vstack(out_fuse)
 
-    output_fuse = '%d_laneMarking_l2polyline.fuse'%(lb_number)
+    output_fuse = '%s/%d_laneMarking_l2polyline.fuse'%(drive,lb_number)
     with open(output_path+output_fuse,'w') as fout:
       np.savetxt(fout,out_fuse,fmt=fmt)
 
@@ -60,6 +61,6 @@ for seq_idx,seq in seqs.iterrows():
       mask = np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)
       assert mask.sum()==1, 'Each detection must belong to one and only one chunk'
       out_fuse[row,3] = chunk_id['ChunkId'][mask]
-    output_fuse = '%d_laneMarking.fuse'%(lb_number)
+    output_fuse = '%s/%d_laneMarking.fuse'%(drive,lb_number)
     with open(output_path+output_fuse,'w') as fout:
       np.savetxt(fout,out_fuse,fmt=fmt)

@@ -18,7 +18,9 @@
   {
     "d2t_dist_threshold_tight": 1,
     "d2t_dist_threshold_loose": 3,
-    "max_age_after_last_update": 20
+    "max_age_after_last_update": 50,
+    "motion_model_variance": 0.000001,
+    "observation_variance": 200
   },
   "visualize":
   {
@@ -36,6 +38,6 @@
   },
   "fuse":
   {
-    "enable": true
+    "enable": false
   }
 }
