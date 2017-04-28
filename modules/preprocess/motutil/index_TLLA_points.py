@@ -15,16 +15,22 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
     for filename in os.listdir(input_file_path+prefix+chunk):
       if filename.endswith('tllai'):
         points = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',').reshape(-1,6)
-        #find detections that are too close to each other (to be removed)
-        mark_for_deletion = []
-        for i in range(points.shape[0]-1):
-          for j in range(i+1,points.shape[0]):
-            if haversine.dist(points[i,1],points[i,2],points[j,1],points[j,2])<parameters['min_det_dist']:
-              if points[i,5]>=points[j,5]: #pick the point with higher confidence
-                mark_for_deletion.append(j)
-              else:
-                mark_for_deletion.append(i)
-        dets.append(np.delete(points,mark_for_deletion,axis=0))
+        #find detections that are too close to each other (mark for deletion)
+        if parameters['remove_adjacent_points']:
+          mark_for_deletion = []
+          for i in range(points.shape[0]-1):
+            for j in range(i+1,points.shape[0]):
+              if haversine.dist(points[i,1],points[i,2],points[j,1],points[j,2])<parameters['min_det_dist']:
+                if points[i,5]>=points[j,5]: #pick the point with higher confidence
+                  mark_for_deletion.append(j)
+                else:
+                  mark_for_deletion.append(i)
+          points = np.delete(points,mark_for_deletion,axis=0)
+        #keep the first and last points only
+        if parameters['prune_detections']:
+          if points.shape[0]>1:
+            pass
+        dets.append(points)
   dets = np.vstack(dets)
 
   #sort detections according to timestamps

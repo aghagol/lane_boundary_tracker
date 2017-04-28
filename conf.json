@@ -3,7 +3,9 @@
   {
     "pixel_size": 1,
     "object_size": 10,
-    "min_det_dist": 0.3,
+    "remove_adjacent_points": false,
+        "min_det_dist": 0.3,
+    "prune_detections": true,
     "video_tracking": false,
         "start_with_pose": true,
             "head_start": 10,
