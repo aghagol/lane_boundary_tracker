@@ -27,7 +27,7 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
                   mark_for_deletion.append(i)
           points = np.delete(points,mark_for_deletion,axis=0)
         #keep the first and last points only
-        if parameters['prune_detections']:
+        if parameters['prune_chunk_points']:
           if points.shape[0]>1:
             pass
         dets.append(points)

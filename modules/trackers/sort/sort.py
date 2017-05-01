@@ -95,7 +95,7 @@ class KalmanBoxTracker(object):
     # self.history.append(self.kf.x)
     # return self.history[-1]
 
-def associate_detections_to_trackers(detections,trackers,d2t_dist_threshold):
+def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
   """
   Assigns detections (d x 2 numpy array) to tracked object (t x 2 numpy array)
   Returns 3 lists of matches, unmatched_detections and unmatched_trackers
@@ -121,7 +121,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_threshold):
   #filter out matched with low d2t_sim
   matches = []
   for m in matched_indices:
-    if(d2t_sim_matrix[m[0],m[1]]<np.exp(-d2t_dist_threshold)):
+    if(d2t_sim_matrix[m[0],m[1]]<np.exp(-d2t_dist_thresh[m[1]])):
       unmatched_detections.append(m[0])
       unmatched_trackers.append(m[1])
     else:
@@ -137,10 +137,11 @@ class Sort(object):
   def __init__(self,
       max_age_since_update=1,
       min_hits=3,
-      d2t_dist_threshold_tight=1,
-      d2t_dist_threshold_loose=3,
+      d2t_dist_threshold_tight=10,
+      d2t_dist_threshold_loose=10,
       motion_model_variance=1,
       observation_variance=1,
+      sync_initialization=False,
     ):
     """
     Sets key parameters for SORT
@@ -153,6 +154,7 @@ class Sort(object):
     self.observation_variance = observation_variance
     self.trackers = []
     self.frame_count = 0
+    self.sync_initialization = sync_initialization
 
   def update(self,dets,dt=1):
     """
@@ -164,6 +166,7 @@ class Sort(object):
     NOTE: The number of objects returned may differ from the number of detections provided.
     """
     self.frame_count += 1
+
     #get predicted locations from existing trackers.
     trks = np.zeros((len(self.trackers),2))
     to_del = []
@@ -174,14 +177,20 @@ class Sort(object):
       if(np.any(np.isnan(target_location))):
         to_del.append(t)
     trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
-    for t in reversed(to_del):
+    for t in to_del[::-1]:
       self.trackers.pop(t)
-    #----------------------------drop d2t_sim_theshold when there are no existing trackers (mohammad)
-    if len([trk for trk in self.trackers if trk.hits>0]):
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,self.d2t_dist_threshold_tight)
-    else:
-      matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,self.d2t_dist_threshold_loose)
-    #--------------------------------------------------------------------------------------------
+
+    #associate detections with trackers
+    #EDIT ------------ tighten d2t_dist_theshold after the first hit (mohammad)
+    d2t_dist_thresh = []
+    for t, trk in enumerate(self.trackers):
+      if trk.hits>0:
+        d2t_dist_thresh.append(self.d2t_dist_threshold_tight)
+      else:
+        d2t_dist_thresh.append(self.d2t_dist_threshold_loose)
+    matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,d2t_dist_thresh)
+    #-------------------------------------------------------
+
     #update matched trackers with assigned detections
     for t,trk in enumerate(self.trackers):
       if(t not in unmatched_trks):
@@ -189,26 +198,30 @@ class Sort(object):
         trk.update(dets[d,:2].reshape(2,1),det_idx=dets[d,2])
 
     #create and initialise new trackers for unmatched detections
-    #---------------but first compute average motion for track initialization (mohammad's add-on)
+    #EDIT ------------ compute average motion for track initialization (mohammad)
     tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
     if len(tracker_states):
       avg_velocity = np.array(tracker_states).mean(axis=0)[2:].reshape(2,1)
     else:
       avg_velocity = np.zeros((2,1))
-    #--------------------------------------------------------------------------------------------
+    #-------------------------------------------------------
     for i in unmatched_dets:
-      initial_state = np.concatenate((dets[i,:2].reshape(2,1),avg_velocity))
-      trk = KalmanBoxTracker(initial_state,
+      if self.sync_initialization:
+        initial_state = np.concatenate((dets[i,:2].reshape(2,1),avg_velocity))
+      else:
+        initial_state = np.concatenate((dets[i,:2].reshape(2,1),np.zeros((2,1))))
+      trk = KalmanBoxTracker(
+        initial_state=initial_state,
         det_idx=dets[i,2],
         motion_model_var=self.motion_model_variance,
         observation_var=self.observation_variance)
       self.trackers.append(trk)
 
-    i = len(self.trackers)
-    for trk in reversed(self.trackers):
+    #output tracking results
+    for trk in self.trackers:
       d = trk.ret.squeeze() #customized return value
       # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-      if True: #mohammad: output all
+      if True: #EDIT -------- output all (mohammad)
         ret_item = []
         ret_item.append(trk.id+1) # +1 as MOT benchmark requires positive
         ret_item.append(d[0])
@@ -216,13 +229,15 @@ class Sort(object):
         ret_item.append(trk.det_idx)
         ret_item.append(trk.confidence)
         ret.append(np.array(ret_item).reshape((1,-1)))
-      i -= 1
-      #remove dead tracklets
-      if(trk.age_since_update >= self.max_age_since_update):
-        self.trackers.pop(i)
+
+    #remove dead tracklets
+    for t in range(len(self.trackers)-1,-1,-1):
+      if(self.trackers[t].age_since_update >= self.max_age_since_update):
+        self.trackers.pop(t)
+
     if(len(ret)>0):
       return np.concatenate(ret)
-    return np.empty((0,2))
+    return ret
 
 if __name__ == '__main__':
 
@@ -248,6 +263,7 @@ if __name__ == '__main__':
       d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
       motion_model_variance = param['motion_model_variance'],
       observation_variance = param['observation_variance'],
+      sync_initialization = param['sync_initialization'],
     ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections

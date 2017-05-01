@@ -5,7 +5,7 @@
     "object_size": 10,
     "remove_adjacent_points": false,
         "min_det_dist": 0.3,
-    "prune_detections": true,
+    "prune_chunk_points": true,
     "video_tracking": false,
         "start_with_pose": true,
             "head_start": 10,
@@ -21,8 +21,9 @@
     "d2t_dist_threshold_tight": 1,
     "d2t_dist_threshold_loose": 3,
     "max_age_after_last_update": 50,
-    "motion_model_variance": 0.000001,
-    "observation_variance": 200
+    "motion_model_variance": 0.00000001,
+    "observation_variance": 200,
+    "sync_initialization": true
   },
   "visualize":
   {
