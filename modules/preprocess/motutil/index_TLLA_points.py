@@ -15,19 +15,7 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
     for filename in os.listdir(input_file_path+prefix+chunk):
       if filename.endswith('tllai'):
         points = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',').reshape(-1,6)
-        #find detections that are too close to each other (mark for deletion)
-        if parameters['remove_adjacent_points']:
-          mark_for_deletion = []
-          for i in range(points.shape[0]-1):
-            for j in range(i+1,points.shape[0]):
-              if haversine.dist(points[i,1],points[i,2],points[j,1],points[j,2])<parameters['min_det_dist']:
-                if points[i,5]>=points[j,5]: #pick the point with higher confidence
-                  mark_for_deletion.append(j)
-                else:
-                  mark_for_deletion.append(i)
-          points = np.delete(points,mark_for_deletion,axis=0)
-        #keep the first and last points only
-        if parameters['prune_chunk_points']:
+        if parameters['rank_reduction']:
           if points.shape[0]>1:
             pass
         dets.append(points)
@@ -36,10 +24,19 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
   #sort detections according to timestamps
   dets = dets[dets[:,0].argsort(),:]
 
+  #find detections that are very close to each other (and mark for deletion)
+  if parameters['remove_adjacent_points']:
+    mark_for_deletion = []
+    window_size = parameters['search_window_size']
+    for i in range(dets.shape[0]):
+      for j in range(max(i-window_size,0),min(i+window_size,dets.shape[0])):
+        if haversine.dist(dets[i,1],dets[i,2],dets[j,1],dets[j,2])<parameters['min_det_dist']:
+          if dets[i,5]<dets[j,5]: #pick the point with higher confidence
+            mark_for_deletion.append(i)
+    dets = np.delete(dets,mark_for_deletion,axis=0)
+
   #add detection index in a new column
   dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))
-
-  #remove duplicates (nearest neighbor?)
 
   #save result to CSV file
   fmt = ['%05d','%d','%.10f','%.10f','%.10f']

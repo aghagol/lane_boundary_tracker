@@ -57,7 +57,8 @@ for seq_idx,seq in seqs.iterrows():
   elif param['show_tracks']:
     if not os.path.exists(seq.tpath): exit("\nNo tracks file was found!\n")
     trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
-    trks = trks[trks[:,4]>0,:] #remove the predictions with no matches
+    if param['hide_predictions']:
+      trks = trks[trks[:,4]>0,:] #remove the predictions with no matches
 
   frames = sorted(frame_timestamps)
   frame_idx = 0
