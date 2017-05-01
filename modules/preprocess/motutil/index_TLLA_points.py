@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import haversine
+from haversine import dist
 
 def index_TLLA_points(input_file_path,output_file_path,parameters):
   """
@@ -27,11 +27,11 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
   #find detections that are very close to each other (and mark for deletion)
   if parameters['remove_adjacent_points']:
     mark_for_deletion = []
-    window_size = parameters['search_window_size']
+    search_window_size = parameters['search_window_size']
     for i in range(dets.shape[0]):
-      for j in range(max(i-window_size,0),min(i+window_size,dets.shape[0])):
-        if haversine.dist(dets[i,1],dets[i,2],dets[j,1],dets[j,2])<parameters['min_det_dist']:
-          if dets[i,5]<dets[j,5]: #pick the point with higher confidence
+      for j in range(max(i-search_window_size,0),min(i+search_window_size,dets.shape[0])):
+        if dist(dets[i,1],dets[i,2],dets[j,1],dets[j,2])<parameters['min_pairwise_dist']:
+          if dets[i,5]<dets[j,5]: #keep the point with higher confidence
             mark_for_deletion.append(i)
     dets = np.delete(dets,mark_for_deletion,axis=0)
 
