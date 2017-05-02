@@ -4,9 +4,9 @@
     "pixel_size": 1,
     "object_size": 10,
     "remove_adjacent_points": true,
-        "min_pairwise_dist": 1,
+        "min_pairwise_dist": 0.1,
         "search_window_size": 100,
-    "rank_reduction": false,
+    "rank_reduction": true,
     "video_tracking": false,
         "start_with_pose": true,
             "head_start": 10,
@@ -19,7 +19,7 @@
   },
   "sort":
   {
-    "d2t_dist_threshold_tight": 2,
+    "d2t_dist_threshold_tight": 1,
     "d2t_dist_threshold_loose": 3,
     "max_age_after_last_update": 50,
     "motion_model_variance": 0.00000001,

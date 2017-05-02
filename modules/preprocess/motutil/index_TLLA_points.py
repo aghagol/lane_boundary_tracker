@@ -16,8 +16,9 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
       if filename.endswith('tllai'):
         points = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',').reshape(-1,6)
         if parameters['rank_reduction']:
-          if points.shape[0]>1:
-            pass
+          if points.shape[0]>2:
+            U,S,V = np.linalg.svd(points[:,1:3]-points[:,1:3].mean(axis=0),full_matrices=False)
+            points[:,1:3] = points[:,1:3].mean(axis=0) + S[0]*U[:,:1].dot(V[:1,:])
         dets.append(points)
   dets = np.vstack(dets)
 
