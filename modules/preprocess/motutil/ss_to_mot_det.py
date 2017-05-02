@@ -3,7 +3,7 @@ import numpy as np
 # import os
 import haversine
 
-def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
+def ss_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   """
   Input: a JSON file (chucai's format)
   Output: MOT-formatted det.txt
@@ -19,9 +19,6 @@ def highv1_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
 
   #load detections from txt file
   dets = np.loadtxt(input_file_path,delimiter=',')
-
-  #discard altitude
-  dets = dets[:,:4]
 
   #extract vehicle pose information
   if parameters['video_tracking']:

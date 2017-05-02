@@ -21,7 +21,7 @@ echo $(date) "Preprocessing"
 
 ./modules/preprocess/print_param.py --config $config_preprocess
 
-./modules/preprocess/highv1mot.py \
+./modules/preprocess/ss2mot.py \
   --input  $input_preprocess \
   --output $output_preprocess/mot \
   --config $config_preprocess \

@@ -2,24 +2,27 @@ import numpy as np
 import os
 from haversine import dist
 
-def index_TLLA_points(input_file_path,output_file_path,parameters):
+def index_TLLA_points(input_file_path,output_file_path,drive,parameters):
   """
   Input: Chen's CSV input format (a CSV file for each RANSAC output)
   Output: CSV file consisting of all detections
   """
   #store all detections in a single numpy array
-  prefix = '/FuseToTLLAIOutput/'
-  chunk_list = [i for i in os.listdir(input_file_path+prefix) if i.isdigit()]
+  prefix = '/Lane/sampled_fuse/'
+  filelist = [i for i in os.listdir(input_file_path+prefix) if '_'.join(i.split('_')[:2])==drive]
+
   dets = []
-  for chunk in chunk_list:
-    for filename in os.listdir(input_file_path+prefix+chunk):
-      if filename.endswith('tllai'):
-        points = np.loadtxt(input_file_path+prefix+chunk+'/'+filename,delimiter=',').reshape(-1,6)
-        if parameters['rank_reduction']:
-          if points.shape[0]>2:
-            U,S,V = np.linalg.svd(points[:,1:3]-points[:,1:3].mean(axis=0),full_matrices=False)
-            points[:,1:3] = points[:,1:3].mean(axis=0) + S[0]*U[:,:1].dot(V[:1,:])
-        dets.append(points)
+  for filename in filelist:
+    if os.stat(input_file_path+prefix+filename).st_size:
+      points = np.loadtxt(input_file_path+prefix+filename,delimiter=',').reshape(-1,5)
+      if parameters['rank_reduction']:
+        lb_set = set(points[:,3])
+        for lb in lb_set:
+          points_subset = points[points[:,3]==lb,1:3]
+          if points_subset.shape[0]>2:
+            U,S,V = np.linalg.svd(points_subset-points_subset.mean(axis=0),full_matrices=False)
+            points[points[:,3]==lb,1:3] = points_subset.mean(axis=0) + S[0]*U[:,:1].dot(V[:1,:])
+      dets.append(points)
   dets = np.vstack(dets)
 
   #sort detections according to timestamps
@@ -40,6 +43,6 @@ def index_TLLA_points(input_file_path,output_file_path,parameters):
   dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))
 
   #save result to CSV file
-  fmt = ['%05d','%d','%.10f','%.10f','%.10f']
+  fmt = ['%05d','%d','%.10f','%.10f']
   with open(output_file_path,'w') as fout:
-    np.savetxt(fout,dets[:,:5],fmt=fmt,delimiter=',')
+    np.savetxt(fout,dets[:,:4],fmt=fmt,delimiter=',')

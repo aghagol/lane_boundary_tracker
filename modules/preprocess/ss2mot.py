@@ -26,22 +26,30 @@ with open(args.config) as fparam:
   param = json.load(fparam)["preprocess"]
 print(param)
 
-for drive in os.listdir(data_dir):
-  print('Working on drive %s'%drive)
+#if "drive_list.txt" is not found in data root folder, then generate one (from all drives)
+prefix = '/Lane/sampled_fuse/'
+image_list = [i[:-8] for i in os.listdir(data_dir+prefix) if i.endswith('.png.txt')]
+if not os.path.exists(data_dir+'/drive_list.txt'):
+  drive_list = sorted(set(['_'.join(imagename.split('_')[:2]) for imagename in image_list]))
+  with open(data_dir+'/drive_list.txt','w') as fdrivelist:
+    for drive in drive_list:
+      fdrivelist.write('%s\n'%(drive))
+else:
+  drive_list = []
+  with open(data_dir+'/drive_list.txt') as fdrivelist:
+    for line in fdrivelist:
+      drive_list.append(line.strip())
 
-  pose_path = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('pose.csv')]
-  assert len(pose_path)==1, 'ERROR: found %d pose files in %s'%(len(pose_path),data_dir+drive)
-  pose_path = data_dir+drive+'/'+pose_path[0]
+for drive in drive_list:
+  print('Working on drive %s'%drive)
+  pose_path = data_dir+'/poses/'+drive+'.csv'
 
   det_out = output_dir+'%s/det/'%(drive)
   os.makedirs(det_out)
 
-  motutil.index_TLLA_points(data_dir+drive,det_out+'tlla.txt',param)
-  motutil.highv1_to_mot_det(det_out+'tlla.txt',pose_path,det_out+'det.txt',param)
+  motutil.index_TLLA_points(data_dir,det_out+'tlla.txt',drive,param)
+  motutil.ss_to_mot_det(det_out+'tlla.txt',pose_path,det_out+'det.txt',param)
   
-  #save timestamps
-  # motutil.store_highv1_timestamps(pose_path,det_out+'timestamps.txt',param)
-
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)
   # os.makedirs(gt_out)
