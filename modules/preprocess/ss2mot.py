@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--input",help="path to input drive")
 parser.add_argument("--output",help="output path to MOT dataset")
 parser.add_argument("--config",help="path to config file")
+parser.add_argument("--drives",help="path to drives list file")
 args = parser.parse_args()
 data_dir = args.input+'/'
 output_dir = args.output+'/'
@@ -27,28 +28,24 @@ with open(args.config) as fparam:
 print(param)
 
 #if "drive_list.txt" is not found in data root folder, then generate one (from all drives)
-prefix = '/Lane/sampled_fuse/'
-image_list = [i[:-8] for i in os.listdir(data_dir+prefix) if i.endswith('.png.txt')]
-if not os.path.exists(data_dir+'/drive_list.txt'):
-  drive_list = sorted(set(['_'.join(imagename.split('_')[:2]) for imagename in image_list]))
-  with open(data_dir+'/drive_list.txt','w') as fdrivelist:
-    for drive in drive_list:
-      fdrivelist.write('%s\n'%(drive))
-else:
+if os.path.exists(args.drives):
   drive_list = []
-  with open(data_dir+'/drive_list.txt') as fdrivelist:
+  with open(args.drives) as fdrivelist:
     for line in fdrivelist:
       drive_list.append(line.strip())
+else:
+  prefix = '/Lane/sampled_fuse/'
+  image_list = [i[:-8] for i in os.listdir(data_dir+prefix) if i.endswith('.png.txt')]
+  drive_list = sorted(set(['_'.join(imagename.split('_')[:2]) for imagename in image_list]))
+  with open(args.drives,'w') as fdrivelist:
+    for drive in drive_list:
+      fdrivelist.write('%s\n'%(drive))
 
 for drive in drive_list:
   print('Working on drive %s'%drive)
-  pose_path = data_dir+'/poses/'+drive+'.csv'
 
-  det_out = output_dir+'%s/det/'%(drive)
-  os.makedirs(det_out)
-
-  motutil.index_TLLA_points(data_dir,det_out+'tlla.txt',drive,param)
-  motutil.ss_to_mot_det(det_out+'tlla.txt',pose_path,det_out+'det.txt',param)
+  motutil.index_TLLA_points(data_dir,output_dir,drive,param)
+  motutil.ss_to_mot_det(output_dir,drive,param)
   
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)

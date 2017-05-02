@@ -5,10 +5,13 @@ Batch scripts for preprocessing, processing (tracking), visualization and evalua
 To run the complete process, run 
 
 ```bash
-./scripts/runall [--input path/to/data] --output path/to/tmp_folder
+./scripts/runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp_folder
 ```
 
-The configuration file `conf.json` is located at the repository root.
+ - The configuration file `conf.json` is located at the repository root.
+ - The text file `drive_names_txt` contains IDs of drives to be processed.
+ - If the `--drives` option is not used, a `drive_list.txt` is generated in the output directory.
+ - If the `--drives` input file does not point to an existing file, it is generated.
 
 The `runall` scripts runs the following scripts:
 

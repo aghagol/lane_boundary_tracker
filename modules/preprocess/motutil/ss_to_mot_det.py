@@ -3,7 +3,7 @@ import numpy as np
 # import os
 import haversine
 
-def ss_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
+def ss_to_mot_det(output_path,drive,parameters):
   """
   Input: a JSON file (chucai's format)
   Output: MOT-formatted det.txt
@@ -18,7 +18,7 @@ def ss_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   zoom = 1. / parameters['pixel_size']
 
   #load detections from txt file
-  dets = np.loadtxt(input_file_path,delimiter=',')
+  dets = np.loadtxt(output_path+'%s/det/tlla.txt'%(drive),delimiter=',')
 
   #extract vehicle pose information
   if parameters['video_tracking']:
@@ -79,5 +79,5 @@ def ss_to_mot_det(input_file_path,pose_path,output_file_path,parameters):
   out[:,7] = dets[:,1] #detection point's timestamp
   if parameters['video_tracking']: out[:,0] = video_frame_ids
   
-  with open(output_file_path,'w') as fout:
+  with open(output_path+'%s/det/det.txt'%(drive),'w') as fout:
     np.savetxt(fout,out,fmt=fmt,delimiter=',')

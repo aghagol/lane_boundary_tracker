@@ -3,19 +3,25 @@
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  data_dir="$2";;
     --output) cache="$2";;
-    *) echo "Usage: runall [--input path/to/data] --output path/to/tmp"; exit 1;;
+    --drives) drive_list="$2";;
+    *) echo "Usage: runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp"; exit 1;;
   esac; shift; shift
 done
 
 if [[ -z $cache ]] ; then
-  echo "Usage: runall [--input path/to/data] --output path/to/tmp"; exit 1
+  echo "Usage: runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp"; exit 1
+fi
+
+if [[ -z $drive_list ]] ; then
+  echo "Saving the drive names in $cache/preprocess"
+  drive_list=$cache/preprocess/drive_list.txt
 fi
 
 MOT_CONFIG="./conf.json"
 
 if [[ $data_dir ]] ; then
   if mkdir $cache ; then
-    ./scripts/preprocess  --input $data_dir             --output $cache/preprocess  --config $MOT_CONFIG
+    ./scripts/preprocess  --input $data_dir             --output $cache/preprocess  --config $MOT_CONFIG  --drives $drive_list
     ./scripts/sort        --input $cache/preprocess/mot --output $cache/sort        --config $MOT_CONFIG
     ./scripts/postprocess --input $cache/preprocess/mot --output $cache/postprocess --config $MOT_CONFIG  --tracks $cache/sort/tracks
     # ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --input-root $data_dir

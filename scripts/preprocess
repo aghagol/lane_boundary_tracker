@@ -4,12 +4,13 @@ while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_preprocess="$2";;
     --output) output_preprocess="$2";;
     --config) config_preprocess="$2";;
-    *) echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file"; exit 1;;
+    --drives) drive_list="$2";;
+    *) echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file --drives path/to/drive_names_txt"; exit 1;;
   esac; shift; shift
 done
 
 if [[ -z "$input_preprocess" ]] || [[ -z "$output_preprocess" ]] || [[ -z "$config_preprocess" ]] ; then
-  echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file"
+  echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file --drives path/to/drive_names_txt"
   exit 1
 fi
 
@@ -25,4 +26,5 @@ echo $(date) "Preprocessing"
   --input  $input_preprocess \
   --output $output_preprocess/mot \
   --config $config_preprocess \
+  --drives $drive_list \
   >> $output_preprocess/log.txt

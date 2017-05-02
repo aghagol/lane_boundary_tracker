@@ -2,19 +2,22 @@ import numpy as np
 import os
 from haversine import dist
 
-def index_TLLA_points(input_file_path,output_file_path,drive,parameters):
+def index_TLLA_points(input_path,output_path,drive,parameters):
   """
   Input: Chen's CSV input format (a CSV file for each RANSAC output)
   Output: CSV file consisting of all detections
   """
   #store all detections in a single numpy array
   prefix = '/Lane/sampled_fuse/'
-  filelist = [i for i in os.listdir(input_file_path+prefix) if '_'.join(i.split('_')[:2])==drive]
+  filelist = [i for i in os.listdir(input_path+prefix) if '_'.join(i.split('_')[:2])==drive]
+
+  #check for large gaps in sequence
+  
 
   dets = []
   for filename in filelist:
-    if os.stat(input_file_path+prefix+filename).st_size:
-      points = np.loadtxt(input_file_path+prefix+filename,delimiter=',').reshape(-1,5)
+    if os.stat(input_path+prefix+filename).st_size:
+      points = np.loadtxt(input_path+prefix+filename,delimiter=',').reshape(-1,5)
       if parameters['rank_reduction']:
         lb_set = set(points[:,3])
         for lb in lb_set:
@@ -43,6 +46,8 @@ def index_TLLA_points(input_file_path,output_file_path,drive,parameters):
   dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))
 
   #save result to CSV file
+  det_out = output_path+'%s/det/'%(drive)
+  os.makedirs(det_out)
   fmt = ['%05d','%d','%.10f','%.10f']
-  with open(output_file_path,'w') as fout:
+  with open(det_out+'tlla.txt','w') as fout:
     np.savetxt(fout,dets[:,:4],fmt=fmt,delimiter=',')
