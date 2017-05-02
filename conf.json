@@ -19,11 +19,11 @@
   },
   "sort":
   {
-    "d2t_dist_threshold_tight": 1,
+    "d2t_dist_threshold_tight": 2,
     "d2t_dist_threshold_loose": 3,
     "max_age_after_last_update": 50,
     "motion_model_variance": 0.00000001,
-    "observation_variance": 200,
+    "observation_variance": 1000,
     "sync_initialization": true
   },
   "visualize":
