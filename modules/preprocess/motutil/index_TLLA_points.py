@@ -32,13 +32,14 @@ def index_TLLA_points(input_path,output_path,drive,parameters):
   dets = dets[dets[:,0].argsort(),:]
 
   #find detections that are very close to each other (and mark for deletion)
+  fake_confidence = np.random.rand(dets.shape[0])
   if parameters['remove_adjacent_points']:
     mark_for_deletion = []
     search_window_size = parameters['search_window_size']
     for i in range(dets.shape[0]):
       for j in range(max(i-search_window_size,0),min(i+search_window_size,dets.shape[0])):
         if dist(dets[i,1],dets[i,2],dets[j,1],dets[j,2])<parameters['min_pairwise_dist']:
-          if dets[i,5]<dets[j,5]: #keep the point with higher confidence
+          if fake_confidence[i]<fake_confidence[j]: #keep the point with higher confidence
             mark_for_deletion.append(i)
     dets = np.delete(dets,mark_for_deletion,axis=0)
 
