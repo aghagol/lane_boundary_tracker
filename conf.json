@@ -32,9 +32,10 @@
   "visualize":
   {
     "delay": 0.1,
+    "max_delay": 3,
     "window_size": 100,
     "centered": true,
-    "show_tracks": false,
+    "show_tracks": true,
     "min_track_length": 1,
     "hide_predictions": true,
     "real_time": true

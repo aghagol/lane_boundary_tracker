@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """ 
-This is a script for plotting detections and tracks (in MOT format)
-CTRL+C to pause
+This is a script for plotting detections and tracks
+CTRL+C for more options
 """
 print(__doc__)
 
@@ -64,10 +64,10 @@ for seq_idx,seq in seqs.iterrows():
   frames = sorted(frame_timestamps)
   frame_idx = 0
   while frame_idx<len(frames):
-    frame = frames[frame_idx]
-    timestamp = frame_timestamps[frame]
-
     try:
+      frame = frames[frame_idx]
+      timestamp = frame_timestamps[frame]
+      
       dets_cur = dets[dets[:,0]==frame,:]
       ax.cla()
       if param['centered']:
@@ -102,17 +102,17 @@ for seq_idx,seq in seqs.iterrows():
       if param['real_time']: 
         delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6
       ax.set_title('frame number %05d/%05d, time=%.6f (+%.2f)'%(frame_idx+1,len(frames),timestamp*1e-6,delay))
-      plt.pause(min(max(delay,0),3)+.001) #zero delay results in a halt!
+      plt.pause(min(max(delay,0),param['max_delay'])+.001) #zero delay results in a halt!
       frame_idx +=1
 
     except KeyboardInterrupt:
       print('')
       print('=================================================')
-      print('...Enter j[int] to jump to frame')
-      print('...Enter w[float] to adjust window width')
-      print('...Enter d[float] to adjust delay')
-      print('...Enter q to quit')
-      print('...Enter s to skip sequence and continue with next')
+      print('...Enter "j"[int] to jump to frame')
+      print('...Enter "w"[float] to adjust window width')
+      print('...Enter "d"[float] to adjust delay (disabled in realtime mode)')
+      print('...Enter "q" to quit')
+      print('...Enter "s" to skip to next sequence')
       inp = raw_input("...or just press Enter to resume: ")
       print('=================================================')
       if len(inp.strip()):
