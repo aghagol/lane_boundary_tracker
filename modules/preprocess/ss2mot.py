@@ -38,11 +38,9 @@ else:
   prefix = '/Lane/sampled_fuse/'
   image_list = [i[:-8] for i in os.listdir(data_dir+prefix) if i.endswith('.png.txt')]
   drive_list = sorted(set(['_'.join(imagename.split('_')[:2]) for imagename in image_list]))
-  with open(args.drives,'w') as fdrivelist:
-    for drive in drive_list:
-      fdrivelist.write('%s\n'%(drive))
 
-for drive in drive_list:
+for drive_idx in range(len(drive_list)):
+  drive = drive_list[drive_idx]
   print('Working on drive %s'%drive)
 
   #split the drives on large gaps
@@ -61,10 +59,11 @@ for drive in drive_list:
             part['members'].append(filename)
             part['t0'] = min(part['t0'],t0)
             part['t1'] = max(part['t1'],t1)
+            part['n'] += points.shape[0]
             file_ismember = True
         if not file_ismember:
-          drive_parts.append({'t0':t0,'t1':t1,'members':[filename]})
-    clusters = {'%s_part_%05d'%(drive,i):part['members'] for i,part in enumerate(drive_parts)}
+          drive_parts.append({'t0':t0,'t1':t1,'members':[filename],'n':points.shape[0]})
+    clusters = {'%s_part_%05d'%(drive,i):part['members'] for i,part in enumerate(drive_parts) if part['n']>=param['min_seq_size']}
   else:
     clusters = {drive:filelist}
 
@@ -84,3 +83,7 @@ for drive in drive_list:
   # os.makedirs(img_out)
   # Image.fromarray(np.zeros((param['image_nrows'],param['image_ncols']))).convert('RGB').save(img_out+'000001.jpg')
 
+if not os.path.exists(args.drives):
+  with open(args.drives,'w') as fdrivelist:
+    for drive in drive_list:
+      fdrivelist.write('%s\n'%(drive))

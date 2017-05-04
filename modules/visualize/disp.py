@@ -75,7 +75,7 @@ for seq_idx,seq in seqs.iterrows():
         y_center = np.floor(np.median(dets_cur[:,3])/w)*w
         ax.set_xlim([-args.margin,args.margin+w])
         ax.set_ylim([-args.margin,args.margin+w])
-        # ax.add_patch(patches.Rectangle((-w/2,-w/2),w,w,fill=False))
+        ax.add_patch(patches.Rectangle((0,0),w,w,fill=False))
       else:
         xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w
         ylim_low = np.floor(np.median(dets_cur[:,3])/w)*w
@@ -102,7 +102,7 @@ for seq_idx,seq in seqs.iterrows():
       if param['real_time']: 
         delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6
       ax.set_title('frame number %05d/%05d, time=%.6f (+%.2f)'%(frame_idx+1,len(frames),timestamp*1e-6,delay))
-      plt.pause(min(max(delay,0),5)+.001) #zero delay results in a halt!
+      plt.pause(min(max(delay,0),3)+.001) #zero delay results in a halt!
       frame_idx +=1
 
     except KeyboardInterrupt:

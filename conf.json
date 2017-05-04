@@ -17,7 +17,8 @@
             "fake_dets_min_dist": 0.3,
         "smooth_pose": false,
     "split_on_temporal_gaps": true,
-        "gap_min": 0
+        "gap_min": 3,
+        "min_seq_size": 20
   },
   "sort":
   {
