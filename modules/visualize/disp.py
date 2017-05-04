@@ -9,6 +9,7 @@ import sys, os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import argparse
 import json
 
@@ -21,13 +22,13 @@ parser.add_argument("--input", help="a CSV file with 5 columns: \
   name (sequence name), dpath (path to detections), tpath (path to tracking results), \
   mpath (path to frame timestamps) and gpath (path to groundtruth - optional).")
 parser.add_argument("--delay",type=float,default=.01,help="delay in seconds for each frame.")
-parser.add_argument("--margin",type=int,default=0,help="add this many pixels to plot margins.")
+parser.add_argument("--margin",type=int,default=5,help="add this many pixels to plot margins.")
 parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth.")
 parser.add_argument("--window-size",type=float,default=100.,help="Display window size.")
 parser.add_argument("--config",help="configuration JSON file")
 
 args = parser.parse_args()
-w = args.window_size
+w = float(args.window_size)
 delay = args.delay
 
 with open(args.config) as fparam:
@@ -69,14 +70,23 @@ for seq_idx,seq in seqs.iterrows():
     try:
       dets_cur = dets[dets[:,0]==frame,:]
       ax.cla()
-      xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w
-      ylim_low = np.floor(np.median(dets_cur[:,3])/w)*w
-      ax.set_xlim([xlim_low-args.margin,xlim_low+w+args.margin])
-      ax.set_ylim([ylim_low-args.margin,ylim_low+w+args.margin])
+      if param['centered']:
+        x_center = np.floor(np.median(dets_cur[:,2])/w)*w
+        y_center = np.floor(np.median(dets_cur[:,3])/w)*w
+        ax.set_xlim([-args.margin,args.margin+w])
+        ax.set_ylim([-args.margin,args.margin+w])
+        # ax.add_patch(patches.Rectangle((-w/2,-w/2),w,w,fill=False))
+      else:
+        xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w
+        ylim_low = np.floor(np.median(dets_cur[:,3])/w)*w
+        ax.set_xlim([xlim_low-args.margin-w/2,xlim_low+args.margin+w/2])
+        ax.set_ylim([ylim_low-args.margin-w/2,ylim_low+args.margin+w/2])
+        x_center = 0
+        y_center = 0
 
       # plot detections
       for plot_frame_idx in range(max(frame_idx-frame_buffer_size,0),frame_idx):
-        ax.plot(dets[dets[:,0]==frames[plot_frame_idx],2],dets[dets[:,0]==frames[plot_frame_idx],3],'o',color='k')
+        ax.plot(dets[dets[:,0]==frames[plot_frame_idx],2]-x_center,dets[dets[:,0]==frames[plot_frame_idx],3]-y_center,'o',color='k')
 
       # plot tracks
       start_frame = frames[max(frame_idx-frame_buffer_size,0)]
@@ -87,12 +97,12 @@ for seq_idx,seq in seqs.iterrows():
           if trk_curr_tail.shape[0]<param['min_track_length']: continue
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]<frame,:]
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>start_frame,:]
-          ax.plot(trk_curr_tail[:,2],trk_curr_tail[:,3],color=colors[trk_curr_id%711,:])
+          ax.plot(trk_curr_tail[:,2]-x_center,trk_curr_tail[:,3]-y_center,color=colors[trk_curr_id%711,:])
 
       if param['real_time']: 
         delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6
       ax.set_title('frame number %05d/%05d, time=%.6f (+%.2f)'%(frame_idx+1,len(frames),timestamp*1e-6,delay))
-      plt.pause(max(delay,0)+.001) #zero delay results in a halt!
+      plt.pause(min(max(delay,0),5)+.001) #zero delay results in a halt!
       frame_idx +=1
 
     except KeyboardInterrupt:
