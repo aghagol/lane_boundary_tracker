@@ -64,6 +64,7 @@ for seq_idx,seq in seqs.iterrows():
   frame_idx = 0
   while frame_idx<len(frames):
     frame = frames[frame_idx]
+    timestamp = frame_timestamps[frame]
 
     try:
       dets_cur = dets[dets[:,0]==frame,:]
@@ -88,8 +89,10 @@ for seq_idx,seq in seqs.iterrows():
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>start_frame,:]
           ax.plot(trk_curr_tail[:,2],trk_curr_tail[:,3],color=colors[trk_curr_id%711,:])
 
-      ax.set_title('frame number %05d/%05d, time=%d'%(frame_idx+1,len(frames),frame_timestamps[frame]))
-      plt.pause(delay)
+      if param['real_time']: 
+        delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6
+      ax.set_title('frame number %05d/%05d, time=%.6f (+%.2f)'%(frame_idx+1,len(frames),timestamp*1e-6,delay))
+      plt.pause(max(delay,0)+.001) #zero delay results in a halt!
       frame_idx +=1
 
     except KeyboardInterrupt:

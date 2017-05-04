@@ -34,6 +34,7 @@ if os.path.exists(args.drives):
     for line in fdrivelist:
       drive_list.append(line.strip())
 else:
+  print("Generating a drive list because it is missing!")
   prefix = '/Lane/sampled_fuse/'
   image_list = [i[:-8] for i in os.listdir(data_dir+prefix) if i.endswith('.png.txt')]
   drive_list = sorted(set(['_'.join(imagename.split('_')[:2]) for imagename in image_list]))
@@ -44,8 +45,34 @@ else:
 for drive in drive_list:
   print('Working on drive %s'%drive)
 
-  motutil.index_TLLA_points(data_dir,output_dir,drive,param)
-  motutil.ss_to_mot_det(output_dir,drive,param)
+  #split the drives on large gaps
+  prefix = '/Lane/sampled_fuse/'
+  filelist = sorted([i for i in os.listdir(data_dir+prefix) if '_'.join(i.split('_')[:2])==drive])
+  if param['split_on_temporal_gaps']:
+    drive_parts = []
+    for filename in filelist:
+      if os.stat(data_dir+prefix+filename).st_size:
+        file_ismember = False
+        points = np.loadtxt(data_dir+prefix+filename,delimiter=',').reshape(-1,5)
+        t0,t1 = points[:,0].min(),points[:,0].max()
+        for part in drive_parts:
+          if (part['t0']-t0<param['gap_min'] and t0-part['t0']<param['gap_min']) or \
+             (part['t1']-t1<param['gap_min'] and t1-part['t1']<param['gap_min']):
+            part['members'].append(filename)
+            part['t0'] = min(part['t0'],t0)
+            part['t1'] = max(part['t1'],t1)
+            file_ismember = True
+        if not file_ismember:
+          drive_parts.append({'t0':t0,'t1':t1,'members':[filename]})
+    clusters = {'%s_part_%05d'%(drive,i):part['members'] for i,part in enumerate(drive_parts)}
+  else:
+    clusters = {drive:filelist}
+
+  for subdrive in clusters:
+    os.makedirs(output_dir+'%s/det/'%(subdrive))
+
+  motutil.index_TLLA_points(data_dir,output_dir,clusters,param)
+  motutil.ss_to_mot_det(output_dir,clusters,param)
   
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)

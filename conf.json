@@ -15,15 +15,17 @@
             "fake_dets_n": 50,
             "fake_dets_pose_step": 1,
             "fake_dets_min_dist": 0.3,
-        "smooth_pose": false
+        "smooth_pose": false,
+    "split_on_temporal_gaps": true,
+        "gap_min": 0
   },
   "sort":
   {
-    "d2t_dist_threshold_tight": 3,
-    "d2t_dist_threshold_loose": 5,
-    "max_age_after_last_update": 20,
-    "motion_model_variance": 0.01,
-    "observation_variance": 10,
+    "d2t_dist_threshold_tight": 10,
+    "d2t_dist_threshold_loose": 10,
+    "max_age_after_last_update": 10,
+    "motion_model_variance": 1,
+    "observation_variance": 1000,
     "sync_initialization": false
   },
   "visualize":
@@ -32,7 +34,8 @@
     "window_size": 100,
     "show_tracks": true,
     "min_track_length": 1,
-    "hide_predictions": false
+    "hide_predictions": true,
+    "real_time": true
   },
   "postprocess":
   {
