@@ -30,14 +30,7 @@ if [[ $data_dir ]] ; then
   fi
 fi
 
-echo "Visualize?"
-select ans in Yes No
-do
-  case $ans in
-    Yes)
-      rm -rf $cache/visualize
-      ./scripts/visualize --input $cache/preprocess/mot --output $cache/visualize --config $MOT_CONFIG --tracks $cache/postprocess/tracks;;
-  esac
-  break
-done
+read -sp "Press [ENTER] to Visualize"; echo ""
+rm -rf $cache/visualize
+./scripts/visualize --input $cache/preprocess/mot --output $cache/visualize --config $MOT_CONFIG --tracks $cache/postprocess/tracks
 
