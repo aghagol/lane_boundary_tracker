@@ -9,6 +9,7 @@ print(__doc__)
 import os
 from PIL import Image
 import numpy as np
+import pandas as pd
 import argparse
 import json
 
@@ -33,12 +34,18 @@ for drive in os.listdir(data_dir):
   assert len(pose_path)==1, 'ERROR: found %d pose files in %s'%(len(pose_path),data_dir+drive)
   pose_path = data_dir+drive+'/'+pose_path[0]
 
+  chunk_times_file = [csv_file for csv_file in os.listdir(data_dir+drive) if csv_file.endswith('_image.csv')]
+  assert len(chunk_times_file)==1, 'ERROR: found %d _image.csv files in %s'%(len(chunk_times_file),data_dir+drive)
+  chunk_times_file = data_dir+drive+'/'+chunk_times_file[0]
+  chunk_times = pd.read_csv(chunk_times_file)
+  chunk_times.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
+
   det_out = output_dir+'%s/det/'%(drive)
   os.makedirs(det_out)
 
-  motutil.index_TLLA_points(data_dir+drive,det_out+'tlla.txt',param)
+  motutil.index_TLLA_points(data_dir+drive,det_out+'tlla.txt',chunk_times,param)
   motutil.highv1_to_mot_det(det_out+'tlla.txt',pose_path,det_out+'det.txt',param)
-  
+
   #save timestamps
   # motutil.store_highv1_timestamps(pose_path,det_out+'timestamps.txt',param)
 

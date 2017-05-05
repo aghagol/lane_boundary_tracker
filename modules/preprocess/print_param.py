@@ -25,5 +25,5 @@ if param['video_tracking']:
 else:
 	print('...Video tracking mode is disabled')
 
-if param['remove_adjacent_points']:
+if param['remove_adjacent_endpoints']:
   print('...Removing detection points that are closer than %.2f meters'%(param['min_pairwise_dist']))

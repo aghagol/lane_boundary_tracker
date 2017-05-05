@@ -63,9 +63,9 @@ for seq_idx,seq in seqs.iterrows():
   frames = sorted(frame_timestamps)
   frame_idx = 0
   while frame_idx<len(frames):
-    frame = frames[frame_idx]
-
     try:
+      frame = frames[frame_idx]
+      
       dets_cur = dets[dets[:,0]==frame,:]
       ax.cla()
       xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w

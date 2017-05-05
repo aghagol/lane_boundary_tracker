@@ -136,6 +136,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
 class Sort(object):
   def __init__(self,
       max_age_since_update=1,
+      max_age_with_no_updates=1,
       min_hits=3,
       d2t_dist_threshold_tight=10,
       d2t_dist_threshold_loose=10,
@@ -147,6 +148,7 @@ class Sort(object):
     Sets key parameters for SORT
     """
     self.max_age_since_update = max_age_since_update
+    self.max_age_with_no_updates = max_age_with_no_updates
     self.min_hits = min_hits
     self.d2t_dist_threshold_tight = d2t_dist_threshold_tight
     self.d2t_dist_threshold_loose = d2t_dist_threshold_loose
@@ -232,7 +234,10 @@ class Sort(object):
 
     #remove dead tracklets
     for t in range(len(self.trackers)-1,-1,-1):
-      if(self.trackers[t].age_since_update >= self.max_age_since_update):
+      if self.trackers[t].age_since_update >= self.max_age_since_update:
+        self.trackers.pop(t)
+    for t in range(len(self.trackers)-1,-1,-1):
+      if self.trackers[t].hits==0 and self.trackers[t].age_since_update >= self.max_age_with_no_updates:
         self.trackers.pop(t)
 
     if(len(ret)>0):
@@ -259,6 +264,7 @@ if __name__ == '__main__':
   for seq in sequences:
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],
+      max_age_with_no_updates=param['max_age_with_no_updates'],
       d2t_dist_threshold_tight=param['d2t_dist_threshold_tight'],
       d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
       motion_model_variance = param['motion_model_variance'],

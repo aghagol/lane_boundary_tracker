@@ -35,7 +35,7 @@ for seq_idx,seq in seqs.iterrows():
   os.makedirs(output_path+drive)
 
   chunk_id_path = [csv_file for csv_file in os.listdir(root_path+drive) if csv_file.endswith('_image.csv')]
-  assert len(chunk_id_path)==1, 'ERROR: found %d pose files in %s'%(len(chunk_id_path),root_path+drive)
+  assert len(chunk_id_path)==1, 'ERROR: found %d _image.csv files in %s'%(len(chunk_id_path),root_path+drive)
   chunk_id_path = root_path+drive+'/'+chunk_id_path[0]
   chunk_id = pd.read_csv(chunk_id_path)
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers

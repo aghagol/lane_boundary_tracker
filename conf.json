@@ -3,10 +3,13 @@
   {
     "pixel_size": 1,
     "object_size": 10,
-    "remove_adjacent_points": true,
-        "min_pairwise_dist": 0.1,
-        "search_window_size": 100,
-    "rank_reduction": true,
+    "reduce_short_ransac_lines": true,
+        "min_line_length": 2,
+    "remove_adjacent_endpoints": true,
+        "min_pairwise_dist": 3,
+        "search_window_size": 50,
+    "remove_chunk_overflow": true,
+    "rank_reduction": false,
     "video_tracking": false,
         "start_with_pose": true,
             "head_start": 10,
@@ -19,9 +22,10 @@
   },
   "sort":
   {
-    "d2t_dist_threshold_tight": 1,
+    "d2t_dist_threshold_tight": 2,
     "d2t_dist_threshold_loose": 3,
-    "max_age_after_last_update": 50,
+    "max_age_after_last_update": 30,
+    "max_age_with_no_updates": 10,
     "motion_model_variance": 0.00000001,
     "observation_variance": 1000,
     "sync_initialization": true
@@ -32,7 +36,7 @@
     "window_size": 200,
     "show_tracks": true,
     "min_track_length": 1,
-    "hide_predictions": true
+    "hide_predictions": false
   },
   "postprocess":
   {
