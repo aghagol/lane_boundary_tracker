@@ -4,13 +4,14 @@ This script prints out parameters that were used for JSON to MOT conversion
 """
 import argparse
 import json
+from jsmin import jsmin
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config",help="path to config file")
 args = parser.parse_args()
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["sort"]
+  param = json.loads(jsmin(fparam.read()))["sort"]
 
 print('...Detections to tracks matching distance threshold - tight = %.2f meters'%(param['d2t_dist_threshold_tight']))
 print('...Detections to tracks matching distance threshold - loose = %.2f meters'%(param['d2t_dist_threshold_loose']))

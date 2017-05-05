@@ -24,6 +24,7 @@ from sklearn.utils.linear_assignment_ import linear_assignment
 import time
 import argparse
 import json
+from jsmin import jsmin
 from filterpy.kalman import KalmanFilter
 
 def d2t_sim(z,HFx): #detection to track similarity
@@ -248,9 +249,10 @@ if __name__ == '__main__':
   args = parser.parse_args()
   total_time = 0.0
   total_frames = 0
+  dt = 1
 
   with open(args.config) as fparam:
-    param = json.load(fparam)["sort"]
+    param = json.loads(jsmin(fparam.read()))["sort"]
   print(param)
 
   os.makedirs(args.output)
@@ -276,7 +278,8 @@ if __name__ == '__main__':
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
       for frame_idx,frame in enumerate(frames):
         dets = seq_dets[seq_dets[:,0]==frame,:]
-        dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
+        if param['real_time']:
+          dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
         trackers = mot_tracker.update(dets[:,[2,3,6]].reshape(-1,3),dt) #det format: [x,y,index]
         for d in trackers:
           print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)

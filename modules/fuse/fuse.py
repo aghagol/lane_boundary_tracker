@@ -8,7 +8,8 @@ import sys, os
 import numpy as np
 import pandas as pd
 import argparse
-import json 
+import json
+from jsmin import jsmin
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", help="CSV file containing paths")
@@ -23,7 +24,7 @@ root_path = args.input_root+'/'
 os.makedirs(output_path)
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["fuse"]
+  param = json.loads(jsmin(fparam.read()))["fuse"]
 
 seqs = pd.read_csv(args.input)
 

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import argparse
 import json
+from jsmin import jsmin
 
 #suppress matplotlib warnings
 import warnings
@@ -32,7 +33,7 @@ w = float(args.window_size)
 delay = args.delay
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["visualize"]
+  param = json.loads(jsmin(fparam.read()))["visualize"]
 
 #over-ride paramaters from config file
 if 'delay' in param: delay = param['delay']
@@ -100,7 +101,7 @@ for seq_idx,seq in seqs.iterrows():
           ax.plot(trk_curr_tail[:,2]-x_center,trk_curr_tail[:,3]-y_center,color=colors[trk_curr_id%711,:])
 
       if param['real_time']: 
-        delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6
+        delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6*param['delay_multiplier']
       ax.set_title('frame number %05d/%05d, time=%.6f (+%.2f)'%(frame_idx+1,len(frames),timestamp*1e-6,delay))
       plt.pause(min(max(delay,0),param['max_delay'])+.001) #zero delay results in a halt!
       frame_idx +=1
@@ -113,7 +114,7 @@ for seq_idx,seq in seqs.iterrows():
       print('...Enter "d"[float] to adjust delay (disabled in realtime mode)')
       print('...Enter "q" to quit')
       print('...Enter "s" to skip to next sequence')
-      inp = raw_input("...or just press Enter to resume: ")
+      inp = raw_input("...or just press [ENTER] to resume: ")
       print('=================================================')
       if len(inp.strip()):
         if inp[0]=='j': frame_idx = int(inp[1:])-1

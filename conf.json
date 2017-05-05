@@ -3,8 +3,8 @@
   {
     "pixel_size": 1,
     "object_size": 10,
-    "remove_adjacent_points": true,
-        "min_pairwise_dist": 0.5,
+    "remove_adjacent_points": false,
+        "min_pairwise_dist": 1,
         "search_window_size": 100,
     "rank_reduction": false,
     "video_tracking": false,
@@ -17,34 +17,36 @@
             "fake_dets_min_dist": 0.3,
         "smooth_pose": false,
     "split_on_temporal_gaps": true,
-        "gap_min": 3,
+        "gap_min": 3, //temporal gaps more than this get split
         "min_seq_size": 20
   },
   "sort":
   {
-    "d2t_dist_threshold_tight": 10,
-    "d2t_dist_threshold_loose": 10,
-    "max_age_after_last_update": 10,
+    "d2t_dist_threshold_tight": 1,
+    "d2t_dist_threshold_loose": 1,
+    "max_age_after_last_update": 50,
     "motion_model_variance": 1,
-    "observation_variance": 1000,
-    "sync_initialization": false
+    "observation_variance": 1,
+    "sync_initialization": false,
+    "real_time": true
   },
   "visualize":
   {
     "delay": 0.1,
-    "max_delay": 3,
-    "window_size": 100,
+    "window_size": 30,
     "centered": true,
     "show_tracks": true,
     "min_track_length": 1,
     "hide_predictions": true,
-    "real_time": true
+    "real_time": true,
+        "delay_multiplier": 1,
+        "max_delay": 1
   },
   "postprocess":
   {
     "stitch": false,
         "gating_thresh": 1,
-        "affinity_thresh_min": 1,
+        "affinity_thresh_min": 2,
         "affinity_thresh_max": 500
   },
   "fuse":

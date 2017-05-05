@@ -11,6 +11,7 @@ from PIL import Image
 import numpy as np
 import argparse
 import json
+from jsmin import jsmin
 
 import motutil
 
@@ -24,7 +25,7 @@ data_dir = args.input+'/'
 output_dir = args.output+'/'
 
 with open(args.config) as fparam:
-  param = json.load(fparam)["preprocess"]
+  param = json.loads(jsmin(fparam.read()))["preprocess"]
 print(param)
 
 #if "drive_list.txt" is not found in data root folder, then generate one (from all drives)
