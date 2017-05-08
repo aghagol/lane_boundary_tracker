@@ -39,7 +39,7 @@
     "min_track_length": 1,
     "hide_predictions": true,
     "real_time": true,
-        "delay_multiplier": 1,
+        "delay_multiplier": 0.1,
         "max_delay": 1
   },
   "postprocess":

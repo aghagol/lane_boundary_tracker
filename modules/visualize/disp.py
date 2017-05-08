@@ -45,7 +45,9 @@ fig, ax = plt.subplots(1,1,figsize=(9,9))
 colors = np.random.rand(711,3) # create random colors for tracks
 frame_buffer_size = 100
 
-for seq_idx,seq in seqs.iterrows():
+seq_idx = 0
+while seq_idx < seqs.shape[0]:
+  seq = seqs.iloc[seq_idx]
 
   print('Working on sequence %s'%seqs.name[seq_idx])
 
@@ -114,6 +116,7 @@ for seq_idx,seq in seqs.iterrows():
       print('...Enter "d"[float] to adjust delay (disabled in realtime mode)')
       print('...Enter "q" to quit')
       print('...Enter "s" to skip to next sequence')
+      print('...Enter "b" to go back one sequence')
       inp = raw_input("...or just press [ENTER] to resume: ")
       print('=================================================')
       if len(inp.strip()):
@@ -122,4 +125,5 @@ for seq_idx,seq in seqs.iterrows():
         if inp[0]=='d': delay = float(inp[1:])
         if inp=='q': exit('')
         if inp=='s': break
-
+        if inp=='b': seq_idx-=2; break
+  seq_idx +=1

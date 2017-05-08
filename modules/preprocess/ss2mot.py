@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """
 This script creates an MOT-like dataset
-Input format: Chen's format
-MOT format: a CSV with columns: frame#, -1, x, y, w, h, confidence, -1, -1, -1
 """
 print(__doc__)
 
@@ -27,6 +25,7 @@ output_dir = args.output+'/'
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["preprocess"]
 print(param)
+print("")
 
 #if "drive_list.txt" is not found in data root folder, then generate one (from all drives)
 if os.path.exists(args.drives):
