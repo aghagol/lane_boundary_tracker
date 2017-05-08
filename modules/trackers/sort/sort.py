@@ -142,7 +142,8 @@ class Sort(object):
       d2t_dist_threshold_loose=10,
       motion_model_variance=1,
       observation_variance=1,
-      sync_initialization=False,
+      motion_init_pose=False,
+      motion_init_sync=False,
     ):
     """
     Sets key parameters for SORT
@@ -155,12 +156,13 @@ class Sort(object):
     self.observation_variance = observation_variance
     self.trackers = []
     self.frame_count = 0
-    self.sync_initialization = sync_initialization
+    self.motion_init_pose = motion_init_pose
+    self.motion_init_sync = motion_init_sync
 
   def update(self,dets,dt=1):
     """
     Params:
-      dets - a numpy array of detections in the format [[x,y,idx],[x,y,idx],...]
+      dets - a numpy array of detections in the format [[x,y,u,v,idx],[x,y,u,v,idx],...]
     Requires: this method must be called once for each frame even with empty detections.
     Returns the a similar array, where the last column is the object ID.
 
@@ -196,24 +198,25 @@ class Sort(object):
     for t,trk in enumerate(self.trackers):
       if(t not in unmatched_trks):
         d = matched[np.where(matched[:,1]==t)[0],0]
-        trk.update(dets[d,:2].reshape(2,1),det_idx=dets[d,2])
+        trk.update(dets[d,:2].reshape(2,1),det_idx=dets[d,4])
 
     #create and initialise new trackers for unmatched detections
-    #EDIT ------------ compute average motion for track initialization (mohammad)
-    tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
-    if len(tracker_states):
-      avg_velocity = np.array(tracker_states).mean(axis=0)[2:].reshape(2,1)
-    else:
-      avg_velocity = np.zeros((2,1))
-    #-------------------------------------------------------
     for i in unmatched_dets:
-      if self.sync_initialization:
+      if self.motion_init_pose:
+        initial_state = dets[i,:4].reshape(4,1)
+      elif self.motion_init_sync:
+        #compute average motion for track initialization
+        tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
+        if len(tracker_states):
+          avg_velocity = np.array(tracker_states).mean(axis=0)[2:].reshape(2,1)
+        else:
+          avg_velocity = np.zeros((2,1))
         initial_state = np.concatenate((dets[i,:2].reshape(2,1),avg_velocity))
       else:
         initial_state = np.concatenate((dets[i,:2].reshape(2,1),np.zeros((2,1))))
       trk = KalmanBoxTracker(
         initial_state=initial_state,
-        det_idx=dets[i,2],
+        det_idx=dets[i,4],
         motion_model_var=self.motion_model_variance,
         observation_var=self.observation_variance)
       self.trackers.append(trk)
@@ -263,9 +266,10 @@ if __name__ == '__main__':
       max_age_since_update=param['max_age_after_last_update'],
       d2t_dist_threshold_tight=param['d2t_dist_threshold_tight'],
       d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
-      motion_model_variance = param['motion_model_variance'],
-      observation_variance = param['observation_variance'],
-      sync_initialization = param['sync_initialization'],
+      motion_model_variance=param['motion_model_variance'],
+      observation_variance=param['observation_variance'],
+      motion_init_pose=param['motion_init_pose'],
+      motion_init_sync=param['motion_init_sync'],
     ) #create instance of the SORT tracker
 
     seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
@@ -280,7 +284,7 @@ if __name__ == '__main__':
         dets = seq_dets[seq_dets[:,0]==frame,:]
         if param['real_time']:
           dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
-        trackers = mot_tracker.update(dets[:,[2,3,6]].reshape(-1,3),dt) #det format: [x,y,index]
+        trackers = mot_tracker.update(dets[:,2:7],dt) #det format: [x,y,u,v,index]
         for d in trackers:
           print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
 

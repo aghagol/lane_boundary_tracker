@@ -45,6 +45,9 @@ else:
 for drive in drive_list:
   print('Working on drive %s'%drive)
 
+  #read pose information
+  pose_path = data_dir+'/poses/'+drive+'-pose.csv'
+
   #split the drives on large gaps
   prefix = '/Lane/sampled_fuse/'
   filelist = sorted([i for i in os.listdir(data_dir+prefix) if '_'.join(i.split('_')[:2])==drive])
@@ -73,7 +76,7 @@ for drive in drive_list:
     os.makedirs(output_dir+'%s/det/'%(subdrive))
 
   motutil.index_TLLA_points(data_dir,output_dir,clusters,param)
-  motutil.ss_to_mot_det(output_dir,clusters,param)
+  motutil.ss_to_mot_det(output_dir,clusters,pose_path,param)
   
   # #save groundtruth
   # gt_out = output_dir+'%s_%s/gt/'%(drive,surface_name)

@@ -15,16 +15,11 @@ with open(args.config) as fparam:
 
 print('...Saving detections in MOT format')
 
-if param['video_tracking']:
-	print('vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
-	print('WARNING: re-sampling timestamps for \"Video Tracking\"')
-	print('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
-	if param['fake_dets']:
-		print('...Adding up to %d fake points after each detection (about %d meters apart)'%(param['fake_dets_n'],param['pose_step']))
-	if param['start_with_pose']:
-		print('...Using pose to initialize tracking state parameters')
-else:
-	print('...Video tracking mode is disabled')
-
 if param['remove_adjacent_points']:
   print('...Removing detection points that are closer than %.2f meters'%(param['min_pairwise_dist']))
+
+if param['recall']<1:
+  print('...Recall= %.2f %%'%(param['recall']*100))
+
+if param['scanline_step']>1:
+  print('...Sampling one in every %d scanlines'%(param['scanline_step']))

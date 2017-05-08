@@ -17,15 +17,13 @@ def index_TLLA_points(input_path,output_path,clusters,parameters):
     for filename in filelist:
       if os.stat(input_path+prefix+filename).st_size:
         points = np.loadtxt(input_path+prefix+filename,delimiter=',').reshape(-1,5)
-        if parameters['rank_reduction']:
-          lb_set = set(points[:,3])
-          for lb in lb_set:
-            points_subset = points[points[:,3]==lb,1:3]
-            if points_subset.shape[0]>2:
-              U,S,V = np.linalg.svd(points_subset-points_subset.mean(axis=0),full_matrices=False)
-              points[points[:,3]==lb,1:3] = points_subset.mean(axis=0) + S[0]*U[:,:1].dot(V[:1,:])
+        points = points[points[:,4]%parameters['scanline_step']==0,:]
         dets.append(points)
     dets = np.vstack(dets)
+
+    #apply recall
+    if parameters['recall']<1:
+      dets = dets[np.random.rand(dets.shape[0])<parameters['recall'],:]
 
     #sort detections according to timestamps
     dets = dets[dets[:,0].argsort(),:]
@@ -47,5 +45,5 @@ def index_TLLA_points(input_path,output_path,clusters,parameters):
 
     #save result to CSV file
     fmt = ['%05d','%d','%.10f','%.10f']
-    with open(output_path+'%s/det/tlla.txt'%(subdrive),'w') as fout:
+    with open(output_path+'%s/det/itll.txt'%(subdrive),'w') as fout:
       np.savetxt(fout,dets[:,:4],fmt=fmt,delimiter=',')
