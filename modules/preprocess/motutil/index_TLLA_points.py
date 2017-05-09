@@ -8,15 +8,14 @@ def index_TLLA_points(input_path,output_path,clusters,parameters):
   Output: CSV file consisting of all detections
   """
   #store all detections in a single numpy array
-  prefix = '/Lane/sampled_fuse/'
 
   for subdrive in clusters:
     filelist = clusters[subdrive]
 
     dets = []
     for filename in filelist:
-      if os.stat(input_path+prefix+filename).st_size:
-        points = np.loadtxt(input_path+prefix+filename,delimiter=',').reshape(-1,5)
+      if os.stat(input_path+filename).st_size:
+        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,5)
         points = points[points[:,4]%parameters['scanline_step']==0,:]
         dets.append(points)
     dets = np.vstack(dets)

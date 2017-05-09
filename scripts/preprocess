@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
+USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir]"
+
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_preprocess="$2";;
+    --poses)  poses_preprocess="$2";;
     --output) output_preprocess="$2";;
     --config) config_preprocess="$2";;
     --drives) drive_list="$2";;
-    *) echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file --drives path/to/drive_names_txt"; exit 1;;
+    *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if [[ -z "$input_preprocess" ]] || [[ -z "$output_preprocess" ]] || [[ -z "$config_preprocess" ]] ; then
-  echo "Usage: preprocess --input path/to/data --output path/to/tmp --config path/to/config_file --drives path/to/drive_names_txt"
+if  [[ -z "$input_preprocess"   ]] || \
+    [[ -z "$poses_preprocess"   ]] || \
+    [[ -z "$output_preprocess"  ]] || \
+    [[ -z "$config_preprocess"  ]] ; then
+  echo "Usage: $USAGE"
   exit 1
 fi
 
@@ -22,8 +28,22 @@ echo $(date) "Preprocessing"
 
 ./modules/preprocess/print_param.py --config $config_preprocess
 
-./modules/preprocess/ss2mot.py \
+./modules/preprocess/gen_drive_list.py \
   --input  $input_preprocess \
+  --drives $drive_list \
+  >> $output_preprocess/log.txt
+
+./modules/preprocess/tag.py \
+  --input  $input_preprocess \
+  --poses  $poses_preprocess \
+  --output $output_preprocess/tagged \
+  --config $config_preprocess \
+  --drives $drive_list \
+  >> $output_preprocess/log.txt
+
+./modules/preprocess/gen_mot.py \
+  --input  $output_preprocess/tagged \
+  --poses  $poses_preprocess \
   --output $output_preprocess/mot \
   --config $config_preprocess \
   --drives $drive_list \
