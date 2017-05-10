@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 
+USAGE="runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp --poses path/to/pose_files --tagged path/to/tagged_data"
+
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_path="$2";;
     --poses)  poses_path="$2";;
+    --tagged) tagged_path="$2";;
     --output) cache="$2";;
     --drives) drive_list="$2";;
-    *) echo "Usage: runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp"; exit 1;;
+    *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
 if [[ -z $cache ]] ; then
-  echo "Usage: runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp"; exit 1
+  echo "Usage: $USAGE"; exit 1
 fi
 
 MOT_CONFIG="./conf.json"
@@ -21,7 +24,7 @@ if [[ $input_path ]] ; then
       echo "Saving the drive names in $cache/preprocess"
       drive_list=$cache/preprocess/drive_list.txt
     fi
-    ./scripts/preprocess  --input $input_path           --output $cache/preprocess  --config $MOT_CONFIG  --drives $drive_list  --poses $poses_path
+    ./scripts/preprocess  --input $input_path           --output $cache/preprocess  --config $MOT_CONFIG  --drives $drive_list  --poses $poses_path  --tagged $tagged_path
     ./scripts/sort        --input $cache/preprocess/mot --output $cache/sort        --config $MOT_CONFIG
     ./scripts/postprocess --input $cache/preprocess/mot --output $cache/postprocess --config $MOT_CONFIG  --tracks $cache/sort/tracks
     # ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --input-root $input_path

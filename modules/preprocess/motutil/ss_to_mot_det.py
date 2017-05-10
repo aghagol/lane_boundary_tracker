@@ -35,7 +35,7 @@ def ss_to_mot_det(output_path,clusters,pose_path,parameters):
     if parameters['motion_observations']:
       motion = np.zeros((dets.shape[0],2))
       for i in range(dets.shape[0]):
-        j = np.argmax(dets[i,1]<pose[:,0]) #return index of first True occurence
+        j = np.argmax(dets[i,1]<pose[:,0]) #return index of matched pose point
         if j>0 and pose[j,0]>pose[j-1,0]:
           motion[i,1] = (pose[j,1]-pose[j-1,1])/(lon_max-lon_min)*w*zoom/(pose[j,0]-pose[j-1,0])
           motion[i,0] = (pose[j,2]-pose[j-1,2])/(lat_max-lat_min)*h*zoom/(pose[j,0]-pose[j-1,0])

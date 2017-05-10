@@ -24,6 +24,9 @@ input_path = args.input+'/'
 poses_path = args.poses+'/'
 output_path = args.output+'/'
 
+if not os.path.exists(output_path):
+  os.makedirs(output_path)
+
 # with open(args.config) as fparam:
 #   param = json.loads(jsmin(fparam.read()))["preprocess"]
 
@@ -32,13 +35,27 @@ with open(args.drives) as fdrivelist:
   for line in fdrivelist:
     drive_list.append(line.strip())
 
+tag_fmt = ['%d','%.10f','%.10f','%d','%02d']
+
 for drive in drive_list:
   print('Working on drive %s'%drive)
 
   #get the pose file for this drive
   pose_path = poses_path+drive+'-pose.csv'
+  pose = np.loadtxt(pose_path)
 
   #get the list of image annotations on this drive
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
+
+  for filename in filelist:
+    if os.path.exists(output_path+filename):
+      print('\t%s exists already! skipping...'%(output_path+filename))
+      continue
+
+    points = np.loadtxt(input_path+filename)
+    tagged = motutil.tag(points,pose)
+
+    with open(output_path+filename,'w') as fout:
+      np.savetxt(fout,tagged,fmt=tag_fmt,delimiter=',')
 
 

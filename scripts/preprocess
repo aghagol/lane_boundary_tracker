@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir]"
+USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir]"
 
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_preprocess="$2";;
     --poses)  poses_preprocess="$2";;
+    --tagged) tagged_preprocess="$2";;
     --output) output_preprocess="$2";;
     --config) config_preprocess="$2";;
     --drives) drive_list="$2";;
@@ -33,16 +34,17 @@ echo $(date) "Preprocessing"
   --drives $drive_list \
   >> $output_preprocess/log.txt
 
+echo $(date) "Preprocessing: tagging..."
 ./modules/preprocess/tag.py \
   --input  $input_preprocess \
   --poses  $poses_preprocess \
-  --output $output_preprocess/tagged \
+  --output $tagged_preprocess \
   --config $config_preprocess \
   --drives $drive_list \
   >> $output_preprocess/log.txt
 
 ./modules/preprocess/gen_mot.py \
-  --input  $output_preprocess/tagged \
+  --input  $tagged_preprocess \
   --poses  $poses_preprocess \
   --output $output_preprocess/mot \
   --config $config_preprocess \
