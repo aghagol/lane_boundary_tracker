@@ -283,7 +283,7 @@ if __name__ == '__main__':
       for frame_idx,frame in enumerate(frames):
         dets = seq_dets[seq_dets[:,0]==frame,:]
         if param['real_time']:
-          dt = frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]]
+          dt = (frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]])*1e-6
         trackers = mot_tracker.update(dets[:,2:7],dt) #det format: [x,y,u,v,index]
         for d in trackers:
           print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)

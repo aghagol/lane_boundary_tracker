@@ -27,8 +27,8 @@ output_path = args.output+'/'
 if not os.path.exists(output_path):
   os.makedirs(output_path)
 
-# with open(args.config) as fparam:
-#   param = json.loads(jsmin(fparam.read()))["preprocess"]
+with open(args.config) as fparam:
+  param = json.loads(jsmin(fparam.read()))["preprocess"]
 
 drive_list = []
 with open(args.drives) as fdrivelist:
@@ -43,6 +43,9 @@ for drive in drive_list:
   #get the pose file for this drive
   pose_path = poses_path+drive+'-pose.csv'
   pose = np.loadtxt(pose_path)
+  pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
+  if param['constant_vehicle_speed']:
+    pose[:,3] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   #get the list of image annotations on this drive
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])

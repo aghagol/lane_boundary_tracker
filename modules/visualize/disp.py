@@ -43,7 +43,7 @@ seqs = pd.read_csv(args.input)
 
 fig, ax = plt.subplots(1,1,figsize=(9,9))
 colors = np.random.rand(711,3) # create random colors for tracks
-frame_buffer_size = 100
+frame_buffer_size = 50
 
 seq_idx = 0
 while seq_idx < seqs.shape[0]:
@@ -52,7 +52,7 @@ while seq_idx < seqs.shape[0]:
   print('Working on sequence %s'%seqs.name[seq_idx])
 
   dets = np.loadtxt(seq.dpath,delimiter=',')
-  dets = dets[dets[:,6]>0,:] #remove the guide
+  dets = dets[dets[:,6]>0,:] #remove the guide (fake points)
   frame_timestamps = dict(zip(dets[:,0],dets[:,7]))
 
   if args.groundtruth:

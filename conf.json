@@ -11,28 +11,29 @@
     "split_on_temporal_gaps": true,
         "gap_min": 3, //temporal gaps more than this get split
         "min_seq_size": 20,
-    "motion_observations": true //replace (w,h) with speed (u,v)
+    "motion_observations": true, //replace (w,h) with speed (u,v)
+    "constant_vehicle_speed": true
   },
   "sort":
   {
     "d2t_dist_threshold_tight": 1,
-    "d2t_dist_threshold_loose": 1,
+    "d2t_dist_threshold_loose": 2,
     "max_age_after_last_update": 20,
-    "motion_model_variance": 0.00000001,
-    "observation_variance": 1000,
+    "motion_model_variance": 1,
+    "observation_variance": 1,
     "motion_init_pose": true, //this has priority over "motion_init_sync"
     "motion_init_sync": false, //use existing trackers to estimate initial motion
     "real_time": true //KF with variable (real) time steps
   },
   "visualize":
   {
-    "delay": 0.1,
+    "delay": 0.01,
     "window_size": 50,
     "centered": true,
     "show_tracks": true,
     "min_track_length": 1,
     "hide_predictions": false,
-    "real_time": true,
+    "real_time": false,
         "delay_multiplier": 0.1,
         "max_delay": 1
   },

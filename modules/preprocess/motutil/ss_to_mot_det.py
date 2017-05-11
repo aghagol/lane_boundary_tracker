@@ -19,7 +19,9 @@ def ss_to_mot_det(output_path,clusters,pose_path,parameters):
 
   if parameters['motion_observations']:
     pose = np.loadtxt(pose_path)[:,[3,0,1,2]] #in TLL format
-    pose = pose[pose[:,0].argsort(),:]
+    pose = pose[pose[:,0].argsort(),:] #sort based on timestamp
+    if parameters['constant_vehicle_speed']:
+      pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   for subdrive in clusters:
 
@@ -36,9 +38,9 @@ def ss_to_mot_det(output_path,clusters,pose_path,parameters):
       motion = np.zeros((dets.shape[0],2))
       for i in range(dets.shape[0]):
         j = np.argmax(dets[i,1]<pose[:,0]) #return index of matched pose point
-        if j>0 and pose[j,0]>pose[j-1,0]:
-          motion[i,1] = (pose[j,1]-pose[j-1,1])/(lon_max-lon_min)*w*zoom/(pose[j,0]-pose[j-1,0])
-          motion[i,0] = (pose[j,2]-pose[j-1,2])/(lat_max-lat_min)*h*zoom/(pose[j,0]-pose[j-1,0])
+        if j>0:
+          motion[i,1] = (pose[j,1]-pose[j-1,1])/(lon_max-lon_min)*w*zoom/(pose[j,0]-pose[j-1,0])*1e6
+          motion[i,0] = (pose[j,2]-pose[j-1,2])/(lat_max-lat_min)*h*zoom/(pose[j,0]-pose[j-1,0])*1e6
         else:
           motion[i,:] = 0
 
