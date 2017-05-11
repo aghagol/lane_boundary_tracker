@@ -13,4 +13,4 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["visualize"]
 
-print('...Omitting tracks shorter than %d'%(param['min_track_length']))
+print('...Tracks shorter than %d will be omitted'%(param['min_track_length']))

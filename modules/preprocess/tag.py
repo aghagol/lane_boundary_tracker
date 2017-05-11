@@ -49,8 +49,10 @@ for drive in drive_list:
 
   for filename in filelist:
     if os.path.exists(output_path+filename):
-      print('\t%s exists already! skipping...'%(output_path+filename))
+      print('\t%s exists! skipping'%(output_path+filename))
       continue
+    else:
+      print('\tworking on %s'%(output_path+filename))
 
     points = np.loadtxt(input_path+filename)
     tagged = motutil.tag(points,pose)

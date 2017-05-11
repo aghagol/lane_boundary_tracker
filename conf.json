@@ -3,7 +3,7 @@
   {
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
-    "scanline_step": 2, //subsample scanlines
+    "scanline_step":3, //subsample scanlines
     "recall": 1, //drop detections randomly
     "remove_adjacent_points": false,
         "min_pairwise_dist": 1,
@@ -27,7 +27,7 @@
   "visualize":
   {
     "delay": 0.1,
-    "window_size": 100,
+    "window_size": 50,
     "centered": true,
     "show_tracks": true,
     "min_track_length": 1,

@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+echo $(date) "Postprocessing"
+
+USAGE="postprocess --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input) input_postprocess="$2";;
+    --input)  input_postprocess="$2";;
     --tracks) tracks_postprocess="$2";;
     --output) output_postprocess="$2";;
     --config) config_postprocess="$2";;
-    *) echo "Usage: postprocess --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file"; exit 1;;
+    *) echo "Usage: "; exit 1;;
   esac; shift; shift
 done
 
@@ -13,7 +16,7 @@ if  [[ -z "$input_postprocess"  ]] || \
     [[ -z "$tracks_postprocess" ]] || \
     [[ -z "$output_postprocess" ]] || \
     [[ -z "$config_postprocess" ]] ; then
-  echo "Usage: postprocess --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file"
+  echo "Usage: $USAGE"
   exit 1
 fi
 
@@ -26,8 +29,6 @@ echo $(date) >> $output_postprocess/log.txt
   --tracks $tracks_postprocess \
   --output $output_postprocess/seqs.csv \
   >> $output_postprocess/log.txt
-
-echo $(date) "Postprocessing"
 
 ./modules/postprocess/print_param.py --config $config_postprocess
 

@@ -13,13 +13,13 @@ from jsmin import jsmin
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", help="CSV file containing paths")
-parser.add_argument("--input-root", help="path to dataset root")
+parser.add_argument("--chunks",help="path to chunks metadata")
 parser.add_argument("--output",help="path to output folder")
 parser.add_argument("--config",help="configuration JSON file")
 
 args = parser.parse_args()
 output_path = args.output+'/'
-root_path = args.input_root+'/'
+chunks_path = args.chunks+'/'
 
 os.makedirs(output_path)
 
@@ -35,9 +35,9 @@ for seq_idx,seq in seqs.iterrows():
   print('Working on sequence %s'%drive)
   os.makedirs(output_path+drive)
 
-  chunk_id_path = [csv_file for csv_file in os.listdir(root_path+drive) if csv_file.endswith('_image.csv')]
-  assert len(chunk_id_path)==1, 'ERROR: found %d pose files in %s'%(len(chunk_id_path),root_path+drive)
-  chunk_id_path = root_path+drive+'/'+chunk_id_path[0]
+  chunk_id_path = [csv_file for csv_file in os.listdir(chunks_path+drive) if csv_file.endswith('_image.csv')]
+  assert len(chunk_id_path)==1, 'ERROR: found %d pose files in %s'%(len(chunk_id_path),chunks_path+drive)
+  chunk_id_path = chunks_path+drive+'/'+chunk_id_path[0]
   chunk_id = pd.read_csv(chunk_id_path)
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
 

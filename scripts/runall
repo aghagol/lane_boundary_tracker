@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-USAGE="runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp --poses path/to/pose_files --tagged path/to/tagged_data"
+USAGE="runall --input path/to/data --output path/to/tmp --drives txt_file --poses path/to/pose_csv --tagged path/to/tagged_data"
 
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_path="$2";;
-    --poses)  poses_path="$2";;
-    --tagged) tagged_path="$2";;
     --output) cache="$2";;
     --drives) drive_list="$2";;
+    --poses)  poses_path="$2";;
+    --tagged) tagged_path="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
@@ -30,7 +30,7 @@ if [[ $input_path ]] ; then
     # ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --input-root $input_path
     # ./scripts/evaluate    --input $cache/preprocess/mot --output $cache/evaluate    --config $MOT_CONFIG  --tracks $cache/sort/tracks
   else
-    echo "Output path is not empty.. Please enter an empty path for outputs."
+    echo "Output path exists.. Please enter another path for outputs."
   fi
 fi
 

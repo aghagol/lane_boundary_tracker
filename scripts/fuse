@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+echo $(date) "Fusion for EarthScape viewing"
+
+USAGE="fuse --input [dir] --tracks [dir] --output [dir] --config [json] --chunks [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_fuse="$2";;
     --tracks) tracks_fuse="$2";;
     --output) output_fuse="$2";;
     --config) config_fuse="$2";;
-    --input-root) input_root="$2";;
-    *) echo "Usage: fuse --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file --input-root path/to/drive_data"; exit 1;;
+    --chunks) chunks_fuse="$2";;
+    *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
@@ -14,8 +17,8 @@ if  [[ -z "$input_fuse"   ]] || \
     [[ -z "$tracks_fuse"  ]] || \
     [[ -z "$output_fuse"  ]] || \
     [[ -z "$config_fuse"  ]] || \
-    [[ -z "$input_root"   ]] ; then
-  echo "Usage: fuse --input path/to/MOT_data --tracks path/to/tracks --output path/to/tmp --config path/to/config_file --input-root path/to/drive_data"
+    [[ -z "$chunks_fuse"   ]] ; then
+  echo "Usage: $USAGE"
   exit 1
 fi
 
@@ -23,19 +26,17 @@ mkdir $output_fuse
 
 echo $(date) >> $output_fuse/log.txt
 
+./modules/fuse/print_param.py --config $config_fuse
+
 ./modules/fuse/make_seq_list.py \
   --input  $input_fuse \
   --tracks $tracks_fuse \
   --output $output_fuse/seqs.csv \
   >> $output_fuse/log.txt
 
-echo $(date) "Fusion for EarthScape viewing"
-
-./modules/fuse/print_param.py --config $config_fuse
-
 ./modules/fuse/fuse.py \
   --input  $output_fuse/seqs.csv \
   --output $output_fuse/fused \
   --config $config_fuse \
-  --input-root $input_root \
+  --chunks $chunks_fuse \
   >> $output_fuse/log.txt

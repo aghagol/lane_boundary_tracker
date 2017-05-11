@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 
+echo $(date) "Tracking: SORT"
+
+USAGE="sort --input [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input) input_sort="$2";;
+    --input)  input_sort="$2";;
     --output) output_sort="$2";;
 		--config) config_sort="$2";;
-    *) echo "Usage: sort --input path/to/MOT_data --output path/to/tmp --config path/to/config_file"; exit 1;;
+    *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
 if [[ -z "$input_sort" ]] || [[ -z "$output_sort" ]] || [[ -z "$config_sort" ]] ; then
-  echo "Usage: sort --input path/to/MOT_data --output path/to/tmp --config path/to/config_file"
+  echo "Usage: $USAGE"
   exit 1
 fi
 
 mkdir $output_sort
 
 echo $(date) >> $output_sort/log.txt
-
-echo $(date) "Tracking: SORT"
 
 ./modules/trackers/sort/print_param.py --config $config_sort
 

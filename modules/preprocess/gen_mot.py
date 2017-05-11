@@ -64,7 +64,7 @@ for drive in drive_list:
     os.makedirs(output_path+'%s/det/'%(subdrive))
 
   motutil.index_TLLA_points(input_path,output_path,clusters,param)
-  motutil.ss_to_mot_det(output_path,clusters,pose_path=(poses_path+drive+'-pose.csv'),param)
+  motutil.ss_to_mot_det(output_path,clusters,poses_path+drive+'-pose.csv',param)
   
   # #save groundtruth
   # gt_out = output_path+'%s_%s/gt/'%(drive,surface_name)
