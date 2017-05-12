@@ -60,11 +60,18 @@ for drive in drive_list:
   else:
     clusters = {drive:filelist}
 
-  for subdrive in clusters:
-    os.makedirs(output_path+'%s/det/'%(subdrive))
+  #print to log
+  for subdrive in sorted(clusters):
+    print('\tsubdrive %s has the following members:'%(subdrive))
+    for member in sorted(clusters[subdrive]):
+      print('\t\t%s'%(member))
 
-  motutil.index_TLLA_points(input_path,output_path,clusters,param)
-  motutil.ss_to_mot_det(output_path,clusters,poses_path+drive+'-pose.csv',param)
+  #keep track of subdrives with 0 or 1 detection points that will be marked for deletion
+  #these subdrives go unseen until now because points can be removed in later stages
+  tiny_subdrives = set()
+
+  motutil.index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,param)
+  motutil.ss_to_mot_det(output_path,clusters,tiny_subdrives,poses_path+drive+'-pose.csv',param)
   
   # #save groundtruth
   # gt_out = output_path+'%s_%s/gt/'%(drive,surface_name)

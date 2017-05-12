@@ -28,7 +28,7 @@ if not os.path.exists(output_path):
   os.makedirs(output_path)
 
 with open(args.config) as fparam:
-  param = json.loads(jsmin(fparam.read()))["preprocess"]
+  parameters = json.loads(jsmin(fparam.read()))["preprocess"]
 
 drive_list = []
 with open(args.drives) as fdrivelist:
@@ -44,21 +44,23 @@ for drive in drive_list:
   pose_path = poses_path+drive+'-pose.csv'
   pose = np.loadtxt(pose_path)
   pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
-  if param['constant_vehicle_speed']:
+  if parameters['constant_vehicle_speed']:
     pose[:,3] = np.arange(pose.shape[0])*1e6 #constant speed model
+  scale_meta = motutil.normalize(pose)
 
   #get the list of image annotations on this drive
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
 
   for filename in filelist:
     if os.path.exists(output_path+filename):
-      print('\t%s exists! skipping'%(output_path+filename))
+      # print('\t%s exists! skipping'%(output_path+filename))
       continue
     else:
       print('\tworking on %s'%(output_path+filename))
 
     points = np.loadtxt(input_path+filename)
-    tagged = motutil.tag(points,pose)
+
+    tagged = motutil.tag(points,pose,scale_meta,parameters) #warning: points and pose may be modified in place!
 
     with open(output_path+filename,'w') as fout:
       np.savetxt(fout,tagged,fmt=tag_fmt,delimiter=',')

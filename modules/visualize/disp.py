@@ -43,7 +43,7 @@ seqs = pd.read_csv(args.input)
 
 fig, ax = plt.subplots(1,1,figsize=(9,9))
 colors = np.random.rand(711,3) # create random colors for tracks
-frame_buffer_size = 50
+frame_buffer_size = 100
 
 seq_idx = 0
 while seq_idx < seqs.shape[0]:

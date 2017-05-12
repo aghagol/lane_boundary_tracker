@@ -2,13 +2,11 @@ import numpy as np
 import os
 from haversine import dist
 
-def index_TLLA_points(input_path,output_path,clusters,parameters):
+def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters):
   """
   Input: Chen's CSV input format (a CSV file for each RANSAC output)
   Output: CSV file consisting of all detections
   """
-  #store all detections in a single numpy array
-
   for subdrive in clusters:
     filelist = clusters[subdrive]
 
@@ -19,6 +17,11 @@ def index_TLLA_points(input_path,output_path,clusters,parameters):
         points = points[points[:,4]%parameters['scanline_step']==0,:]
         dets.append(points)
     dets = np.vstack(dets)
+
+    if dets.shape[0]<2:
+      print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
+      tiny_subdrives.add(subdrive)
+      continue
 
     #apply recall
     if parameters['recall']<1:
@@ -43,6 +46,7 @@ def index_TLLA_points(input_path,output_path,clusters,parameters):
     dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))
 
     #save result to CSV file
+    os.makedirs(output_path+'%s/det/'%(subdrive))
     fmt = ['%05d','%d','%.10f','%.10f']
     with open(output_path+'%s/det/itll.txt'%(subdrive),'w') as fout:
       np.savetxt(fout,dets[:,:4],fmt=fmt,delimiter=',')

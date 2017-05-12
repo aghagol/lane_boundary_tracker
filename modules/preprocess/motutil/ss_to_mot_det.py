@@ -3,7 +3,7 @@ import numpy as np
 import os,sys
 import haversine
 
-def ss_to_mot_det(output_path,clusters,pose_path,parameters):
+def ss_to_mot_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
   """
   Input: a JSON file (chucai's format)
   Output: MOT-formatted det.txt
@@ -24,6 +24,7 @@ def ss_to_mot_det(output_path,clusters,pose_path,parameters):
       pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   for subdrive in clusters:
+    if subdrive in tiny_subdrives: continue
 
     #load detections from txt file
     dets = np.loadtxt(output_path+'%s/det/itll.txt'%(subdrive),delimiter=',')
@@ -33,14 +34,17 @@ def ss_to_mot_det(output_path,clusters,pose_path,parameters):
     w = haversine.dist(lon_min,lat_min,lon_max,lat_min)
     h = haversine.dist(lon_min,lat_min,lon_min,lat_max)
 
+    lon_scale = w*zoom/(lon_max-lon_min) if w>0 else 1.
+    lat_scale = h*zoom/(lat_max-lat_min) if h>0 else 1.
+
     #replace bounding-boxes with motion observations from pose
     if parameters['motion_observations']:
       motion = np.zeros((dets.shape[0],2))
       for i in range(dets.shape[0]):
         j = np.argmax(dets[i,1]<pose[:,0]) #return index of matched pose point
         if j>0:
-          motion[i,1] = (pose[j,1]-pose[j-1,1])/(lon_max-lon_min)*w*zoom/(pose[j,0]-pose[j-1,0])*1e6
-          motion[i,0] = (pose[j,2]-pose[j-1,2])/(lat_max-lat_min)*h*zoom/(pose[j,0]-pose[j-1,0])*1e6
+          motion[i,1] = (pose[j,1]-pose[j-1,1])*lon_scale/(pose[j,0]-pose[j-1,0])*1e6
+          motion[i,0] = (pose[j,2]-pose[j-1,2])*lat_scale/(pose[j,0]-pose[j-1,0])*1e6
         else:
           motion[i,:] = 0
 
@@ -49,8 +53,8 @@ def ss_to_mot_det(output_path,clusters,pose_path,parameters):
     out = np.zeros((dets.shape[0],8))
     out[:,0] = range(1,out.shape[0]+1) #frame number
     out[:,1] = -1
-    out[:,2] = (dets[:,3]-lat_min)/(lat_max-lat_min)*h*zoom #row
-    out[:,3] = (dets[:,2]-lon_min)/(lon_max-lon_min)*w*zoom #column
+    out[:,2] = (dets[:,3]-lat_min)*lat_scale #row
+    out[:,3] = (dets[:,2]-lon_min)*lon_scale #column
     out[:,6] = dets[:,0] #detection's unique ID
     out[:,7] = dets[:,1] #detection's timestamp
     if parameters['motion_observations']:

@@ -3,7 +3,7 @@ import numpy as np
 import os,sys
 import haversine
 
-def tag(points,pose):
+def tag(points,pose,scale_meta,parameters):
   """
   Input 1: points numpy array 1 (without timestamp) format: longitude latitude laneline# scanline#
   Input 2: points numpy array 2 (with timestamp)    format: longitude latitude altitude  timestamp
@@ -12,7 +12,13 @@ def tag(points,pose):
   tagged = np.zeros((points.shape[0],5))
   tagged[:,1:] = points
 
+  #normalize points as well
+  points[:,0] = (points[:,0]-scale_meta[0])*scale_meta[2]
+  points[:,1] = (points[:,1]-scale_meta[1])*scale_meta[3]
+
+  OK = np.ones((points.shape[0]),dtype=bool)
   for i in range(points.shape[0]):
+
     l2_squared_dist = ((points[i,:2]-pose[:,:2])**2).sum(axis=1)
     pose_id = np.argsort(l2_squared_dist) #rank pose points based on distance to querry point
 
@@ -26,12 +32,38 @@ def tag(points,pose):
         r2 = r1+1
       else:
         r2 +=1
+
     p0,p1 = pose_id[r1],pose_id[r2]
+    if l2_squared_dist[p1]>parameters['tag_max_dist'] or l2_squared_dist[p0]>parameters['tag_max_dist']:
+      OK[i] = False
 
     #interpolate timestamps
     pose_d = (pose[p1,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2])
     lam = (points[i,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2]) / pose_d
-    lam = max(lam,0) #don't extrapolate
+    # lam = max(lam,0) #don't extrapolate
     tagged[i,0] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3]
 
+    #testing
+    # tagged[i,0] = pose[p0,3]
+    # tagged[i,1:3] = pose[p0,:2]
+  tagged = tagged[OK]
+
   return tagged
+
+def normalize(pose):
+  """
+  This module replaces the longitude latitude with meters distance from origin
+  """
+  lon_min,lon_max = pose[:,0].min(),pose[:,0].max()
+  lat_min,lat_max = pose[:,1].min(),pose[:,1].max()
+
+  w = haversine.dist(lon_min,lat_min,lon_max,lat_min)
+  h = haversine.dist(lon_min,lat_min,lon_min,lat_max)
+
+  lon_scale = w/(lon_max-lon_min) if w>0 else 1.
+  lat_scale = h/(lat_max-lat_min) if h>0 else 1.
+
+  pose[:,0] = (pose[:,0]-lon_min)*lon_scale
+  pose[:,1] = (pose[:,1]-lat_min)*lat_scale
+
+  return (lon_min,lat_min,lon_scale,lat_scale)

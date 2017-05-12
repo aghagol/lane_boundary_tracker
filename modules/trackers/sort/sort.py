@@ -108,7 +108,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
   for d,det in enumerate(detections):
     for t,trk in enumerate(trackers):
       d2t_sim_matrix[d,t] = d2t_sim(det.reshape(2,1),trk.reshape(2,1))
-  matched_indices = linear_assignment(-d2t_sim_matrix)
+  matched_indices = linear_assignment(1-d2t_sim_matrix)
 
   unmatched_detections = []
   for d,det in enumerate(detections):
