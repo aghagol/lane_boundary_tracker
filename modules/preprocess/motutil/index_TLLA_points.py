@@ -18,11 +18,6 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
         dets.append(points)
     dets = np.vstack(dets)
 
-    if dets.shape[0]<2:
-      print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
-      tiny_subdrives.add(subdrive)
-      continue
-
     #apply recall
     if parameters['recall']<1:
       dets = dets[np.random.rand(dets.shape[0])<parameters['recall'],:]
@@ -41,6 +36,11 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
             if fake_confidence[i]<fake_confidence[j]: #keep the point with higher confidence
               mark_for_deletion.append(i)
       dets = np.delete(dets,mark_for_deletion,axis=0)
+
+    if dets.shape[0]<2:
+      print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
+      tiny_subdrives.add(subdrive)
+      continue
 
     #add detection index in a new column
     dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))

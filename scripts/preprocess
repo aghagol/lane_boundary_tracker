@@ -36,7 +36,7 @@ echo $(date) >> $output_preprocess/log.txt
   >> $output_preprocess/log.txt
 
 echo $(date) "Preprocessing: Tagging (timestamps)"
-./modules/preprocess/tag.py \
+./modules/preprocess/gen_tagged.py \
   --input  $input_preprocess \
   --poses  $poses_preprocess \
   --output $tagged_preprocess \

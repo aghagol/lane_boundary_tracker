@@ -282,7 +282,7 @@ if __name__ == '__main__':
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
       for frame_idx,frame in enumerate(frames):
         dets = seq_dets[seq_dets[:,0]==frame,:]
-        if param['real_time']:
+        if not param['constant_fps']:
           dt = (frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]])*1e-6
         trackers = mot_tracker.update(dets[:,2:7],dt) #det format: [x,y,u,v,index]
         for d in trackers:

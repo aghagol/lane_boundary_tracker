@@ -46,7 +46,7 @@ for drive in drive_list:
   pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
   if parameters['constant_vehicle_speed']:
     pose[:,3] = np.arange(pose.shape[0])*1e6 #constant speed model
-  scale_meta = motutil.normalize(pose)
+  scale_meta = motutil.meterize(pose) #warning: pose is modified (meterized) in place
 
   #get the list of image annotations on this drive
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
@@ -60,7 +60,7 @@ for drive in drive_list:
 
     points = np.loadtxt(input_path+filename)
 
-    tagged = motutil.tag(points,pose,scale_meta,parameters) #warning: points and pose may be modified in place!
+    tagged = motutil.get_tagged(points,pose,scale_meta,parameters) #warning: points are modified in place
 
     with open(output_path+filename,'w') as fout:
       np.savetxt(fout,tagged,fmt=tag_fmt,delimiter=',')

@@ -3,7 +3,7 @@ import numpy as np
 import os,sys
 import haversine
 
-def tag(points,pose,scale_meta,parameters):
+def get_tagged(points,pose,scale_meta,parameters):
   """
   Input 1: points numpy array 1 (without timestamp) format: longitude latitude laneline# scanline#
   Input 2: points numpy array 2 (with timestamp)    format: longitude latitude altitude  timestamp
@@ -50,9 +50,10 @@ def tag(points,pose,scale_meta,parameters):
 
   return tagged
 
-def normalize(pose):
+def meterize(pose):
   """
   This module replaces the longitude latitude with meters distance from origin
+  and returns metadata to meterize any other lat-long data
   """
   lon_min,lon_max = pose[:,0].min(),pose[:,0].max()
   lat_min,lat_max = pose[:,1].min(),pose[:,1].max()
