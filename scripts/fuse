@@ -9,6 +9,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     --output) output_fuse="$2";;
     --config) config_fuse="$2";;
     --chunks) chunks_fuse="$2";;
+    --tagged) tagged_fuse="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done

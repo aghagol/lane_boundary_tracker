@@ -11,12 +11,16 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
     filelist = clusters[subdrive]
 
     dets = []
+    tmap = []
     for filename in filelist:
       if os.stat(input_path+filename).st_size:
-        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,5)
-        points = points[points[:,4]%parameters['scanline_step']==0,:]
+        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,6)
+        points = points[points[:,5]%parameters['scanline_step']==0,:]
         dets.append(points)
+      if os.stat(input_path+filename+'.tmap').st_size:
+        tmap.append(np.loadtxt(input_path+filename+'.tmap',delimiter=',').reshape(-1,2))
     dets = np.vstack(dets)
+    if parameters['fake_timestamp']: tmap = np.vstack(tmap)
 
     #apply recall
     if parameters['recall']<1:
@@ -43,10 +47,11 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
       continue
 
     #add detection index in a new column
-    dets = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets))
+    itlla = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets[:,:4]))
 
     #save result to CSV file
     os.makedirs(output_path+'%s/det/'%(subdrive))
-    fmt = ['%05d','%d','%.10f','%.10f']
-    with open(output_path+'%s/det/itll.txt'%(subdrive),'w') as fout:
-      np.savetxt(fout,dets[:,:4],fmt=fmt,delimiter=',')
+    fmt = ['%05d','%d','%.10f','%.10f','%.10f']
+    np.savetxt(output_path+'%s/det/itlla.txt'%(subdrive),itlla,fmt=fmt,delimiter=',')
+    if parameters['fake_timestamp']:
+      np.savetxt(output_path+'%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')

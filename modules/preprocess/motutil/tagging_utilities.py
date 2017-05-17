@@ -3,14 +3,17 @@ import numpy as np
 import os,sys
 import haversine
 
-def get_tagged(points,pose,scale_meta,parameters):
+def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
   """
-  Input 1: points numpy array 1 (without timestamp) format: longitude latitude laneline# scanline#
-  Input 2: points numpy array 2 (with timestamp)    format: longitude latitude altitude  timestamp
-  Output : points numpy array 1 (with timestamp)    format: timestamp longitude latitude laneline# scanline# [+gradient]
+  points  : points numpy array 1 (without timestamp) format: longitude latitude laneline# scanline#
+  pose    : points numpy array 2 (with timestamp)    format: longitude latitude altitude  timestamp
+  tagged  : points numpy array 1 (with timestamp)    format: timestamp longitude latitude altitude laneline# scanline# [+gradient]
   """
-  tagged = np.zeros((points.shape[0],5))
-  tagged[:,1:] = points
+  tagged = np.zeros((points.shape[0],6))
+  tagged[:,1:3] = points[:,0:2]
+  tagged[:,4:6] = points[:,2:4]
+
+  tmap = np.zeros((points.shape[0],2))
 
   #normalize points as well
   points[:,0] = (points[:,0]-scale_meta[0])*scale_meta[2]
@@ -37,18 +40,20 @@ def get_tagged(points,pose,scale_meta,parameters):
     if l2_squared_dist[p1]>parameters['tag_max_dist'] or l2_squared_dist[p0]>parameters['tag_max_dist']:
       OK[i] = False
 
-    #interpolate timestamps
-    pose_d = (pose[p1,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2])
-    lam = (points[i,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2]) / pose_d
-    # lam = max(lam,0) #don't extrapolate
-    tagged[i,0] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3]
+    #extract parameters for interpolating timestamps
+    pose_points_dist = (pose[p1,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2])
+    lam = (points[i,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2]) / pose_points_dist #0<lam<1
+    lam = max(lam,0) #don't extrapolate
+    
+    if parameters['fake_timestamp']:
+      tagged[i,0] = (1-lam)*tmap_pose[pose[p0,3]] + lam*tmap_pose[pose[p1,3]]
+      tagged[i,3] = (1-lam)*pose[p0,2] + lam*pose[p1,2]
+      tmap[i,0] = tagged[i,0]
+      tmap[i,1] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3] #true timestamp
+    else:
+      tagged[i,0] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3]
 
-    #testing
-    # tagged[i,0] = pose[p0,3]
-    # tagged[i,1:3] = pose[p0,:2]
-  tagged = tagged[OK]
-
-  return tagged
+  return (tagged[OK],tmap)
 
 def meterize(pose):
   """

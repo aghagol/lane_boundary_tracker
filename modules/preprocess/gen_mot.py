@@ -38,14 +38,16 @@ for drive in drive_list:
   print('Working on drive %s'%drive)
 
   #split the drives on large gaps (cluster the images)
-  filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
+  filelist = sorted([i for i in os.listdir(input_path) if ('_'.join(i.split('_')[:2])==drive and i.endswith('.fuse'))])
   if param['split_on_temporal_gaps']:
+    print('\tClustering images based on time overlap...')
     drive_parts = []
     for filename in filelist:
       if os.stat(input_path+filename).st_size:
         file_ismember = False
-        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,5)
-        t0,t1 = points[:,0].min(),points[:,0].max()
+        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,6)
+        t0 = points[:,0].min()*1e-6
+        t1 = points[:,0].max()*1e-6
         for part in drive_parts:
           if (part['t0']-t0<param['gap_min'] and t0-part['t0']<param['gap_min']) or \
              (part['t1']-t1<param['gap_min'] and t1-part['t1']<param['gap_min']):

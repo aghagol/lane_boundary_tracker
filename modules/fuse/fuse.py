@@ -31,17 +31,18 @@ seqs = pd.read_csv(args.input)
 fmt = ['%.10f','%.10f','%.10f','%d']
 for seq_idx,seq in seqs.iterrows():
 
-  drive = seqs.name[seq_idx]
-  print('Working on sequence %s'%drive)
-  os.makedirs(output_path+drive)
+  subdrive = seqs.name[seq_idx]
+  drive = '_'.join(subdrive.split('_')[:2])
+  print('Working on sequence %s'%subdrive)
+  os.makedirs(output_path+subdrive)
 
-  chunk_id_path = [csv_file for csv_file in os.listdir(chunks_path+drive) if csv_file.endswith('_image.csv')]
-  assert len(chunk_id_path)==1, 'ERROR: found %d pose files in %s'%(len(chunk_id_path),chunks_path+drive)
-  chunk_id_path = chunks_path+drive+'/'+chunk_id_path[0]
+  chunk_id_path = chunks_path+drive+'.csv'
   chunk_id = pd.read_csv(chunk_id_path)
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
 
   dets = np.loadtxt(seq.dpath,delimiter=',')
+  tmap = np.loadtxt(seq.tmap, delimiter=',')
+  tmap = {row[0]:row[1] for row in tmap}
   trks = np.loadtxt(seq.tpath,delimiter=',')
   trks = trks[trks[:,4]>0,:] #remove the guide
 
@@ -49,19 +50,18 @@ for seq_idx,seq in seqs.iterrows():
     dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
     out_fuse = []
     for det_id in dets_ids:
-      det_row = det_id-1 #NOTE: assuming det id's are sorted and synced with row numbers in tlla.txt
-      out_fuse.append(dets[det_row,[2,3,4,1]].reshape(1,-1))
+      out_fuse.append(dets[dets[:,0]==det_id,[2,3,4,1]].reshape(1,-1)) #LLAT format
     out_fuse = np.vstack(out_fuse)
 
-    output_fuse = '%s/%d_laneMarking_l2polyline.fuse'%(drive,lb_number)
+    output_fuse = '%s/%d_laneMarking_l2polyline.fuse'%(subdrive,lb_number)
     with open(output_path+output_fuse,'w') as fout:
       np.savetxt(fout,out_fuse,fmt=fmt)
 
     for row in range(out_fuse.shape[0]):
-      timestamp = out_fuse[row,3]
+      timestamp = tmap[out_fuse[row,3]]
       mask = np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)
-      assert mask.sum()==1, 'Each detection must belong to one and only one chunk'
+      assert mask.sum()==1, 'Each detection must belong to one and only one chunk (%d)'%mask.sum()
       out_fuse[row,3] = chunk_id['ChunkId'][mask]
-    output_fuse = '%s/%d_laneMarking.fuse'%(drive,lb_number)
+    output_fuse = '%s/%d_laneMarking.fuse'%(subdrive,lb_number)
     with open(output_path+output_fuse,'w') as fout:
       np.savetxt(fout,out_fuse,fmt=fmt)

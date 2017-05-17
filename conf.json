@@ -9,10 +9,10 @@
         "min_pairwise_dist": 1,
         "search_window_size": 100,
     "split_on_temporal_gaps": true,
-        "gap_min": 3, //temporal gaps more than this get split
+        "gap_min": 1, //temporal gaps more than this get split
         "min_seq_size": 20,
     "motion_observations": true, //replace (w,h) with speed (u,v)
-    "constant_vehicle_speed": true,
+    "fake_timestamp": true,
     "tag_max_dist": 7 //in meters
   },
   "sort":
@@ -47,6 +47,6 @@
   },
   "fuse":
   {
-    "enable": false
+    "enable": true
   }
 }

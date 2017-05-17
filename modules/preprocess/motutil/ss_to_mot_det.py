@@ -20,14 +20,14 @@ def ss_to_mot_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
   if parameters['motion_observations']:
     pose = np.loadtxt(pose_path)[:,[3,0,1,2]] #in TLL format
     pose = pose[pose[:,0].argsort(),:] #sort based on timestamp
-    if parameters['constant_vehicle_speed']:
+    if parameters['fake_timestamp']:
       pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   for subdrive in clusters:
     if subdrive in tiny_subdrives: continue
 
     #load detections from txt file
-    dets = np.loadtxt(output_path+'%s/det/itll.txt'%(subdrive),delimiter=',')
+    dets = np.loadtxt(output_path+'%s/det/itlla.txt'%(subdrive),delimiter=',')
 
     lon_min, lon_max = (dets[:,2].min(), dets[:,2].max())
     lat_min, lat_max = (dets[:,3].min(), dets[:,3].max())
@@ -61,6 +61,4 @@ def ss_to_mot_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
       out[:,4:6] = motion
     else:
       out[:,4:6] = parameters['object_size'] *zoom
-    
-    with open(output_path+'%s/det/det.txt'%(subdrive),'w') as fout:
-      np.savetxt(fout,out,fmt=fmt,delimiter=',')
+    np.savetxt(output_path+'%s/det/det.txt'%(subdrive),out,fmt=fmt,delimiter=',')

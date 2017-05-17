@@ -55,14 +55,15 @@ while seq_idx < seqs.shape[0]:
   dets = dets[dets[:,6]>0,:] #remove the guide (fake points)
   frame_timestamps = dict(zip(dets[:,0],dets[:,7]))
 
-  if args.groundtruth:
-    if not os.path.exists(seq.gpath): exit("GT data not there!")
-    trks = np.loadtxt(seq.gpath,delimiter=',')
-  elif param['show_tracks']:
-    if not os.path.exists(seq.tpath): exit("\nNo tracks file was found!\n")
-    trks = np.loadtxt(seq.tpath,delimiter=',')[:,:6]
-    if param['hide_predictions']:
-      trks = trks[trks[:,4]>0,:] #remove the predictions with no matches
+  if param['show_tracks']:
+    if args.groundtruth:
+      if not os.path.exists(seq.gpath): exit("GT data not there!")
+      trks = np.loadtxt(seq.gpath,delimiter=',')
+    else:
+      if not os.path.exists(seq.tpath): exit("\nNo tracks file was found!\n")
+      trks = np.loadtxt(seq.tpath,delimiter=',')
+      if param['hide_predictions']:
+        trks = trks[trks[:,4]>0,:] #remove the predictions with no matches
 
   frames = sorted(frame_timestamps)
   frame_idx = 0

@@ -8,6 +8,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     --drives) drive_list="$2";;
     --poses)  poses_path="$2";;
     --tagged) tagged_path="$2";;
+    --chunks) chunks_path="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
@@ -27,7 +28,7 @@ if [[ $input_path ]] ; then
     ./scripts/preprocess  --input $input_path           --output $cache/preprocess  --config $MOT_CONFIG  --drives $drive_list  --poses $poses_path  --tagged $tagged_path
     ./scripts/sort        --input $cache/preprocess/mot --output $cache/sort        --config $MOT_CONFIG
     ./scripts/postprocess --input $cache/preprocess/mot --output $cache/postprocess --config $MOT_CONFIG  --tracks $cache/sort/tracks
-    # ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --input-root $input_path
+    ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --chunks $chunks_path --tagged $tagged_path
     # ./scripts/evaluate    --input $cache/preprocess/mot --output $cache/evaluate    --config $MOT_CONFIG  --tracks $cache/sort/tracks
   else
     echo "Output path exists.. Please enter another path for outputs."

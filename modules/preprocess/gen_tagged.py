@@ -35,34 +35,31 @@ with open(args.drives) as fdrivelist:
   for line in fdrivelist:
     drive_list.append(line.strip())
 
-tag_fmt = ['%d','%.10f','%.10f','%d','%02d']
-
+tag_fmt = ['%d','%.10f','%.10f','%.10f','%d','%02d']
 for drive in drive_list:
   print('Working on drive %s'%drive)
 
-  #get the pose file for this drive
+  #get and process drive pose
   pose_path = poses_path+drive+'-pose.csv'
-  pose = np.loadtxt(pose_path)
+  pose = np.loadtxt(pose_path) #format: longitude latitude altitude timestamp
   pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
-  if parameters['constant_vehicle_speed']:
-    pose[:,3] = np.arange(pose.shape[0])*1e6 #constant speed model
   scale_meta = motutil.meterize(pose) #warning: pose is modified (meterized) in place
+  tmap_pose = {ts_origin:counter*1e6 for counter,ts_origin in enumerate(pose[:,3])}
 
   #get the list of image annotations on this drive
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
 
   for filename in filelist:
-    if os.path.exists(output_path+filename):
-      # print('\t%s exists! skipping'%(output_path+filename))
-      continue
+    if os.path.exists(output_path+filename) and os.path.exists(output_path+filename+'.tmap')>=parameters['fake_timestamp']:
+        # print('\t%s exists! skipping'%(output_path+filename))
+        continue
     else:
       print('\tworking on %s'%(output_path+filename))
 
     points = np.loadtxt(input_path+filename)
 
-    tagged = motutil.get_tagged(points,pose,scale_meta,parameters) #warning: points are modified in place
-
-    with open(output_path+filename,'w') as fout:
-      np.savetxt(fout,tagged,fmt=tag_fmt,delimiter=',')
-
-
+    #warning: points are modified in place after this
+    tagged,tmap = motutil.get_tagged(points,pose,scale_meta,tmap_pose,parameters)
+    np.savetxt(output_path+filename,tagged,fmt=tag_fmt,delimiter=',')
+    if parameters['fake_timestamp']:
+      np.savetxt(output_path+filename+'.tmap',tmap,fmt=['%d','%d'],delimiter=',')

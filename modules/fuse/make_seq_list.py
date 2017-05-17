@@ -31,12 +31,14 @@ if os.path.exists(args.tracks):
 	sequences = sorted(list(seq_set_dets))
 
 seqs = {}
-seqs['name'] = sequences
-seqs['dpath'] = ['%s/%s/det/tlla.txt'%(args.input,seq) for seq in sequences]
+seqs['name']  = sequences
+seqs['dpath'] = ['%s/%s/det/itlla.txt'%(args.input,seq) for seq in sequences]
+seqs['tmap']  = ['%s/%s/det/tmap.txt'%(args.input,seq) for seq in sequences]
 seqs['tpath'] = ['%s/%s.txt'%(args.tracks,seq) for seq in sequences]
 
+
 seqs_df = pd.DataFrame(seqs)
-seqs_df = seqs_df[['name','dpath','tpath']]
+seqs_df = seqs_df[['name','dpath','tmap','tpath']]
 
 seqs_df.to_csv(args.output,index=False,header=True)
 
