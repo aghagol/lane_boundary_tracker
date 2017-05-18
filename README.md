@@ -2,16 +2,29 @@
 
 Batch scripts for preprocessing, processing (tracking), visualization and evaluation for lane boundary tracking algorithm.
 
-To run the complete process, run 
+To execute the complete process, run:
 
 ```bash
-./scripts/runall [--input path/to/data] --drives path/to/drive_names_txt --output path/to/tmp_folder
+./scripts/runall \
+  --input   path/to/data_dir \
+  --drives  path/to/drive_names_txt \
+  --poses   path/to/csv_poses_dir \
+  --chunks  path/to/chunks_metadata_dir \
+  --tagged  path/to/tagged_data_dir \
+  --output  path/to/tmp_cache_dir
+```
+
+To just visualize (given that line-connection results have been produced and output), run:
+
+```bash
+./scripts/runall --output path/to/tmp_cache_dir
 ```
 
  - The configuration file `conf.json` is located at the repository root.
  - The text file `drive_names_txt` contains IDs of drives to be processed.
  - If the `--drives` option is not used, a `drive_list.txt` is generated in the output directory.
  - If the `--drives` input file does not point to an existing file, it is generated.
+ - Note that we need access to drive metadata (e.g. pose and chunks metadata).
 
 The `runall` scripts runs the following scripts:
 

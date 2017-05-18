@@ -14,7 +14,7 @@ The `--input` option of `runall` script only requires the `drive_id`. Currently,
 
 ## Output format
 
- - `tlla.txt`: This is a meta file for later stages of the line connection algorithm
+ - `itlla.txt`: This is a meta file for later stages of the line connection algorithm
  	+ column 1: `detection's unique identifier`
  	+ column 2: `detection's timestamp`
  	+ column 3: `detection's longitude`

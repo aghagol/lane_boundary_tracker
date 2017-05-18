@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-USAGE="runall --input path/to/data --output path/to/tmp --drives txt_file --poses path/to/pose_csv --tagged path/to/tagged_data"
+USAGE="runall --input path/to/data --output path/to/tmp --drives txt_file --poses path/to/pose_csv --chunks path/to/chunks_metadata --tagged path/to/tagged_data"
 
 while [[ "$#" > 1 ]]; do case $1 in
     --input)  input_path="$2";;
