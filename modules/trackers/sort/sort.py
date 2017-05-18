@@ -256,11 +256,11 @@ if __name__ == '__main__':
 
   with open(args.config) as fparam:
     param = json.loads(jsmin(fparam.read()))["sort"]
-  print(param)
 
   os.makedirs(args.output)
 
   sequences = os.listdir(args.input)
+  print("")
   for seq in sequences:
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],

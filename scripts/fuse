@@ -25,9 +25,13 @@ fi
 
 mkdir $output_fuse
 
+./modules/fuse/print_param.py --config $config_fuse
+
 echo $(date) >> $output_fuse/log.txt
 
-./modules/fuse/print_param.py --config $config_fuse
+./modules/fuse/log_param.py \
+  --config $config_fuse \
+  >> $output_fuse/log.txt
 
 ./modules/fuse/make_seq_list.py \
   --input  $input_fuse \

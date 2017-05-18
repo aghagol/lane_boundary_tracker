@@ -18,9 +18,13 @@ fi
 
 mkdir $output_sort
 
+./modules/trackers/sort/print_param.py --config $config_sort
+
 echo $(date) >> $output_sort/log.txt
 
-./modules/trackers/sort/print_param.py --config $config_sort
+./modules/trackers/sort/log_param.py \
+  --config $config_sort \
+  >> $output_sort/log.txt
 
 ./modules/trackers/sort/sort.py \
   --input $input_sort \

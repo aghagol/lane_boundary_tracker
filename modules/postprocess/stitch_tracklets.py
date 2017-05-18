@@ -28,7 +28,6 @@ args = parser.parse_args()
 fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["postprocess"]
-print(param)
 
 os.makedirs(args.output)
 

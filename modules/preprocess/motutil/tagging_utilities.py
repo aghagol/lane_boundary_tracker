@@ -58,7 +58,7 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
 def meterize(pose):
   """
   This module replaces the longitude latitude with meters distance from origin
-  and returns metadata to meterize any other lat-long data
+  and returns metadata for other lat-long data conversion (to meters)
   """
   lon_min,lon_max = pose[:,0].min(),pose[:,0].max()
   lat_min,lat_max = pose[:,1].min(),pose[:,1].max()

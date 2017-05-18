@@ -22,9 +22,13 @@ fi
 
 mkdir $output_visualize
 
+./modules/visualize/print_param.py --config $config_visualize
+
 echo $(date) >> $output_visualize/log.txt
 
-./modules/visualize/print_param.py --config $config_visualize
+./modules/visualize/log_param.py \
+  --config $config_visualize \
+  >> $output_visualize/log.txt
 
 ./modules/visualize/make_seq_list.py \
   --input $input_visualize \

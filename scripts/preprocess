@@ -26,9 +26,13 @@ fi
 
 mkdir $output_preprocess
 
+./modules/preprocess/print_param.py --config $config_preprocess
+
 echo $(date) >> $output_preprocess/log.txt
 
-./modules/preprocess/print_param.py --config $config_preprocess
+./modules/preprocess/log_param.py \
+  --config $config_preprocess \
+  >> $output_preprocess/log.txt
 
 ./modules/preprocess/gen_drive_list.py \
   --input  $input_preprocess \

@@ -22,15 +22,19 @@ fi
 
 mkdir $output_postprocess
 
+./modules/postprocess/print_param.py --config $config_postprocess
+
 echo $(date) >> $output_postprocess/log.txt
+
+./modules/postprocess/log_param.py \
+  --config $config_postprocess \
+  >> $output_postprocess/log.txt
 
 ./modules/postprocess/make_seq_list.py \
   --input $input_postprocess \
   --tracks $tracks_postprocess \
   --output $output_postprocess/seqs.csv \
   >> $output_postprocess/log.txt
-
-./modules/postprocess/print_param.py --config $config_postprocess
 
 ./modules/postprocess/stitch_tracklets.py \
   --input $output_postprocess/seqs.csv \

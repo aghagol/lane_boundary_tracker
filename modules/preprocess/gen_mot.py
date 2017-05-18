@@ -26,8 +26,6 @@ output_path = args.output+'/'
 
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["preprocess"]
-print(param)
-print("")
 
 drive_list = []
 with open(args.drives) as fdrivelist:
