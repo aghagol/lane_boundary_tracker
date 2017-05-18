@@ -26,6 +26,8 @@ os.makedirs(output_path)
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["fuse"]
 
+if not param['enable']: exit('Fusion is disabled. Aborting!')
+
 seqs = pd.read_csv(args.input)
 
 fmt = ['%.10f','%.10f','%.10f','%d']

@@ -59,14 +59,17 @@ for drive in drive_list:
         if not file_ismember:
           drive_parts.append({'t0':t0,'t1':t1,'members':[filename],'n':points.shape[0]})
     clusters = {'%s_part_%05d'%(drive,i):part['members'] for i,part in enumerate(drive_parts) if part['n']>=param['min_seq_size']}
+
+    #log
+    for i,part in enumerate(drive_parts):
+      if part['n']<param['min_seq_size']:
+        print('\t...discarding %s_part_%05d due to small size (%d<%d)'%(drive,i,part['n'],param['min_seq_size']))
+      else:
+        print('\t...subdrive %s_part_%05d has the following members:'%(drive,i))
+        for member in sorted(part['members']):
+          print('\t\t%s'%(member))
   else:
     clusters = {drive:filelist}
-
-  #print to log
-  for subdrive in sorted(clusters):
-    print('\tsubdrive %s has the following members:'%(subdrive))
-    for member in sorted(clusters[subdrive]):
-      print('\t\t%s'%(member))
 
   #keep track of subdrives with 0 or 1 detection points that will be marked for deletion
   #these subdrives go unseen until now because points can be removed in later stages
