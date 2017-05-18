@@ -37,7 +37,7 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
         r2 +=1
 
     p0,p1 = pose_id[r1],pose_id[r2]
-    if l2_squared_dist[p1]>parameters['tag_max_dist'] or l2_squared_dist[p0]>parameters['tag_max_dist']:
+    if l2_squared_dist[p1]>parameters['tag_max_dist'] and l2_squared_dist[p0]>parameters['tag_max_dist']:
       OK[i] = False
 
     #extract parameters for interpolating timestamps
@@ -53,7 +53,7 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
     else:
       tagged[i,0] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3]
 
-  return (tagged[OK],tmap)
+  return (tagged[OK],tmap[OK])
 
 def meterize(pose):
   """

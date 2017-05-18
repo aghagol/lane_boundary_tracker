@@ -3,8 +3,8 @@
   {
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
-    "scanline_step":3, //subsample scanlines
-    "recall": 0.5, //drop detections randomly
+    "scanline_step":1, //subsample scanlines
+    "recall": 1, //drop detections randomly
     "remove_adjacent_points": false,
         "min_pairwise_dist": 1,
         "search_window_size": 100,

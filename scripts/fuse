@@ -45,3 +45,9 @@ echo $(date) >> $output_fuse/log.txt
   --config $config_fuse \
   --chunks $chunks_fuse \
   >> $output_fuse/log.txt
+
+./modules/fuse/merge_subdrives.py \
+  --input  $output_fuse/fused \
+  --output $output_fuse/fused_merged \
+  --config $config_fuse \
+  >> $output_fuse/log.txt
