@@ -272,11 +272,16 @@ if __name__ == '__main__':
       motion_init_sync=param['motion_init_sync'],
     ) #create instance of the SORT tracker
 
-    seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
+    if not param['use_gt']:
+      seq_dets = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
+    else:
+      seq_dets = np.loadtxt('%s/%s/gt/gt.txt'%(args.input,seq),delimiter=',') #load detections
+
     frame_timestamps = dict(zip(seq_dets[:,0],seq_dets[:,7]))
     frames = sorted(frame_timestamps)
-    
+
     print("Processing %s"%(seq))
+    if param['use_gt']: print('\tWARNING: using ground-truth data (no tracking)')
     start_time = time.time()
 
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
@@ -284,9 +289,13 @@ if __name__ == '__main__':
         dets = seq_dets[seq_dets[:,0]==frame,:]
         if not param['constant_fps']:
           dt = (frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]])*1e-6
-        trackers = mot_tracker.update(dets[:,2:7],dt) #det format: [x,y,u,v,index]
-        for d in trackers:
-          print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+        if not param['use_gt']:
+          trackers = mot_tracker.update(dets[:,2:7],dt) #det format: [x,y,u,v,index]
+          for d in trackers:
+            print('%05d,%05d,%011.5f,%011.5f,%05d,%04.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+        else:
+          for d in dets:
+            print('%05d,%05d,%011.5f,%011.5f,%05d,1.00'%(frame,d[1],d[2],d[3],d[6]),file=out_file)
 
     total_time += time.time() - start_time
     total_frames += seq_dets.shape[0]

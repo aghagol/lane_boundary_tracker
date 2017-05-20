@@ -76,10 +76,9 @@ for drive in drive_list:
   motutil.index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,param)
   motutil.ss_to_mot_det(output_path,clusters,tiny_subdrives,poses_path+drive+'-pose.csv',param)
   
-  # #save groundtruth
-  # gt_out = output_path+'%s_%s/gt/'%(drive,surface_name)
-  # os.makedirs(gt_out)
-  # motutil.highv1_to_mot_gt(input_path+drive+'/'+surface, gt_out+'gt.txt', param)
+  #save groundtruth
+  if param['generate_gt']:
+    motutil.ss_to_mot_gt(output_path,clusters,tiny_subdrives,poses_path+drive+'-pose.csv',param)
 
   # #save (fake) images
   # img_out = output_path+'%s_%s/img1/'%(drive,surface_name)

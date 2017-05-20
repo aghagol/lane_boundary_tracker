@@ -10,21 +10,25 @@
         "search_window_size": 100,
     "split_on_temporal_gaps": true,
         "gap_min": 1, //temporal gaps more than this get split
-        "min_seq_size": 20,
+        "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
     "fake_timestamp": true,
-    "tag_max_dist": 7 //in meters
+    "use_pose_altitude": true,
+        "pose_altitude_offset": 0, //meters (height of vehicle)
+    "tag_max_dist": 50, //in meters
+    "generate_gt": true
   },
   "sort":
   {
     "d2t_dist_threshold_tight": 1,
     "d2t_dist_threshold_loose": 1,
     "max_age_after_last_update": 20,
-    "motion_model_variance": 1,
-    "observation_variance": 1,
+    "motion_model_variance": 0.000001,
+    "observation_variance": 100,
     "motion_init_pose": true, //this has priority over "motion_init_sync"
     "motion_init_sync": false, //use existing trackers to estimate initial motion
-    "constant_fps": false //KF with fixed time steps
+    "constant_fps": false, //KF with fixed time steps
+    "use_gt": true //bypass tracking and output GT data
   },
   "visualize":
   {
@@ -33,10 +37,10 @@
     "centered": true,
     "show_tracks": true,
     "min_track_length": 1,
-    "hide_predictions": true,
+    "hide_predictions": false,
     "real_time": false,
-        "delay_multiplier": 0.1,
-        "max_delay": 1
+        "delay_multiplier": 1,
+        "max_delay": 5
   },
   "postprocess":
   {

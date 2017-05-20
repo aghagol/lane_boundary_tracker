@@ -59,7 +59,7 @@ for drive in drive_list:
     points = np.loadtxt(input_path+filename)
 
     #warning: points are modified in place after this
-    tagged,tmap = motutil.get_tagged(points,pose,scale_meta,tmap_pose,parameters)
+    tagged,tagged_tmap = motutil.get_tagged(points,pose,scale_meta,tmap_pose,parameters)
     np.savetxt(output_path+filename,tagged,fmt=tag_fmt,delimiter=',')
     if parameters['fake_timestamp']:
-      np.savetxt(output_path+filename+'.tmap',tmap,fmt=['%d','%d'],delimiter=',')
+      np.savetxt(output_path+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')

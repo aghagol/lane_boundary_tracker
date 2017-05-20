@@ -13,7 +13,7 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
   tagged[:,1:3] = points[:,0:2]
   tagged[:,4:6] = points[:,2:4]
 
-  tmap = np.zeros((points.shape[0],2))
+  tagged_tmap = np.zeros((points.shape[0],2))
 
   #normalize points as well
   points[:,0] = (points[:,0]-scale_meta[0])*scale_meta[2]
@@ -47,13 +47,15 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
     
     if parameters['fake_timestamp']:
       tagged[i,0] = (1-lam)*tmap_pose[pose[p0,3]] + lam*tmap_pose[pose[p1,3]]
-      tagged[i,3] = (1-lam)*pose[p0,2] + lam*pose[p1,2]
-      tmap[i,0] = tagged[i,0]
-      tmap[i,1] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3] #true timestamp
-    else:
-      tagged[i,0] = lam*(pose[p1,3]-pose[p0,3])+pose[p0,3]
+      tagged_tmap[i,1] = (1-lam)*pose[p0,3] + lam*pose[p1,3] #true timestamp
+    else: #use true timestamps
+      tagged[i,0] = (1-lam)*pose[p0,3] + lam*pose[p1,3]
 
-  return (tagged[OK],tmap[OK])
+    if parameters['use_pose_altitude']:
+      tagged[i,3] = (1-lam)*pose[p0,2] + lam*pose[p1,2] -parameters['pose_altitude_offset']
+
+  tagged_tmap[:,0] = tagged[:,0]
+  return (tagged[OK],tagged_tmap[OK])
 
 def meterize(pose):
   """
