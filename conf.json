@@ -14,11 +14,11 @@
         "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
     "enable_tagging": true,
-        "tag_timestamp": true,
-        "tag_altitude": true,
-            "pose_altitude_offset": 0, //meters (height of vehicle)
         "tag_max_dist": 100, //in meters
-        "pose_filter_bbox": true
+        "pose_filter_bbox": false,
+        "fake_timestamp": true,
+        "tag_altitude": true,
+            "pose_altitude_offset": 0 //meters (height of vehicle)
   },
   "sort":
   {

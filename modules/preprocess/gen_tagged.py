@@ -44,7 +44,7 @@ for drive in drive_list:
   pose = np.loadtxt(pose_path) #format: latitude longitude altitude timestamp
   pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
   pose_meterized, scale_meta = motutil.meterize(pose)
-  tmap_pose = {ts_origin:counter*1e6 for counter,ts_origin in enumerate(pose[:,3])}
+  pose_tmap = {ts_origin:counter*1e6 for counter,ts_origin in enumerate(pose[:,3])}
 
   #get meta information about image tiles on pose
   bbox_path = poses_path+drive+'_bboxlist.txt'
@@ -54,7 +54,7 @@ for drive in drive_list:
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
 
   for filename in filelist:
-    if os.path.exists(output_path+filename) and os.path.exists(output_path+filename+'.tmap')>=parameters['tag_timestamp']:
+    if os.path.exists(output_path+filename) and os.path.exists(output_path+filename+'.tmap')>=parameters['fake_timestamp']:
         # print('\t%s exists! skipping'%(output_path+filename))
         continue
     print('\tworking on %s'%(output_path+filename))
@@ -76,7 +76,7 @@ for drive in drive_list:
       pose_filtered = pose_meterized
 
     #warning: points are meterized in place
-    tagged,tagged_tmap = motutil.get_tagged(points,pose_filtered,scale_meta,tmap_pose,parameters)
+    tagged,tagged_tmap = motutil.get_tagged(points,pose_filtered,pose_tmap,scale_meta,parameters)
     np.savetxt(output_path+filename,tagged,fmt=tag_fmt,delimiter=',')
-    if parameters['tag_timestamp']:
+    if parameters['fake_timestamp']:
       np.savetxt(output_path+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')

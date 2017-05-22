@@ -3,7 +3,7 @@ import numpy as np
 import os,sys
 import haversine
 
-def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
+def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
   """
   points  : points numpy array 1 (no   timestamp) format: latitude  longitude laneline# scanline#
   pose    : points numpy array 2 (with timestamp) format: latitude  longitude altitude  timestamp
@@ -45,8 +45,8 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
     lam = (points[i,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2]) / pose_points_dist #0<lam<1
     lam = max(lam,0) #don't extrapolate
     
-    if parameters['tag_timestamp']:
-      tagged[i,0] = (1-lam)*tmap_pose[pose[p0,3]] + lam*tmap_pose[pose[p1,3]]
+    if parameters['fake_timestamp']:
+      tagged[i,0] = (1-lam)*pose_tmap[pose[p0,3]] + lam*pose_tmap[pose[p1,3]]
       tagged_tmap[i,1] = (1-lam)*pose[p0,3] + lam*pose[p1,3] #true timestamp
     else: #use true timestamps
       tagged[i,0] = (1-lam)*pose[p0,3] + lam*pose[p1,3]

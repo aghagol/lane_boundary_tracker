@@ -17,15 +17,15 @@ The `--input` option of `runall` script only requires the `drive_id`. Currently,
  - `itlla.txt`: This is a meta file for later stages of the line connection algorithm
  	+ column 1: `detection's unique identifier`
  	+ column 2: `detection's timestamp`
- 	+ column 3: `detection's longitude`
- 	+ column 4: `detection's latitude`
+ 	+ column 3: `detection's latitude`
+ 	+ column 4: `detection's longitude`
  	+ column 5: `detection's altitude`
 
  - `det.txt`: This is MOT formatted input for the tracking algorithm
  	+ column 1: `detection's frame number`
  	+ column 2: -1 (no label)
- 	+ column 3: `detection's pixel row`
- 	+ column 4: `detection's pixel column`
+ 	+ column 3: `detection's pixel row (sub-pixel)`
+ 	+ column 4: `detection's pixel column (sub-pixel)`
  	+ column 5: `detection's bounding box width`
  	+ column 6: `detection's bounding box height`
  	+ column 7: `detection's unique identifier`

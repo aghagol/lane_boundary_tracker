@@ -22,7 +22,7 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
         dets.append(points)
         tmap.append(np.loadtxt(input_path+filename+'.tmap',delimiter=',').reshape(-1,2))
     dets = np.vstack(dets)
-    if parameters['tag_timestamp']: tmap = np.vstack(tmap)
+    if parameters['fake_timestamp']: tmap = np.vstack(tmap)
 
     #apply recall
     if parameters['recall']<1:
@@ -55,5 +55,5 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
     os.makedirs(output_path+'%s/det/'%(subdrive))
     fmt = ['%05d','%d','%.10f','%.10f','%.10f','%02d']
     np.savetxt(output_path+'%s/det/itlla.txt'%(subdrive),itlla,fmt=fmt,delimiter=',')
-    if parameters['tag_timestamp']:
+    if parameters['fake_timestamp']:
       np.savetxt(output_path+'%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')
