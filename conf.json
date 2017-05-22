@@ -4,7 +4,8 @@
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
     "scanline_step":1, //subsample scanlines
-    "recall": 0.5, //drop detections randomly
+    "recall": 1, //drop detections randomly
+    "generate_gt": true,
     "remove_adjacent_points": false,
         "min_pairwise_dist": 1,
         "search_window_size": 100,
@@ -12,11 +13,12 @@
         "gap_min": 1, //temporal gaps more than this get split
         "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
-    "fake_timestamp": true,
-    "use_pose_altitude": true,
-        "pose_altitude_offset": 0, //meters (height of vehicle)
-    "tag_max_dist": 50, //in meters
-    "generate_gt": true
+    "enable_tagging": true,
+        "tag_timestamp": true,
+        "tag_altitude": true,
+            "pose_altitude_offset": 0, //meters (height of vehicle)
+        "tag_max_dist": 100, //in meters
+        "pose_filter_bbox": true
   },
   "sort":
   {

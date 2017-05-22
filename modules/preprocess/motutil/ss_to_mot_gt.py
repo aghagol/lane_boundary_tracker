@@ -20,7 +20,7 @@ def ss_to_mot_gt(output_path,clusters,tiny_subdrives,pose_path,parameters):
   if parameters['motion_observations']:
     pose = np.loadtxt(pose_path)[:,[3,0,1,2]] #in TLL format
     pose = pose[pose[:,0].argsort(),:] #sort based on timestamp
-    if parameters['fake_timestamp']:
+    if parameters['tag_timestamp']:
       pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   for subdrive in clusters:

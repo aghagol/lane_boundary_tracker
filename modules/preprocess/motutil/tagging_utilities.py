@@ -45,13 +45,13 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
     lam = (points[i,:2]-pose[p0,:2]).dot(pose[p1,:2]-pose[p0,:2]) / pose_points_dist #0<lam<1
     lam = max(lam,0) #don't extrapolate
     
-    if parameters['fake_timestamp']:
+    if parameters['tag_timestamp']:
       tagged[i,0] = (1-lam)*tmap_pose[pose[p0,3]] + lam*tmap_pose[pose[p1,3]]
       tagged_tmap[i,1] = (1-lam)*pose[p0,3] + lam*pose[p1,3] #true timestamp
     else: #use true timestamps
       tagged[i,0] = (1-lam)*pose[p0,3] + lam*pose[p1,3]
 
-    if parameters['use_pose_altitude']:
+    if parameters['tag_altitude']:
       tagged[i,3] = (1-lam)*pose[p0,2] + lam*pose[p1,2] -parameters['pose_altitude_offset']
 
   tagged_tmap[:,0] = tagged[:,0]
@@ -62,6 +62,8 @@ def meterize(pose):
   This module replaces the longitude latitude with meters distance from origin
   and returns metadata for other lat-long data conversion (to meters)
   """
+  pose_meter = pose.copy()
+
   lat_min,lat_max = pose[:,0].min(),pose[:,0].max()
   lon_min,lon_max = pose[:,1].min(),pose[:,1].max()
 
@@ -71,7 +73,7 @@ def meterize(pose):
   lat_scale = h/(lat_max-lat_min) if h>0 else 1.
   lon_scale = w/(lon_max-lon_min) if w>0 else 1.
 
-  pose[:,0] = (pose[:,0]-lat_min)*lat_scale
-  pose[:,1] = (pose[:,1]-lon_min)*lon_scale
+  pose_meter[:,0] = (pose_meter[:,0]-lat_min)*lat_scale
+  pose_meter[:,1] = (pose_meter[:,1]-lon_min)*lon_scale
 
-  return (lat_min,lon_min,lat_scale,lon_scale)
+  return (pose_meter,(lat_min,lon_min,lat_scale,lon_scale))
