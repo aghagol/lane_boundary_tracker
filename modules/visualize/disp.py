@@ -75,14 +75,14 @@ while seq_idx < seqs.shape[0]:
       dets_cur = dets[dets[:,0]==frame,:]
       ax.cla()
       if param['centered']:
-        x_center = np.floor(np.median(dets_cur[:,2])/w)*w
-        y_center = np.floor(np.median(dets_cur[:,3])/w)*w
+        x_center = np.floor(np.median(dets_cur[:,3])/w)*w #column (sub-pixel)
+        y_center = np.floor(np.median(dets_cur[:,2])/w)*w #row (sub-pixel)
         ax.set_xlim([-args.margin,args.margin+w])
         ax.set_ylim([-args.margin,args.margin+w])
         ax.add_patch(patches.Rectangle((0,0),w,w,fill=False))
       else:
-        xlim_low = np.floor(np.median(dets_cur[:,2])/w)*w
-        ylim_low = np.floor(np.median(dets_cur[:,3])/w)*w
+        xlim_low = np.floor(np.median(dets_cur[:,3])/w)*w
+        ylim_low = np.floor(np.median(dets_cur[:,2])/w)*w
         ax.set_xlim([xlim_low-args.margin-w/2,xlim_low+args.margin+w/2])
         ax.set_ylim([ylim_low-args.margin-w/2,ylim_low+args.margin+w/2])
         x_center = 0
@@ -90,7 +90,7 @@ while seq_idx < seqs.shape[0]:
 
       # plot detections
       for plot_frame_idx in range(max(frame_idx-frame_buffer_size,0),frame_idx):
-        ax.plot(dets[dets[:,0]==frames[plot_frame_idx],2]-x_center,dets[dets[:,0]==frames[plot_frame_idx],3]-y_center,'o',color='k')
+        ax.plot(dets[dets[:,0]==frames[plot_frame_idx],3]-x_center,dets[dets[:,0]==frames[plot_frame_idx],2]-y_center,'o',color='k')
 
       # plot tracks
       start_frame = frames[max(frame_idx-frame_buffer_size,0)]
@@ -101,7 +101,7 @@ while seq_idx < seqs.shape[0]:
           if trk_curr_tail.shape[0]<param['min_track_length']: continue
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]<frame,:]
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>start_frame,:]
-          ax.plot(trk_curr_tail[:,2]-x_center,trk_curr_tail[:,3]-y_center,color=colors[trk_curr_id%711,:])
+          ax.plot(trk_curr_tail[:,3]-x_center,trk_curr_tail[:,2]-y_center,color=colors[trk_curr_id%711,:])
 
       if param['real_time']: 
         delay = (frame_timestamps[frames[min(frame_idx+1,len(frames)-1)]]-timestamp)*1e-6*param['delay_multiplier']

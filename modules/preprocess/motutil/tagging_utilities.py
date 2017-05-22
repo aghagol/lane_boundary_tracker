@@ -5,9 +5,9 @@ import haversine
 
 def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
   """
-  points  : points numpy array 1 (without timestamp) format: longitude latitude laneline# scanline#
-  pose    : points numpy array 2 (with timestamp)    format: longitude latitude altitude  timestamp
-  tagged  : points numpy array 1 (with timestamp)    format: timestamp longitude latitude altitude laneline# scanline# [+gradient]
+  points  : points numpy array 1 (no   timestamp) format: latitude  longitude laneline# scanline#
+  pose    : points numpy array 2 (with timestamp) format: latitude  longitude altitude  timestamp
+  tagged  : points numpy array 1 (with timestamp) format: timestamp latitude  longitude altitude laneline# scanline# [+gradient]
   """
   tagged = np.zeros((points.shape[0],6))
   tagged[:,1:3] = points[:,0:2]
@@ -15,7 +15,7 @@ def get_tagged(points,pose,scale_meta,tmap_pose,parameters):
 
   tagged_tmap = np.zeros((points.shape[0],2))
 
-  #normalize points as well
+  #meterize points as well
   points[:,0] = (points[:,0]-scale_meta[0])*scale_meta[2]
   points[:,1] = (points[:,1]-scale_meta[1])*scale_meta[3]
 
@@ -62,16 +62,16 @@ def meterize(pose):
   This module replaces the longitude latitude with meters distance from origin
   and returns metadata for other lat-long data conversion (to meters)
   """
-  lon_min,lon_max = pose[:,0].min(),pose[:,0].max()
-  lat_min,lat_max = pose[:,1].min(),pose[:,1].max()
+  lat_min,lat_max = pose[:,0].min(),pose[:,0].max()
+  lon_min,lon_max = pose[:,1].min(),pose[:,1].max()
 
-  w = haversine.dist(lon_min,lat_min,lon_max,lat_min)
   h = haversine.dist(lon_min,lat_min,lon_min,lat_max)
+  w = haversine.dist(lon_min,lat_min,lon_max,lat_min)
 
-  lon_scale = w/(lon_max-lon_min) if w>0 else 1.
   lat_scale = h/(lat_max-lat_min) if h>0 else 1.
+  lon_scale = w/(lon_max-lon_min) if w>0 else 1.
 
-  pose[:,0] = (pose[:,0]-lon_min)*lon_scale
-  pose[:,1] = (pose[:,1]-lat_min)*lat_scale
+  pose[:,0] = (pose[:,0]-lat_min)*lat_scale
+  pose[:,1] = (pose[:,1]-lon_min)*lon_scale
 
-  return (lon_min,lat_min,lon_scale,lat_scale)
+  return (lat_min,lon_min,lat_scale,lon_scale)

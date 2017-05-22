@@ -16,5 +16,15 @@ if not os.path.exists(destination_path):
 drive_ids = [i for i in os.listdir(source_path) if i[:2]=='HT']
 for drive in drive_ids:
   pose_file = drive+'-pose.csv'
-  copyfile(source_path+drive+'/'+pose_file,destination_path+pose_file)
+  if not os.path.exists(destination_path+pose_file):
+    print('Copying %s over to %s'%(source_path+drive+'/'+pose_file,destination_path+pose_file))
+    copyfile(source_path+drive+'/'+pose_file,destination_path+pose_file)
+  else:
+    print('... %s already exists'%(destination_path+pose_file))
+  bbox_file = drive+'_bboxlist.txt'
+  if not os.path.exists(destination_path+bbox_file):
+    print('Copying %s over to %s'%(source_path+drive+'/'+bbox_file,destination_path+bbox_file))
+    copyfile(source_path+drive+'/'+bbox_file,destination_path+bbox_file)
+  else:
+    print('... %s already exists'%(destination_path+bbox_file))
 

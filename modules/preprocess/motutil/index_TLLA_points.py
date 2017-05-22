@@ -38,7 +38,7 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
       search_window_size = parameters['search_window_size']
       for i in range(dets.shape[0]):
         for j in range(max(i-search_window_size,0),min(i+search_window_size,dets.shape[0])):
-          if dist(dets[i,1],dets[i,2],dets[j,1],dets[j,2])<parameters['min_pairwise_dist']:
+          if dist(dets[i,2],dets[i,1],dets[j,2],dets[j,1])<parameters['min_pairwise_dist']:
             if fake_confidence[i]<fake_confidence[j]: #keep the point with higher confidence
               mark_for_deletion.append(i)
       dets = np.delete(dets,mark_for_deletion,axis=0)

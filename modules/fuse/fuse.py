@@ -43,8 +43,7 @@ for seq_idx,seq in seqs.iterrows():
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
 
   dets = np.loadtxt(seq.dpath,delimiter=',')
-  tmap = np.loadtxt(seq.tmap, delimiter=',')
-  tmap = {row[0]:row[1] for row in tmap}
+  tmap = {row[0]:row[1] for row in np.loadtxt(seq.tmap, delimiter=',')}
   trks = np.loadtxt(seq.tpath,delimiter=',')
   trks = trks[trks[:,4]>0,:] #remove the guide
 
