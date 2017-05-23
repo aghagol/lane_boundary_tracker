@@ -4,7 +4,7 @@
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
     "scanline_step":1, //subsample scanlines
-    "recall": 0.5, //drop detections randomly
+    "recall": 1, //drop detections randomly
     "generate_gt": true,
     "remove_adjacent_points": false,
         "min_pairwise_dist": 1,
@@ -39,7 +39,7 @@
     "centered": true,
     "show_tracks": true,
     "min_track_length": 1,
-    "hide_predictions": false,
+    "hide_predictions": true,
     "real_time": false,
         "delay_multiplier": 1,
         "max_delay": 5
