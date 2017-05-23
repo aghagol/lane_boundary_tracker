@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo $(date) "Preprocessing"
+echo -e "\033[0;31m" $(date) "\033[0m" Preprocessing
 
 USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
@@ -39,7 +39,7 @@ echo $(date) >> $output_preprocess/log.txt
   --drives $drive_list \
   >> $output_preprocess/log.txt
 
-echo $(date) "Preprocessing: Tagging (timestamps)"
+echo -e "\033[0;31m" $(date) "\033[0m" "Preprocessing: Tagging (timestamps)"
 ./modules/preprocess/gen_tagged.py \
   --input  $input_preprocess \
   --poses  $poses_preprocess \
@@ -48,7 +48,7 @@ echo $(date) "Preprocessing: Tagging (timestamps)"
   --drives $drive_list \
   >> $output_preprocess/log.txt
 
-echo $(date) "Preprocessing: Generating MOT"
+echo -e "\033[0;31m" $(date) "\033[0m" "Preprocessing: Generating MOT"
 ./modules/preprocess/gen_mot.py \
   --input  $tagged_preprocess \
   --poses  $poses_preprocess \

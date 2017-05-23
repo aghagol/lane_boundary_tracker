@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo $(date) "Tracking: SORT"
+echo -e "\033[0;31m" $(date) "\033[0m" "Tracking: SORT"
 
 USAGE="sort --input [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in

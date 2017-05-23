@@ -4,7 +4,7 @@
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
     "scanline_step":1, //subsample scanlines
-    "recall": 1, //drop detections randomly
+    "recall": 0.5, //drop detections randomly
     "generate_gt": true,
     "remove_adjacent_points": false,
         "min_pairwise_dist": 1,
@@ -14,7 +14,7 @@
         "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
     "enable_tagging": true,
-        "tag_max_dist": 100, //in meters
+        "tag_max_dist": 50, //in meters
         "pose_filter_bbox": false,
         "fake_timestamp": true,
         "tag_altitude": true,
@@ -22,15 +22,15 @@
   },
   "sort":
   {
+    "bypass_tracking_use_gt": false, //bypass tracking and output GT data
     "d2t_dist_threshold_tight": 1,
     "d2t_dist_threshold_loose": 1,
-    "max_age_after_last_update": 20,
+    "max_age_after_last_update": 50,
     "motion_model_variance": 1,
     "observation_variance": 1,
     "motion_init_pose": true, //this has priority over "motion_init_sync"
     "motion_init_sync": false, //use existing trackers to estimate initial motion
-    "constant_fps": false, //KF with fixed time steps
-    "bypass_tracking_use_gt": false //bypass tracking and output GT data
+    "constant_fps": false //KF with fixed time steps
   },
   "visualize":
   {
