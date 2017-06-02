@@ -4,38 +4,38 @@ echo -e "\033[0;31m"$(date)"\033[0m" "Visualization"
 
 USAGE="visualize --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_visualize="$2";;
-    --tracks) tracks_visualize="$2";;
-    --output) output_visualize="$2";;
-    --config) config_visualize="$2";;
+    --input)  INPUT_VISUALIZE="$2";;
+    --tracks) TRACKS_VISUALIZE="$2";;
+    --output) OUTPUT_VISUALIZE="$2";;
+    --config) CONFIG_VISUALIZE="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$input_visualize"  ]] || \
-    [[ -z "$tracks_visualize" ]] || \
-    [[ -z "$output_visualize" ]] || \
-    [[ -z "$config_visualize" ]] ; then
+if  [[ -z "$INPUT_VISUALIZE"  ]] || \
+    [[ -z "$TRACKS_VISUALIZE" ]] || \
+    [[ -z "$OUTPUT_VISUALIZE" ]] || \
+    [[ -z "$CONFIG_VISUALIZE" ]] ; then
   echo "Usage: $USAGE"
   exit 1
 fi
 
-mkdir $output_visualize
+mkdir $OUTPUT_VISUALIZE
 
-./modules/visualize/print_param.py --config $config_visualize
+./modules/visualize/print_param.py --config $CONFIG_VISUALIZE
 
-echo $(date) >> $output_visualize/log.txt
+echo $(date) >> $OUTPUT_VISUALIZE/log.txt
 
 ./modules/visualize/log_param.py \
-  --config $config_visualize \
-  >> $output_visualize/log.txt
+  --config $CONFIG_VISUALIZE \
+  >> $OUTPUT_VISUALIZE/log.txt
 
 ./modules/visualize/make_seq_list.py \
-  --input $input_visualize \
-  --tracks $tracks_visualize \
-  --output $output_visualize/seqs.csv \
-  >> $output_visualize/log.txt
+  --input $INPUT_VISUALIZE \
+  --tracks $TRACKS_VISUALIZE \
+  --output $OUTPUT_VISUALIZE/seqs.csv \
+  >> $OUTPUT_VISUALIZE/log.txt
 
 ./modules/visualize/disp.py \
-  --input $output_visualize/seqs.csv \
-  --config $config_visualize
+  --input $OUTPUT_VISUALIZE/seqs.csv \
+  --config $CONFIG_VISUALIZE

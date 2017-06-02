@@ -2,57 +2,67 @@
 
 echo -e "\033[0;31m"$(date)"\033[0m" Preprocessing
 
-USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir]"
+USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir] --fuses [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_preprocess="$2";;
-    --output) output_preprocess="$2";;
-    --config) config_preprocess="$2";;
-    --drives) drive_list="$2";;
-    --poses)  poses_preprocess="$2";;
-    --tagged) tagged_preprocess="$2";;
+    --input)  INPUT_PREPROCESS="$2";;
+    --output) OUTPUT_PREPROCESS="$2";;
+    --config) CONFIG_PREPROCESS="$2";;
+    --drives) DRIVE_LIST="$2";;
+    --poses)  POSES_PREPROCESS="$2";;
+    --tagged) TAGGED_PREPROCESS="$2";;
+    --fuses)  FUSES_PREPROCESS="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$input_preprocess"   ]] || \
-    [[ -z "$output_preprocess"  ]] || \
-    [[ -z "$config_preprocess"  ]] || \
-    [[ -z "$drive_list"         ]] || \
-    [[ -z "$poses_preprocess"   ]] || \
-    [[ -z "$tagged_preprocess"  ]] ; then
+if  [[ -z "$INPUT_PREPROCESS"   ]] || \
+    [[ -z "$OUTPUT_PREPROCESS"  ]] || \
+    [[ -z "$CONFIG_PREPROCESS"  ]] || \
+    [[ -z "$DRIVE_LIST"         ]] || \
+    [[ -z "$POSES_PREPROCESS"   ]] || \
+    [[ -z "$TAGGED_PREPROCESS"  ]] ; then
   echo "Usage: $USAGE"
   exit 1
 fi
 
-mkdir $output_preprocess
+mkdir $OUTPUT_PREPROCESS
 
-./modules/preprocess/print_param.py --config $config_preprocess
+./modules/preprocess/print_param.py --config $CONFIG_PREPROCESS
 
-echo $(date) >> $output_preprocess/log.txt
+echo $(date) >> $OUTPUT_PREPROCESS/log.txt
 
 ./modules/preprocess/log_param.py \
-  --config $config_preprocess \
-  >> $output_preprocess/log.txt
+  --config  $CONFIG_PREPROCESS \
+  >> $OUTPUT_PREPROCESS/log.txt
 
 ./modules/preprocess/gen_drive_list.py \
-  --input  $input_preprocess \
-  --drives $drive_list \
-  >> $output_preprocess/log.txt
+  --input   $INPUT_PREPROCESS \
+  --drives  $DRIVE_LIST \
+  >> $OUTPUT_PREPROCESS/log.txt
+
+echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
+./modules/preprocess/gen_fuse.py \
+  --input   $INPUT_PREPROCESS \
+  --output  $FUSES_PREPROCESS \
+  --poses   $POSES_PREPROCESS \
+  --config  $CONFIG_PREPROCESS \
+  --drives  $DRIVE_LIST \
+  >> $OUTPUT_PREPROCESS/log.txt
 
 echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
 ./modules/preprocess/gen_tagged.py \
-  --input  $input_preprocess \
-  --poses  $poses_preprocess \
-  --output $tagged_preprocess \
-  --config $config_preprocess \
-  --drives $drive_list \
-  >> $output_preprocess/log.txt
+  --input   $FUSES_PREPROCESS \
+  --output  $TAGGED_PREPROCESS \
+  --poses   $POSES_PREPROCESS \
+  --config  $CONFIG_PREPROCESS \
+  --drives  $DRIVE_LIST \
+  >> $OUTPUT_PREPROCESS/log.txt
 
 echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Generating MOT"
 ./modules/preprocess/gen_mot.py \
-  --input  $tagged_preprocess \
-  --poses  $poses_preprocess \
-  --output $output_preprocess/mot \
-  --config $config_preprocess \
-  --drives $drive_list \
-  >> $output_preprocess/log.txt
+  --input   $TAGGED_PREPROCESS \
+  --output  $OUTPUT_PREPROCESS/mot \
+  --poses   $POSES_PREPROCESS \
+  --config  $CONFIG_PREPROCESS \
+  --drives  $DRIVE_LIST \
+  >> $OUTPUT_PREPROCESS/log.txt

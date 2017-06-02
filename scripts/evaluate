@@ -4,47 +4,47 @@ echo -e "\033[0;31m"$(date)"\033[0m" "Evaluation"
 
 USAGE="evaluate --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_evaluate="$2";;
-    --tracks) tracks_evaluate="$2";;
-    --output) output_evaluate="$2";;
-    --config) config_evaluate="$2";;
+    --input)  INPUT_EVALUATE="$2";;
+    --tracks) TRACKS_EVALUATE="$2";;
+    --output) OUTPUT_EVALUATE="$2";;
+    --config) CONFIG_EVALUATE="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$input_evaluate"   ]] || \
-    [[ -z "$tracks_evaluate"  ]] || \
-    [[ -z "$output_evaluate"  ]] || \
-    [[ -z "$config_evaluate"  ]] ; then
+if  [[ -z "$INPUT_EVALUATE"   ]] || \
+    [[ -z "$TRACKS_EVALUATE"  ]] || \
+    [[ -z "$OUTPUT_EVALUATE"  ]] || \
+    [[ -z "$CONFIG_EVALUATE"  ]] ; then
   echo "Usage: $USAGE"
   exit 1
 fi
 
-mkdir $output_evaluate
+mkdir $OUTPUT_EVALUATE
 
-echo $(date) >> $output_evaluate/log.txt
+echo $(date) >> $OUTPUT_EVALUATE/log.txt
 
 ./modules/evaluate/make_seq_list.py \
-	--input $input_evaluate \
-	--tracks $tracks_evaluate \
-	--output $output_evaluate/seqs.csv \
-	>> $output_evaluate/log.txt
+	--input $INPUT_EVALUATE \
+	--tracks $TRACKS_EVALUATE \
+	--output $OUTPUT_EVALUATE/seqs.csv \
+	>> $OUTPUT_EVALUATE/log.txt
 
 echo $(date) "Evaluation: Converting MOT to JSONs"
 ./modules/evaluate/mot2json.py \
-	--input $output_evaluate/seqs.csv \
-	--output $output_evaluate/jsons \
-	>> $output_evaluate/log.txt
+	--input $OUTPUT_EVALUATE/seqs.csv \
+	--output $OUTPUT_EVALUATE/jsons \
+	>> $OUTPUT_EVALUATE/log.txt
 
 echo $(date) "Evaluation: Computing CLEAR MOT stats"
-mkdir $output_evaluate/stat
-for i in $(ls $input_evaluate)
+mkdir $OUTPUT_EVALUATE/stat
+for i in $(ls $INPUT_EVALUATE)
 do
   ./modules/evaluate/pymot/pymot.py \
-  	-a $output_evaluate/jsons/$i/groundtruth.json \
-  	-b $output_evaluate/jsons/$i/hypotheses.json \
-  	> $output_evaluate/stat/$i.stat
+  	-a $OUTPUT_EVALUATE/jsons/$i/groundtruth.json \
+  	-b $OUTPUT_EVALUATE/jsons/$i/hypotheses.json \
+  	> $OUTPUT_EVALUATE/stat/$i.stat
 done
 
 echo $(date) "Evaluation: Summarizing the stats"
-./modules/evaluate/evaluate.py --input $output_evaluate/stat/
+./modules/evaluate/evaluate.py --input $OUTPUT_EVALUATE/stat/

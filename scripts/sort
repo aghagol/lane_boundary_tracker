@@ -4,32 +4,32 @@ echo -e "\033[0;31m"$(date)"\033[0m" "Tracking: SORT"
 
 USAGE="sort --input [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_sort="$2";;
-    --output) output_sort="$2";;
-		--config) config_sort="$2";;
+    --input)  INPUT_SORT="$2";;
+    --output) OUTPUT_SORT="$2";;
+		--config) CONFIG_SORT="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if [[ -z "$input_sort" ]] || [[ -z "$output_sort" ]] || [[ -z "$config_sort" ]] ; then
+if [[ -z "$INPUT_SORT" ]] || [[ -z "$OUTPUT_SORT" ]] || [[ -z "$CONFIG_SORT" ]] ; then
   echo "Usage: $USAGE"
   exit 1
 fi
 
-mkdir $output_sort
+mkdir $OUTPUT_SORT
 
-./modules/trackers/sort/print_param.py --config $config_sort
+./modules/trackers/sort/print_param.py --config $CONFIG_SORT
 
-echo $(date) >> $output_sort/log.txt
+echo $(date) >> $OUTPUT_SORT/log.txt
 
 ./modules/trackers/sort/log_param.py \
-  --config $config_sort \
-  >> $output_sort/log.txt
+  --config  $CONFIG_SORT \
+  >> $OUTPUT_SORT/log.txt
 
 ./modules/trackers/sort/sort.py \
-  --input $input_sort \
-  --output $output_sort/tracks \
-  --config $config_sort \
-  >> $output_sort/log.txt
+  --input   $INPUT_SORT \
+  --output  $OUTPUT_SORT/tracks \
+  --config  $CONFIG_SORT \
+  >> $OUTPUT_SORT/log.txt
 
 

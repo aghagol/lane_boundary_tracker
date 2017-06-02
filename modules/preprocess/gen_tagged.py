@@ -14,7 +14,7 @@ from jsmin import jsmin
 import motutil
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",  help="path to input annotations")
+parser.add_argument("--input",  help="path to fuse files")
 parser.add_argument("--output", help="path to tagged annotations")
 parser.add_argument("--config", help="path to config file")
 parser.add_argument("--drives", help="path to drives list file")
@@ -55,8 +55,8 @@ for drive in drive_list:
 
   for filename in filelist:
     if os.path.exists(output_path+filename) and os.path.exists(output_path+filename+'.tmap')>=parameters['fake_timestamp']:
-        # print('\t%s exists! skipping'%(output_path+filename))
-        continue
+      # print('\t%s exists! skipping'%(output_path+filename))
+      continue
     print('\tworking on %s'%(output_path+filename))
     points = np.loadtxt(input_path+filename)
 
