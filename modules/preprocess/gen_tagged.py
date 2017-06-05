@@ -35,7 +35,7 @@ with open(args.drives) as fdrivelist:
   for line in fdrivelist:
     drive_list.append(line.strip())
 
-tag_fmt = ['%d','%.10f','%.10f','%.10f','%d','%02d']
+tag_fmt = ['%d','%.10f','%.10f','%.10f']
 for drive in drive_list:
   print('Working on drive %s'%drive)
 
@@ -48,7 +48,7 @@ for drive in drive_list:
 
   #get meta information about image tiles on pose
   bbox_path = poses_path+drive+'_bboxlist.txt'
-  bbox_list = np.loadtxt(bbox_path,delimiter=',') #format: minLat, minLon, maxLat, maxLon, chunk, t_start, t_end, lat, lon, alt
+  # bbox_list = np.loadtxt(bbox_path,delimiter=',') #format: minLat, minLon, maxLat, maxLon, chunk, t_start, t_end, lat, lon, alt
 
   #get the list of image annotations on this drive
   filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])

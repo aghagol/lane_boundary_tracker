@@ -12,13 +12,9 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
 
     dets = []
     tmap = []
-    lb_id_offset = 0
     for filename in filelist:
       if os.stat(input_path+filename).st_size:
-        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,6)
-        points = points[points[:,5]%parameters['scanline_step']==0,:]
-        points[:,4] += lb_id_offset #re-assign IDs to avoid duplicate IDs for LBs from two images
-        lb_id_offset = points[:,4].max()+1
+        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,4)
         dets.append(points)
         tmap.append(np.loadtxt(input_path+filename+'.tmap',delimiter=',').reshape(-1,2))
     dets = np.vstack(dets)
@@ -48,12 +44,15 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
       tiny_subdrives.add(subdrive)
       continue
 
-    #add detection index in a new column
-    itlla = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets[:,:5]))
+    #index,timestamp,lat,lon,altitude,label
+    itllal = np.empty((dets.shape[0],6))
+    itllal[:,0] = np.arange(dets.shape[0])+1
+    itllal[:,1:5] = dets
+    itllal[:,5] = -1 #no labels
 
     #save result to CSV file
     os.makedirs(output_path+'%s/det/'%(subdrive))
     fmt = ['%05d','%d','%.10f','%.10f','%.10f','%02d']
-    np.savetxt(output_path+'%s/det/itlla.txt'%(subdrive),itlla,fmt=fmt,delimiter=',')
+    np.savetxt(output_path+'%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
     if parameters['fake_timestamp']:
       np.savetxt(output_path+'%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')

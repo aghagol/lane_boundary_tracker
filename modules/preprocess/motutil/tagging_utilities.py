@@ -5,13 +5,12 @@ import haversine
 
 def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
   """
-  points  : points numpy array 1 (no   timestamp) format: latitude  longitude laneline# scanline#
+  points  : points numpy array 1 (no   timestamp) format: latitude  longitude
   pose    : points numpy array 2 (with timestamp) format: latitude  longitude altitude  timestamp
-  tagged  : points numpy array 1 (with timestamp) format: timestamp latitude  longitude altitude laneline# scanline# [+gradient]
+  tagged  : points numpy array 1 (with timestamp) format: timestamp latitude  longitude altitude
   """
-  tagged = np.zeros((points.shape[0],6))
+  tagged = np.zeros((points.shape[0],4))
   tagged[:,1:3] = points[:,0:2]
-  tagged[:,4:6] = points[:,2:4]
 
   tagged_tmap = np.zeros((points.shape[0],2))
 

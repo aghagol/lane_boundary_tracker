@@ -27,7 +27,7 @@ def ss_to_mot_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
     if subdrive in tiny_subdrives: continue
 
     #load detections from txt file
-    dets = np.loadtxt(output_path+'%s/det/itlla.txt'%(subdrive),delimiter=',')
+    dets = np.loadtxt(output_path+'%s/det/itllal.txt'%(subdrive),delimiter=',')
 
     lat_min, lat_max = (dets[:,2].min(), dets[:,2].max())
     lon_min, lon_max = (dets[:,3].min(), dets[:,3].max())
@@ -61,4 +61,5 @@ def ss_to_mot_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
       out[:,4:6] = motion
     else:
       out[:,4:6] = parameters['object_size'] *zoom
+    
     np.savetxt(output_path+'%s/det/det.txt'%(subdrive),out,fmt=fmt,delimiter=',')
