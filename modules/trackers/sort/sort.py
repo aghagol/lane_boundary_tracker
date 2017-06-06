@@ -39,7 +39,7 @@ class KalmanBoxTracker(object):
   This class represents the internel state of individual tracked objects
   """
   count = 0
-  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0,det_time,motion_model_var=1,observation_var=1):
+  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0,det_time=None,motion_model_var=1,observation_var=1):
     """
     Initialises a tracker
     """
@@ -66,7 +66,7 @@ class KalmanBoxTracker(object):
     self.det_idx = det_idx
     self.det_time = det_time
 
-  def update(self,target_location,det_idx=0,det_time):
+  def update(self,target_location,det_idx=0,det_time=None):
     """
     Updates the state vector with observations
     """
@@ -180,7 +180,7 @@ class Sort(object):
     to_del = []
     ret = []
     for t,trk in enumerate(trks):
-      trk.kf.F = np.array([[1,0,self.time_gap,0],[0,1,0,self.time_gap],[0,0,1,0],[0,0,0,1]])
+      self.trackers[t].kf.F = np.array([[1,0,self.time_gap,0],[0,1,0,self.time_gap],[0,0,1,0],[0,0,0,1]])
       target_location = self.trackers[t].predict()
       trk[:] = [target_location[0], target_location[1]]
       if(np.any(np.isnan(target_location))):
@@ -204,7 +204,7 @@ class Sort(object):
     for t,trk in enumerate(self.trackers):
       if(t not in unmatched_trks):
         d = matched[np.where(matched[:,1]==t)[0],0]
-        trk.update(dets[d,:2].reshape(2,1),det_idx=dets[d,4])
+        trk.update(dets[d,:2].reshape(2,1),det_idx=dets[d,4],det_time=self.time_now)
 
     #create and initialise new trackers for unmatched detections
     for i in unmatched_dets:
@@ -223,6 +223,7 @@ class Sort(object):
       trk = KalmanBoxTracker(
         initial_state=initial_state,
         det_idx=dets[i,4],
+        det_time=self.time_now,
         motion_model_var=self.motion_model_variance,
         observation_var=self.observation_variance)
       self.trackers.append(trk)
