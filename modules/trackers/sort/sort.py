@@ -39,7 +39,7 @@ class KalmanBoxTracker(object):
   This class represents the internel state of individual tracked objects
   """
   count = 0
-  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0,motion_model_var=1,observation_var=1):
+  def __init__(self,initial_state=np.zeros((4,1)),det_idx=0,det_time,motion_model_var=1,observation_var=1):
     """
     Initialises a tracker
     """
@@ -64,8 +64,9 @@ class KalmanBoxTracker(object):
     self.confidence = .1
     self.ret = initial_state[:2]
     self.det_idx = det_idx
+    self.det_time = det_time
 
-  def update(self,target_location,det_idx=0):
+  def update(self,target_location,det_idx=0,det_time):
     """
     Updates the state vector with observations
     """
@@ -78,12 +79,12 @@ class KalmanBoxTracker(object):
     # self.ret = target_location
     self.ret = self.kf.x[:2]
     self.det_idx = det_idx
+    self.det_time = det_time
 
-  def predict(self,dt=1):
+  def predict(self):
     """
     Advances the state vector and returns the predicted bounding box estimate.
     """
-    self.kf.F = np.array([[1,0,dt,0],[0,1,0,dt],[0,0,1,0],[0,0,0,1]])
     self.kf.predict()
     self.age += 1
     if(self.age_since_update>0):
@@ -148,34 +149,39 @@ class Sort(object):
     """
     Sets key parameters for SORT
     """
+    self.trackers = []
+    self.frame_count = 0
+    self.time_gap = 0
+    self.time_now = 0
     self.max_age_since_update = max_age_since_update
     self.min_hits = min_hits
     self.d2t_dist_threshold_tight = d2t_dist_threshold_tight
     self.d2t_dist_threshold_loose = d2t_dist_threshold_loose
     self.motion_model_variance = motion_model_variance
     self.observation_variance = observation_variance
-    self.trackers = []
-    self.frame_count = 0
     self.motion_init_pose = motion_init_pose
     self.motion_init_sync = motion_init_sync
 
-  def update(self,dets,dt=1):
+  def update(self,dets):
     """
     Params:
-      dets - a numpy array of detections in the format [[x,y,u,v,idx],[x,y,u,v,idx],...]
+      dets - a numpy array of detections in the format [[x,y,u,v,idx,time],[x,y,u,v,idx,time],...]
     Requires: this method must be called once for each frame even with empty detections.
     Returns the a similar array, where the last column is the object ID.
 
     NOTE: The number of objects returned may differ from the number of detections provided.
     """
-    self.frame_count += 1
+    self.frame_count +=1
+    self.time_gap = dets[0,5]-self.time_now if self.frame_count>1 else 0
+    self.time_now = dets[0,5]
 
     #get predicted locations from existing trackers.
     trks = np.zeros((len(self.trackers),2))
     to_del = []
     ret = []
     for t,trk in enumerate(trks):
-      target_location = self.trackers[t].predict(dt=dt)
+      trk.kf.F = np.array([[1,0,self.time_gap,0],[0,1,0,self.time_gap],[0,0,1,0],[0,0,0,1]])
+      target_location = self.trackers[t].predict()
       trk[:] = [target_location[0], target_location[1]]
       if(np.any(np.isnan(target_location))):
         to_del.append(t)
@@ -252,7 +258,6 @@ if __name__ == '__main__':
   args = parser.parse_args()
   total_time = 0.0
   total_frames = 0
-  dt = 1
 
   with open(args.config) as fparam:
     param = json.loads(jsmin(fparam.read()))["sort"]
@@ -277,8 +282,7 @@ if __name__ == '__main__':
     else:
       seq_points = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 
-    frame_timestamps = dict(zip(seq_points[:,0],seq_points[:,7]))
-    frames = sorted(frame_timestamps)
+    seq_points[:,7] *=1e-6 #convert micro-seconds to seconds
 
     print("Processing %s"%(seq))
 
@@ -287,15 +291,14 @@ if __name__ == '__main__':
 
     start_time = time.time()
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
-      for frame_idx,frame in enumerate(frames):
+      for frame_idx,frame in enumerate(sorted(set(seq_points[:,0]))):
         points = seq_points[seq_points[:,0]==frame,:]
-        if not param['constant_fps']:
-          dt = (frame_timestamps[frame]-frame_timestamps[frames[max(frame_idx-1,0)]])*1e-6
+        if param['constant_fps']: exit('Constant FPS is not supported!')
         if param['bypass_tracking_use_gt']:
           for d in points:
             print('%05d,%05d,%011.5f,%011.5f,%05d,1.00'%(frame,d[1],d[2],d[3],d[6]),file=out_file)
         else:
-          tracks = mot_tracker.update(points[:,2:7],dt) #points format: [x,y,u,v,index]
+          tracks = mot_tracker.update(points[:,2:8]) #[x_loc, y_loc, x_vel, y_vel, det_idx, timestamp]
           for d in tracks:
             print('%05d,%05d,%011.5f,%011.5f,%05d,%.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
 

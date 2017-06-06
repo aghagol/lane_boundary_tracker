@@ -5,7 +5,7 @@
     "object_size": 10, //for bounding box size
     "scanline_step":1, //subsample scanlines
     "recall": 1, //drop detections randomly
-    "generate_gt": true,
+    "generate_gt": false,
     "remove_adjacent_points": false,
         "min_pairwise_dist": 1,
         "search_window_size": 100,
@@ -39,7 +39,7 @@
     "centered": true,
     "show_tracks": true,
     "min_track_length": 1,
-    "hide_predictions": true,
+    "hide_predictions": false,
     "real_time": false,
         "delay_multiplier": 1,
         "max_delay": 5

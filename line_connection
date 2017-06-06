@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+CACHE="~/Desktop/tmp/"
+
+rm -rf $CACHE
+
+./scripts/runall \
+  --input   ~/data_ian/ \
+  --fuses   ~/data_ian/input/Lane/fuse/ \
+  --tagged  ~/data_ian/input/Lane/fuse_tagged/ \
+  --poses   ~/data_ian/input/poses/ \
+  --chunks  ~/data_ian/input/chunks/ \
+  --drives  ~/Desktop/drive_list.txt \
+  --tracker "sort" \
+  --config  ./conf.json \
+  --cache   $CACHE

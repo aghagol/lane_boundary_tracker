@@ -43,7 +43,7 @@ for drive in drive_list:
     for filename in filelist:
       if os.stat(input_path+filename).st_size:
         file_ismember = False
-        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,6)
+        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,4)
         t0 = points[:,0].min()*1e-6
         t1 = points[:,0].max()*1e-6
         for part in drive_parts:

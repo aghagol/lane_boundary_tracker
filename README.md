@@ -6,18 +6,21 @@ To execute the complete process, run:
 
 ```bash
 ./scripts/runall \
-  --input   path/to/data_dir \
-  --drives  path/to/drive_names_txt \
-  --poses   path/to/csv_poses_dir \
-  --chunks  path/to/chunks_metadata_dir \
-  --tagged  path/to/tagged_data_dir \
-  --output  path/to/tmp_cache_dir
+  --input   path/to/CNN_predictions \
+  --fuses   path/to/fuse_files \
+  --tagged  path/to/tagged_fuse_files \
+  --drives  list_of_drives_txt_file \
+  --poses   path/to/pose_csv_files \
+  --chunks  path/to/chunk_metadata \
+  --tracker tracking_method_name \
+  --config  configuration_json_file \
+  --cache   path/to/cache
 ```
 
-To just visualize (given that line-connection results have been produced and output), run:
+To just visualize the cached results, run:
 
 ```bash
-./scripts/runall --output path/to/tmp_cache_dir
+./scripts/runall --cache path/to/cache
 ```
 
  - The configuration file `conf.json` is located at the repository root.

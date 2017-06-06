@@ -32,7 +32,7 @@ if os.path.exists(args.tracks):
 
 seqs = {}
 seqs['name']  = sequences
-seqs['dpath'] = ['%s/%s/det/itlla.txt'%(args.input,seq) for seq in sequences]
+seqs['dpath'] = ['%s/%s/det/itllal.txt'%(args.input,seq) for seq in sequences]
 seqs['tmap']  = ['%s/%s/det/tmap.txt'%(args.input,seq) for seq in sequences]
 seqs['tpath'] = ['%s/%s.txt'%(args.tracks,seq) for seq in sequences]
 
