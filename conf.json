@@ -26,6 +26,7 @@
     "d2t_dist_threshold_tight": 1,
     "d2t_dist_threshold_loose": 1,
     "max_age_after_last_update": 50,
+    "max_mov_after_last_update": 1,
     "motion_model_variance": 1,
     "observation_variance": 1,
     "motion_init_pose": true, //this has priority over "motion_init_sync"

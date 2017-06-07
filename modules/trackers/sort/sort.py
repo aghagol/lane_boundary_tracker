@@ -65,6 +65,7 @@ class KalmanBoxTracker(object):
     self.ret = initial_state[:2]
     self.det_idx = det_idx
     self.det_time = det_time
+    self.det_x = initial_state[:2]
 
   def update(self,target_location,det_idx=0,det_time=None):
     """
@@ -75,11 +76,12 @@ class KalmanBoxTracker(object):
     self.hits += 1
     self.hit_streak += 1
     self.confidence = 1.
-    self.kf.update(target_location[:2])
+    self.kf.update(target_location)
     # self.ret = target_location
     self.ret = self.kf.x[:2]
     self.det_idx = det_idx
     self.det_time = det_time
+    self.det_x = target_location
 
   def predict(self):
     """
@@ -138,6 +140,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
 class Sort(object):
   def __init__(self,
       max_age_since_update=1,
+      max_mov_since_update=1,
       min_hits=3,
       d2t_dist_threshold_tight=10,
       d2t_dist_threshold_loose=10,
@@ -154,6 +157,7 @@ class Sort(object):
     self.time_gap = 0
     self.time_now = 0
     self.max_age_since_update = max_age_since_update
+    self.max_mov_since_update = max_mov_since_update
     self.min_hits = min_hits
     self.d2t_dist_threshold_tight = d2t_dist_threshold_tight
     self.d2t_dist_threshold_loose = d2t_dist_threshold_loose
@@ -243,7 +247,8 @@ class Sort(object):
 
     #remove dead tracklets
     for t in range(len(self.trackers)-1,-1,-1):
-      if(self.trackers[t].age_since_update >= self.max_age_since_update):
+      # if(self.trackers[t].age_since_update >= self.max_age_since_update):
+      if np.sqrt(((self.trackers[t].det_x-self.trackers[t].kf.x[:2])**2).sum()) > self.max_mov_since_update:
         self.trackers.pop(t)
 
     if(len(ret)>0):
@@ -270,6 +275,7 @@ if __name__ == '__main__':
   for seq in sequences:
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],
+      max_mov_since_update=param['max_mov_after_last_update'],
       d2t_dist_threshold_tight=param['d2t_dist_threshold_tight'],
       d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
       motion_model_variance=param['motion_model_variance'],
