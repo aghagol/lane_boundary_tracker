@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo -e "\033[0;31m"$(date)"\033[0m" "Postprocessing"
+echo -e "\033[1;31m"$(date)"\033[0m" "Postprocessing"
 
 USAGE="postprocess --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in

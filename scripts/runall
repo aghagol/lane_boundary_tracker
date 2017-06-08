@@ -35,16 +35,16 @@ if [[ $INPUT_PATH ]] ; then
       DRIVE_LIST=$CACHE/preprocess/drive_list.txt
     fi
     # ./scripts/preprocess  --input $INPUT_PATH           --output $CACHE/preprocess  --config $CONFIG  --drives $DRIVE_LIST  --poses $POSE_PATH  --tagged $TAGGED_PATH --fuses $FUSE_PATH
-    ./scripts/$TRACKER    --input $CACHE/preprocess/mot --output $CACHE/$TRACKER    --config $CONFIG
-    ./scripts/postprocess --input $CACHE/preprocess/mot --output $CACHE/postprocess --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
+    # ./scripts/$TRACKER    --input $CACHE/preprocess/mot --output $CACHE/$TRACKER    --config $CONFIG
+    # ./scripts/postprocess --input $CACHE/preprocess/mot --output $CACHE/postprocess --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
     ./scripts/fuse        --input $CACHE/preprocess/mot --output $CACHE/fuse        --config $CONFIG  --tracks $CACHE/postprocess/tracks  --chunks $CHUNK_PATH
     # ./scripts/evaluate    --input $CACHE/preprocess/mot --cache $CACHE/evaluate    --config $CONFIG  --tracks $CACHE/sort/tracks
   # else
-    # echo "Output path exists.. Please enter another path for outputs."
+  #   echo "Output path exists.. Please enter another path for outputs."
   # fi
 fi
 
 read -sp "Press [ENTER] to Visualize"; echo ""
 rm -rf $CACHE/visualize
-./scripts/visualize --input $CACHE/preprocess/mot --cache $CACHE/visualize --config $CONFIG --tracks $CACHE/postprocess/tracks
+./scripts/visualize --input $CACHE/preprocess/mot --output $CACHE/visualize --config $CONFIG --tracks $CACHE/postprocess/tracks
 

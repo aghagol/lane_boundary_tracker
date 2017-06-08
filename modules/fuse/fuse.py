@@ -57,15 +57,17 @@ for seq_idx,seq in seqs.iterrows():
     if os.path.exists(output_fuse) and os.path.exists(output_fuse_chunk): continue
 
     dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
+    if len(dets_ids)<param['min_seq_length']: continue #reduce the number of lane markings by pruning small sequences
+
     out_fuse = []
     for det_id in dets_ids:
       out_fuse.append(dets[dets[:,0]==det_id,[2,3,4,1]].reshape(1,-1)) #LLAT format
     out_fuse = np.vstack(out_fuse)
     
-    with open(output_path+output_fuse,'w') as fout:
+    with open(output_fuse,'w') as fout:
       np.savetxt(fout,out_fuse,fmt=fmt)
 
-    in_chunk = np.zeros((out_fuse.shape[0],1),dtype=bool)
+    in_chunk = np.zeros((out_fuse.shape[0]),dtype=bool)
     for row in range(out_fuse.shape[0]): #replace timestamp with chunk number
       timestamp = tmap[out_fuse[row,3]]
       mask = np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)
@@ -74,5 +76,5 @@ for seq_idx,seq in seqs.iterrows():
         in_chunk[row] = True
         out_fuse[row,3] = chunk_id['ChunkId'][mask]
 
-    with open(output_path+output_fuse_chunk,'w') as fout:
+    with open(output_fuse_chunk,'w') as fout:
       np.savetxt(fout,out_fuse[in_chunk,:],fmt=fmt)

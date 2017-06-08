@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo -e "\033[0;31m"$(date)"\033[0m" Preprocessing
+echo -e "\033[1;31m"$(date)"\033[0m" Preprocessing
 
 USAGE="preprocess --input [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir] --fuses [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
@@ -40,7 +40,7 @@ echo $(date) >> $OUTPUT_PREPROCESS/log.txt
   --drives  $DRIVE_LIST \
   >> $OUTPUT_PREPROCESS/log.txt
 
-echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
+echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
 ./modules/preprocess/gen_fuse.py \
   --input   $INPUT_PREPROCESS \
   --output  $FUSES_PREPROCESS \
@@ -49,7 +49,7 @@ echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
   --drives  $DRIVE_LIST \
   >> $OUTPUT_PREPROCESS/log.txt
 
-echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
+echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
 ./modules/preprocess/gen_tagged.py \
   --input   $FUSES_PREPROCESS \
   --output  $TAGGED_PREPROCESS \
@@ -58,7 +58,7 @@ echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
   --drives  $DRIVE_LIST \
   >> $OUTPUT_PREPROCESS/log.txt
 
-echo -e "\033[0;31m"$(date)"\033[0m" "Preprocessing: Generating MOT"
+echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating MOT"
 ./modules/preprocess/gen_mot.py \
   --input   $TAGGED_PREPROCESS \
   --output  $OUTPUT_PREPROCESS/mot \

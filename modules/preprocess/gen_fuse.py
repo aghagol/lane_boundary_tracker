@@ -44,9 +44,8 @@ for drive in drive_list:
 
   for n,res in meta.iterrows():
     image_tag = '%d'%((res['time_start']+res['time_end'])/2)
-    if os.path.exists(output_path+drive+'_'+image_tag+'.png.fuse'):
-      # print('\t\tfuse file exists! skipping...')
-      continue
+    if os.path.exists(output_path+drive+'_'+image_tag+'.png.fuse'): continue
+    if not os.path.exists(os.path.join(input_path+drive,'images',res['name'])): continue
     print('\tworking on %s'%(res['name']))
 
     pred_im = misc.imread(os.path.join(input_path+drive,'images',res['name']))/(2.**16-1)
