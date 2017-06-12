@@ -53,6 +53,7 @@
   },
   "fuse":
   {
-    "enable": true
+    "enable": true,
+    "min_seq_length": 10
   }
 }
