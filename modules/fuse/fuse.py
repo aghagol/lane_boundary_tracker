@@ -52,20 +52,21 @@ for seq_idx,seq in seqs.iterrows():
 
   for lb_number,target_id in enumerate(sorted(set(trks[:,1]))):
 
-    output_fuse = output_path+'%s/%d_laneMarking_l2polyline.fuse'%(subdrive,lb_number)
+    # output_fuse = output_path+'%s/%d_laneMarking_l2polyline.fuse'%(subdrive,lb_number)
     output_fuse_chunk = output_path+'%s/%d_laneMarking.fuse'%(subdrive,lb_number)
-    if os.path.exists(output_fuse) and os.path.exists(output_fuse_chunk): continue
+    # if os.path.exists(output_fuse) and os.path.exists(output_fuse_chunk): continue
+    if os.path.exists(output_fuse_chunk): continue
 
     dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
-    if len(dets_ids)<param['min_seq_length']: continue #reduce the number of lane markings by pruning small sequences
+    if len(dets_ids)<param['min_seq_length']: continue #prune short lane boundaries
 
     out_fuse = []
     for det_id in dets_ids:
       out_fuse.append(dets[dets[:,0]==det_id,[2,3,4,1]].reshape(1,-1)) #LLAT format
     out_fuse = np.vstack(out_fuse)
     
-    with open(output_fuse,'w') as fout:
-      np.savetxt(fout,out_fuse,fmt=fmt)
+    # with open(output_fuse,'w') as fout:
+    #   np.savetxt(fout,out_fuse,fmt=fmt)
 
     in_chunk = np.zeros((out_fuse.shape[0]),dtype=bool)
     for row in range(out_fuse.shape[0]): #replace timestamp with chunk number
