@@ -1,43 +1,43 @@
 #!/usr/bin/env bash
 
-echo -e "\033[0;31m"$(date)"\033[0m" "Postprocessing"
+echo -e "\033[1;31m"$(date)"\033[0m" "Postprocessing"
 
 USAGE="postprocess --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_postprocess="$2";;
-    --tracks) tracks_postprocess="$2";;
-    --output) output_postprocess="$2";;
-    --config) config_postprocess="$2";;
+    --input)  INPUT_POSTPROCESS="$2";;
+    --tracks) TRACKS_POSTPROCESS="$2";;
+    --output) OUTPUT_POSTPROCESS="$2";;
+    --config) CONFIG_POSTPROCESS="$2";;
     *) echo "Usage: "; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$input_postprocess"  ]] || \
-    [[ -z "$tracks_postprocess" ]] || \
-    [[ -z "$output_postprocess" ]] || \
-    [[ -z "$config_postprocess" ]] ; then
+if  [[ -z "$INPUT_POSTPROCESS"  ]] || \
+    [[ -z "$TRACKS_POSTPROCESS" ]] || \
+    [[ -z "$OUTPUT_POSTPROCESS" ]] || \
+    [[ -z "$CONFIG_POSTPROCESS" ]] ; then
   echo "Usage: $USAGE"
   exit 1
 fi
 
-mkdir $output_postprocess
+mkdir $OUTPUT_POSTPROCESS
 
-./modules/postprocess/print_param.py --config $config_postprocess
+./modules/postprocess/print_param.py --config $CONFIG_POSTPROCESS
 
-echo $(date) >> $output_postprocess/log.txt
+echo $(date) >> $OUTPUT_POSTPROCESS/log.txt
 
 ./modules/postprocess/log_param.py \
-  --config $config_postprocess \
-  >> $output_postprocess/log.txt
+  --config $CONFIG_POSTPROCESS \
+  >> $OUTPUT_POSTPROCESS/log.txt
 
 ./modules/postprocess/make_seq_list.py \
-  --input $input_postprocess \
-  --tracks $tracks_postprocess \
-  --output $output_postprocess/seqs.csv \
-  >> $output_postprocess/log.txt
+  --input $INPUT_POSTPROCESS \
+  --tracks $TRACKS_POSTPROCESS \
+  --output $OUTPUT_POSTPROCESS/seqs.csv \
+  >> $OUTPUT_POSTPROCESS/log.txt
 
 ./modules/postprocess/stitch_tracklets.py \
-  --input $output_postprocess/seqs.csv \
-  --output $output_postprocess/tracks \
-  --config $config_postprocess \
-  >> $output_postprocess/log.txt
+  --input $OUTPUT_POSTPROCESS/seqs.csv \
+  --output $OUTPUT_POSTPROCESS/tracks \
+  --config $CONFIG_POSTPROCESS \
+  >> $OUTPUT_POSTPROCESS/log.txt

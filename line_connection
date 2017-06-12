@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+CACHE="/home/mo/Desktop/tmp/"
+
+rm -rf $CACHE
+
+./scripts/runall \
+  --fuses   ~/data_lifeng/dataforxiang/Lane/fuse/ \
+  --tagged  ~/data_lifeng/dataforxiang/Lane/fuse_tagged/ \
+  --poses   ~/data_lifeng/dataforxiang/poses/ \
+  --chunks  ~/data_lifeng/dataforxiang/chunks/ \
+  --drives  ~/Desktop/drive_list.txt \
+  --tracker "sort" \
+  --config  ./conf.json \
+  --cache   $CACHE

@@ -1,41 +1,49 @@
 #!/usr/bin/env bash
 
-USAGE="runall --input path/to/data --output path/to/tmp --drives txt_file --poses path/to/pose_csv --chunks path/to/chunks_metadata --tagged path/to/tagged_data"
+USAGE="runall \
+  --fuses     path/to/fuse_data \
+  --cache     path/to/tmp \
+  --drives    txt_file \
+  --poses     path/to/pose_csv \
+  --chunks    path/to/chunks_metadata \
+  --tagged    path/to/tagged_data\
+  --tracker   tracking_method\
+  --config    config_json"
 
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_path="$2";;
-    --output) cache="$2";;
-    --drives) drive_list="$2";;
-    --poses)  poses_path="$2";;
-    --tagged) tagged_path="$2";;
-    --chunks) chunks_path="$2";;
+    --fuses)    FUSES_PATH="$2";;
+    --cache)    CACHE="$2";;
+    --drives)   DRIVE_LIST="$2";;
+    --poses)    POSES_PATH="$2";;
+    --tagged)   TAGGED_PATH="$2";;
+    --chunks)   CHUNKS_PATH="$2";;
+    --tracker)  TRACKER="$2";;
+    --config)   CONFIG="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if [[ -z $cache ]] ; then
+if [[ -z $CACHE ]] ; then
   echo "Usage: $USAGE"; exit 1
 fi
 
-MOT_CONFIG="./conf.json"
-
-if [[ $input_path ]] ; then
-  if mkdir $cache ; then
-    if [[ -z $drive_list ]] ; then
-      echo "Saving the drive names in $cache/preprocess"
-      drive_list=$cache/preprocess/drive_list.txt
+if [[ $FUSES_PATH ]] ; then
+  if mkdir $CACHE ; then
+    if [[ -z $DRIVE_LIST ]] ; then
+      echo "Saving the drive names in $CACHE/preprocess"
+      DRIVE_LIST=$CACHE/preprocess/drive_list.txt
     fi
-    ./scripts/preprocess  --input $input_path           --output $cache/preprocess  --config $MOT_CONFIG  --drives $drive_list  --poses $poses_path  --tagged $tagged_path
-    ./scripts/sort        --input $cache/preprocess/mot --output $cache/sort        --config $MOT_CONFIG
-    ./scripts/postprocess --input $cache/preprocess/mot --output $cache/postprocess --config $MOT_CONFIG  --tracks $cache/sort/tracks
-    ./scripts/fuse        --input $cache/preprocess/mot --output $cache/fuse        --config $MOT_CONFIG  --tracks $cache/postprocess/tracks  --chunks $chunks_path --tagged $tagged_path
-    # ./scripts/evaluate    --input $cache/preprocess/mot --output $cache/evaluate    --config $MOT_CONFIG  --tracks $cache/sort/tracks
+    ./scripts/preprocess  --input $FUSES_PATH           --output $CACHE/preprocess  --config $CONFIG  --drives $DRIVE_LIST  --poses $POSES_PATH  --tagged $TAGGED_PATH
+    ./scripts/$TRACKER    --input $CACHE/preprocess/mot --output $CACHE/$TRACKER    --config $CONFIG
+    ./scripts/postprocess --input $CACHE/preprocess/mot --output $CACHE/postprocess --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
+    ./scripts/fuse        --input $CACHE/preprocess/mot --output $CACHE/fuse        --config $CONFIG  --tracks $CACHE/postprocess/tracks  --chunks $CHUNKS_PATH --tagged $TAGGED_PATH
+    # ./scripts/evaluate    --input $CACHE/preprocess/mot --output $CACHE/evaluate    --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
   else
     echo "Output path exists.. Please enter another path for outputs."
   fi
 fi
 
 read -sp "Press [ENTER] to Visualize"; echo ""
-rm -rf $cache/visualize
-./scripts/visualize --input $cache/preprocess/mot --output $cache/visualize --config $MOT_CONFIG --tracks $cache/postprocess/tracks
+rm -rf $CACHE/visualize
+./scripts/visualize --input $CACHE/preprocess/mot --output $CACHE/visualize --config $CONFIG --tracks $CACHE/postprocess/tracks
 

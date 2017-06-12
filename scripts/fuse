@@ -1,53 +1,53 @@
 #!/usr/bin/env bash
 
-echo -e "\033[0;31m"$(date)"\033[0m" "Fusion for EarthScape viewing"
+echo -e "\033[1;31m"$(date)"\033[0m" "Fusion for EarthScape viewing"
 
 USAGE="fuse --input [dir] --tracks [dir] --output [dir] --config [json] --chunks [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  input_fuse="$2";;
-    --tracks) tracks_fuse="$2";;
-    --output) output_fuse="$2";;
-    --config) config_fuse="$2";;
-    --chunks) chunks_fuse="$2";;
-    --tagged) tagged_fuse="$2";;
+    --input)  INPUT_FUSE="$2";;
+    --tracks) TRACKS_FUSE="$2";;
+    --output) OUTPUT_FUSE="$2";;
+    --config) CONFIG_FUSE="$2";;
+    --chunks) CHUNKS_FUSE="$2";;
+    --tagged) TAGGED_FUSE="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$input_fuse"   ]] || \
-    [[ -z "$tracks_fuse"  ]] || \
-    [[ -z "$output_fuse"  ]] || \
-    [[ -z "$config_fuse"  ]] || \
-    [[ -z "$chunks_fuse"   ]] ; then
+if  [[ -z "$INPUT_FUSE"   ]] || \
+    [[ -z "$TRACKS_FUSE"  ]] || \
+    [[ -z "$OUTPUT_FUSE"  ]] || \
+    [[ -z "$CONFIG_FUSE"  ]] || \
+    [[ -z "$CHUNKS_FUSE"   ]] ; then
   echo "Usage: $USAGE"
   exit 1
 fi
 
-mkdir $output_fuse
+mkdir $OUTPUT_FUSE
 
-./modules/fuse/print_param.py --config $config_fuse
+./modules/fuse/print_param.py --config $CONFIG_FUSE
 
-echo $(date) >> $output_fuse/log.txt
+echo $(date) >> $OUTPUT_FUSE/log.txt
 
 ./modules/fuse/log_param.py \
-  --config $config_fuse \
-  >> $output_fuse/log.txt
+  --config $CONFIG_FUSE \
+  >> $OUTPUT_FUSE/log.txt
 
 ./modules/fuse/make_seq_list.py \
-  --input  $input_fuse \
-  --tracks $tracks_fuse \
-  --output $output_fuse/seqs.csv \
-  >> $output_fuse/log.txt
+  --input  $INPUT_FUSE \
+  --tracks $TRACKS_FUSE \
+  --output $OUTPUT_FUSE/seqs.csv \
+  >> $OUTPUT_FUSE/log.txt
 
 ./modules/fuse/fuse.py \
-  --input  $output_fuse/seqs.csv \
-  --output $output_fuse/fused \
-  --config $config_fuse \
-  --chunks $chunks_fuse \
-  >> $output_fuse/log.txt
+  --input  $OUTPUT_FUSE/seqs.csv \
+  --output $OUTPUT_FUSE/fused \
+  --config $CONFIG_FUSE \
+  --chunks $CHUNKS_FUSE \
+  >> $OUTPUT_FUSE/log.txt
 
 ./modules/fuse/merge_subdrives.py \
-  --input  $output_fuse/fused \
-  --output $output_fuse/fused_merged \
-  --config $config_fuse \
-  >> $output_fuse/log.txt
+  --input  $OUTPUT_FUSE/fused \
+  --output $OUTPUT_FUSE/fused_merged \
+  --config $CONFIG_FUSE \
+  >> $OUTPUT_FUSE/log.txt
