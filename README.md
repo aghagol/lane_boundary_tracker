@@ -6,12 +6,14 @@ To execute the complete process, run:
 
 ```bash
 ./scripts/runall \
-  --input   path/to/data_dir \
-  --drives  path/to/drive_names_txt \
-  --poses   path/to/csv_poses_dir \
-  --chunks  path/to/chunks_metadata_dir \
-  --tagged  path/to/tagged_data_dir \
-  --output  path/to/tmp_cache_dir
+  --fuses     path/to/fuse_data_dir \
+  --cache     path/to/tmp_cache_dir \
+  --drives    drive_list_txt_file \
+  --poses     path/to/pose_csv_dir \
+  --chunks    path/to/chunks_metadata_dir \
+  --tagged    path/to/tagged_data_dir\
+  --tracker   tracking_method_name\
+  --config    configuration_json_file
 ```
 
 To just visualize (given that line-connection results have been produced and output), run:
