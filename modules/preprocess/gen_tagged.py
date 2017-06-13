@@ -58,7 +58,7 @@ for drive in drive_list:
         # print('\t%s exists! skipping'%(output_path+filename))
         continue
     print('\tworking on %s'%(output_path+filename))
-    points = np.loadtxt(input_path+filename)
+    points = np.loadtxt(input_path+filename).reshape(-1,4)
 
     #clip the pose according to the topdown image
     if parameters['pose_filter_bbox']:

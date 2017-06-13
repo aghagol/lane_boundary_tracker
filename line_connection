@@ -9,7 +9,7 @@ rm -rf $CACHE
   --tagged  ~/data_lifeng/qilin/Lane/fuse_tagged/ \
   --poses   ~/data_lifeng/qilin/poses/ \
   --chunks  ~/data_lifeng/qilin/chunks/ \
-  --drives  ~/Desktop/drive_list.txt \
+  --drives  ~/Desktop/drive1.txt \
   --tracker "sort" \
   --config  ./conf.json \
   --cache   $CACHE
