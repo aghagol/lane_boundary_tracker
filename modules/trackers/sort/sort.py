@@ -27,12 +27,17 @@ import json
 from jsmin import jsmin
 from filterpy.kalman import KalmanFilter
 
-def d2t_sim(z,HFx): #detection to track similarity
+def d2t_sim(z,x): #detection to track similarity
   """
   Computes similarity between a detection (2x1 numpy array) and a prediction (2x1 numpy array)
   """
   # return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.linalg.inv(S),(z-HFx)))))
-  return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
+  # return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
+
+  y = z-(x[:2].reshape(2,1)) #vector from detection to prediction (displacement)
+  v = x[2:].reshape(2,1) #velocity (motion) vector
+  d = y-(np.sum(y*v)/np.sum(v*v))*v #orthogonal projection of displacement onto motion
+  return np.exp(-np.sqrt(np.sum(d*d)))
 
 class KalmanBoxTracker(object):
   """
@@ -65,6 +70,7 @@ class KalmanBoxTracker(object):
     self.ret = initial_state[:2]
     self.det_idx = det_idx
     self.det_time = det_time
+    self.det_x = initial_state[:2]
 
   def update(self,target_location,det_idx=0,det_time=None):
     """
@@ -75,11 +81,12 @@ class KalmanBoxTracker(object):
     self.hits += 1
     self.hit_streak += 1
     self.confidence = 1.
-    self.kf.update(target_location[:2])
+    self.kf.update(target_location)
     # self.ret = target_location
     self.ret = self.kf.x[:2]
     self.det_idx = det_idx
     self.det_time = det_time
+    self.det_x = target_location
 
   def predict(self):
     """
@@ -108,7 +115,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
 
   for d,det in enumerate(detections):
     for t,trk in enumerate(trackers):
-      d2t_sim_matrix[d,t] = d2t_sim(det.reshape(2,1),trk.reshape(2,1))
+      d2t_sim_matrix[d,t] = d2t_sim(det.reshape(2,1),trk.reshape(4,1))
   matched_indices = linear_assignment(1-d2t_sim_matrix)
 
   unmatched_detections = []
@@ -138,6 +145,7 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
 class Sort(object):
   def __init__(self,
       max_age_since_update=1,
+      max_mov_since_update=1,
       min_hits=3,
       d2t_dist_threshold_tight=10,
       d2t_dist_threshold_loose=10,
@@ -154,6 +162,7 @@ class Sort(object):
     self.time_gap = 0
     self.time_now = 0
     self.max_age_since_update = max_age_since_update
+    self.max_mov_since_update = max_mov_since_update
     self.min_hits = min_hits
     self.d2t_dist_threshold_tight = d2t_dist_threshold_tight
     self.d2t_dist_threshold_loose = d2t_dist_threshold_loose
@@ -176,14 +185,15 @@ class Sort(object):
     self.time_now = dets[0,5]
 
     #get predicted locations from existing trackers.
-    trks = np.zeros((len(self.trackers),2))
+    trks = np.zeros((len(self.trackers),4))
     to_del = []
     ret = []
     for t,trk in enumerate(trks):
       self.trackers[t].kf.F = np.array([[1,0,self.time_gap,0],[0,1,0,self.time_gap],[0,0,1,0],[0,0,0,1]])
-      target_location = self.trackers[t].predict()
-      trk[:] = [target_location[0], target_location[1]]
-      if(np.any(np.isnan(target_location))):
+      self.trackers[t].kf.Q *= self.time_gap #more uncertainty for large time steps
+      target_state = self.trackers[t].predict()
+      trk[:] = target_state.squeeze()
+      if(np.any(np.isnan(target_state))):
         to_del.append(t)
     trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
     for t in to_del[::-1]:
@@ -243,7 +253,9 @@ class Sort(object):
 
     #remove dead tracklets
     for t in range(len(self.trackers)-1,-1,-1):
-      if(self.trackers[t].age_since_update >= self.max_age_since_update):
+      dead_flag_age = (self.trackers[t].age_since_update >= self.max_age_since_update)
+      dead_flag_mov = (np.sqrt(((self.trackers[t].det_x-self.trackers[t].kf.x[:2])**2).sum()) > self.max_mov_since_update)
+      if dead_flag_mov and dead_flag_age:
         self.trackers.pop(t)
 
     if(len(ret)>0):
@@ -270,6 +282,7 @@ if __name__ == '__main__':
   for seq in sequences:
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],
+      max_mov_since_update=param['max_mov_after_last_update'],
       d2t_dist_threshold_tight=param['d2t_dist_threshold_tight'],
       d2t_dist_threshold_loose=param['d2t_dist_threshold_loose'],
       motion_model_variance=param['motion_model_variance'],
@@ -294,7 +307,6 @@ if __name__ == '__main__':
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
       for frame_idx,frame in enumerate(sorted(set(seq_points[:,0]))):
         points = seq_points[seq_points[:,0]==frame,:]
-        if param['constant_fps']: exit('Constant FPS is not supported!')
         if param['bypass_tracking_use_gt']:
           for d in points:
             print('%05d,%05d,%011.5f,%011.5f,%05d,1.00'%(frame,d[1],d[2],d[3],d[6]),file=out_file)
