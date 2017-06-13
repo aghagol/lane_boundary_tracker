@@ -19,7 +19,7 @@ To execute the complete process, run:
 To just visualize (given that line-connection results have been produced and output), run:
 
 ```bash
-./scripts/runall --output path/to/tmp_cache_dir
+./scripts/runall --cache path/to/tmp_cache_dir
 ```
 
  - The configuration file `conf.json` is located at the repository root.
