@@ -34,7 +34,7 @@ def d2t_sim(z,x): #detection to track similarity
   # return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.linalg.inv(S),(z-HFx)))))
   # return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
 
-  y = z-(x[:2].reshape(2,1)) #vector from detection to prediction (displacement)
+  y = z-(x[:2].reshape(2,1)) #displacement vector from prediction (track) to detection
   v = x[2:].reshape(2,1) #velocity (motion) vector
   d = y-(np.sum(y*v)/np.sum(v*v))*v #orthogonal projection of displacement onto motion
   return np.exp(-np.sqrt(np.sum(d*d)))

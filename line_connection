@@ -5,10 +5,10 @@ CACHE="/home/mo/Desktop/tmp/"
 rm -rf $CACHE
 
 ./scripts/runall \
-  --fuses   ~/data_lifeng/qilin/Lane/fuse/ \
-  --tagged  ~/data_lifeng/qilin/Lane/fuse_tagged/ \
-  --poses   ~/data_lifeng/qilin/poses/ \
-  --chunks  ~/data_lifeng/qilin/chunks/ \
+  --fuses   ~/data_lifeng/demo_qilin/Lane/fuse/ \
+  --tagged  ~/data_lifeng/demo_qilin/Lane/fuse_tagged/ \
+  --poses   ~/data_lifeng/demo_qilin/poses/ \
+  --chunks  ~/data_lifeng/demo_qilin/chunks/ \
   --drives  ~/Desktop/drive1.txt \
   --tracker "sort" \
   --config  ./conf.json \
