@@ -70,7 +70,7 @@ for drive in drive_list:
         i = seed_idx
         while pose[i,0]>bbox_info[0] and pose[i,0]<bbox_info[2] and pose[i,1]>bbox_info[1] and pose[i,1]<bbox_info[3]:
           i +=step
-        edge_idx.append(i)
+        edge_idx.append(i-step)
       pose_filtered = pose_meterized[edge_idx[0]:edge_idx[1],:]
     else:
       pose_filtered = pose_meterized

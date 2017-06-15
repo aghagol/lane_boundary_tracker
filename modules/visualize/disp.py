@@ -95,12 +95,12 @@ while seq_idx < seqs.shape[0]:
       # plot tracks
       start_frame = frames[max(frame_idx-frame_buffer_size,0)]
       if param['show_tracks']:
-        trks_active_set = set(trks[np.logical_and(trks[:,0]<frame,trks[:,0]>start_frame),1])
+        trks_active_set = set(trks[np.logical_and(trks[:,0]<frame,trks[:,0]>=start_frame),1])
         for trk_curr_id in trks_active_set:
           trk_curr_tail = trks[trks[:,1]==trk_curr_id,:]
           if trk_curr_tail.shape[0]<param['min_track_length']: continue
           trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]<frame,:]
-          trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>start_frame,:]
+          trk_curr_tail = trk_curr_tail[trk_curr_tail[:,0]>=start_frame,:]
           ax.plot(trk_curr_tail[:,3]-x_center,trk_curr_tail[:,2]-y_center,color=colors[trk_curr_id%711,:])
 
       if param['real_time']: 
