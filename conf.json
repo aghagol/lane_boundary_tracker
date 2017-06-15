@@ -25,8 +25,8 @@
     "bypass_tracking_use_gt": false, //bypass tracking and output GT data
     "d2t_dist_threshold_tight": 0.3,
     "d2t_dist_threshold_loose": 1,
-    "max_age_after_last_update": 50,
-    "max_mov_after_last_update": 1,
+    "max_age_after_last_update": 10,
+    "max_mov_after_last_update": 2,
     "motion_model_variance": 0.0001,
     "observation_variance": 100,
     "motion_init_pose": true, //this has priority over "motion_init_sync"

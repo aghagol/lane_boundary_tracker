@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CACHE="~/Desktop/tmp/"
+CACHE="/home/mo/Desktop/tmp/"
 
 rm -rf $CACHE
 
@@ -10,7 +10,7 @@ rm -rf $CACHE
   --tagged  ~/data_ian/input/Lane/fuse_tagged/ \
   --poses   ~/data_ian/input/poses/ \
   --chunks  ~/data_ian/input/chunks/ \
-  --drives  ~/Desktop/drive_list.txt \
+  --drives  ~/Desktop/drive_poc.txt \
   --tracker "sort" \
   --config  ./conf.json \
   --cache   $CACHE

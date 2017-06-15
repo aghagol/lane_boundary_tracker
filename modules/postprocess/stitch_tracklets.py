@@ -29,10 +29,12 @@ fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["postprocess"]
 
-os.makedirs(args.output)
+if not os.path.exists(args.output):
+  os.makedirs(args.output)
 
 seqs = pd.read_csv(args.input)
 for seq_idx,seq in seqs.iterrows():
+  if os.path.exists('%s/%s.txt'%(args.output,seqs.name[seq_idx])): continue
 
   print('Working on sequence %s'%seqs.name[seq_idx])
 

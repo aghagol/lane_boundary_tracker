@@ -52,9 +52,7 @@ for seq_idx,seq in seqs.iterrows():
 
   for lb_number,target_id in enumerate(sorted(set(trks[:,1]))):
 
-    # output_fuse = output_path+'%s/%d_laneMarking_l2polyline.fuse'%(subdrive,lb_number)
     output_fuse_chunk = output_path+'%s/%d_laneMarking.fuse'%(subdrive,lb_number)
-    # if os.path.exists(output_fuse) and os.path.exists(output_fuse_chunk): continue
     if os.path.exists(output_fuse_chunk): continue
 
     dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
@@ -65,14 +63,10 @@ for seq_idx,seq in seqs.iterrows():
       out_fuse.append(dets[dets[:,0]==det_id,[2,3,4,1]].reshape(1,-1)) #LLAT format
     out_fuse = np.vstack(out_fuse)
     
-    # with open(output_fuse,'w') as fout:
-    #   np.savetxt(fout,out_fuse,fmt=fmt)
-
     in_chunk = np.zeros((out_fuse.shape[0]),dtype=bool)
     for row in range(out_fuse.shape[0]): #replace timestamp with chunk number
       timestamp = tmap[out_fuse[row,3]]
       mask = np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)
-      # assert mask.sum()==1, 'Each detection must belong to one and only one chunk (%d)'%mask.sum()
       if mask.sum()==1:
         in_chunk[row] = True
         out_fuse[row,3] = chunk_id['ChunkId'][mask]

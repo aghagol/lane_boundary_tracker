@@ -20,7 +20,7 @@ if  [[ -z "$INPUT_VISUALIZE"  ]] || \
   exit 1
 fi
 
-mkdir $OUTPUT_VISUALIZE
+mkdir -p $OUTPUT_VISUALIZE
 
 ./modules/visualize/print_param.py --config $CONFIG_VISUALIZE
 

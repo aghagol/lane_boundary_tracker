@@ -184,6 +184,8 @@ class Sort(object):
     self.time_gap = dets[0,5]-self.time_now if self.frame_count>1 else 0
     self.time_now = dets[0,5]
 
+    self.time_gap += 1e-7 #to prevent numerical instability
+
     #get predicted locations from existing trackers.
     trks = np.zeros((len(self.trackers),4))
     to_del = []
@@ -280,6 +282,8 @@ if __name__ == '__main__':
   sequences = os.listdir(args.input)
   print("")
   for seq in sequences:
+    if os.path.exists('%s/%s.txt'%(args.output,seq)): continue
+    
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],
       max_mov_since_update=param['max_mov_after_last_update'],
