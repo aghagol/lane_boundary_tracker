@@ -277,7 +277,8 @@ if __name__ == '__main__':
   with open(args.config) as fparam:
     param = json.loads(jsmin(fparam.read()))["sort"]
 
-  os.makedirs(args.output)
+  if not os.path.exists(args.output):
+    os.makedirs(args.output)
 
   sequences = os.listdir(args.input)
   print("")
