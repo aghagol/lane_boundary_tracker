@@ -3,7 +3,7 @@
   {
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
-    "scanline_step":1, //subsample scanlines
+    "confidence_thresh": 0.5, //threshold for CNN output
     "recall": 1, //drop detections randomly
     "generate_gt": true,
     "remove_adjacent_points": false,

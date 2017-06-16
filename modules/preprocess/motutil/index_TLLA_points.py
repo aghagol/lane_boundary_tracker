@@ -16,7 +16,7 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
     for filename in filelist:
       if os.stat(input_path+filename).st_size:
         points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,6)
-        points = points[points[:,5]%parameters['scanline_step']==0,:]
+        points = points[points[:,5]>parameters['confidence_thresh'],:]
         points[:,4] += lb_id_offset #re-assign IDs to avoid duplicate IDs for LBs from two images
         lb_id_offset = points[:,4].max()+1
         dets.append(points)
