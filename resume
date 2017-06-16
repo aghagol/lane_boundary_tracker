@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+CACHE="/home/mo/Desktop/tmp/"
+
+./scripts/runall \
+  --fuses   ~/data_lifeng/demo_qilin/Lane/fuse/ \
+  --tagged  ~/data_lifeng/demo_qilin/Lane/fuse_tagged/ \
+  --poses   ~/data_lifeng/demo_qilin/poses/ \
+  --chunks  ~/data_lifeng/demo_qilin/chunks/ \
+  --drives  ~/Desktop/drive1.txt \
+  --tracker "sort" \
+  --config  ./conf.json \
+  --cache   $CACHE

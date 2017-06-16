@@ -20,6 +20,3 @@ if param['remove_adjacent_points']:
 
 if param['recall']<1:
   print('...Recall= %.2f %%'%(param['recall']*100))
-
-if param['scanline_step']>1:
-  print('...Will be sampling one in every %d scanlines'%(param['scanline_step']))

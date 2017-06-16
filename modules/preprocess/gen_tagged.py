@@ -35,7 +35,7 @@ with open(args.drives) as fdrivelist:
   for line in fdrivelist:
     drive_list.append(line.strip())
 
-tag_fmt = ['%d','%.10f','%.10f','%.10f','%02d','%02d']
+tag_fmt = ['%d','%.10f','%.10f','%.10f','%02d','%.2f']
 for drive in drive_list:
   print('Working on drive %s'%drive)
 

@@ -16,11 +16,18 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
     for filename in filelist:
       if os.stat(input_path+filename).st_size:
         points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,6)
-        points = points[points[:,5]>parameters['confidence_thresh'],:]
-        points[:,4] += lb_id_offset #re-assign IDs to avoid duplicate IDs for LBs from two images
+        points = points[points[:,5]>=parameters['confidence_thresh'],:]
+        if points.shape[0]<1: continue #skip images where all points have low confidence
+        points[:,4] += lb_id_offset #re-assign IDs to avoid duplicate LB-IDs from different images (ground-truth)
         lb_id_offset = points[:,4].max()+1
         dets.append(points)
         tmap.append(np.loadtxt(input_path+filename+'.tmap',delimiter=',').reshape(-1,2))
+    
+    if len(dets)==0 or np.sum([points.shape[0] for points in dets])<2:
+      print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
+      tiny_subdrives.add(subdrive)
+      continue
+    
     dets = np.vstack(dets)
     if parameters['fake_timestamp']: tmap = np.vstack(tmap)
 
@@ -49,11 +56,11 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
       continue
 
     #add detection index in a new column
-    itlla = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets[:,:5]))
+    itllal = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets[:,:5])) #index,time,lat,lon,altitude,label
 
     #save result to CSV file
     os.makedirs(output_path+'%s/det/'%(subdrive))
     fmt = ['%05d','%d','%.10f','%.10f','%.10f','%02d']
-    np.savetxt(output_path+'%s/det/itlla.txt'%(subdrive),itlla,fmt=fmt,delimiter=',')
+    np.savetxt(output_path+'%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
     if parameters['fake_timestamp']:
       np.savetxt(output_path+'%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')

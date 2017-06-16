@@ -3,7 +3,7 @@
   {
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
-    "confidence_thresh": 0.5, //threshold for CNN output
+    "confidence_thresh": 0.2, //threshold for CNN output
     "recall": 1, //drop detections randomly
     "generate_gt": true,
     "remove_adjacent_points": false,
@@ -54,6 +54,6 @@
   "fuse":
   {
     "enable": true,
-    "min_seq_length": 1
+    "min_seq_length": 2
   }
 }
