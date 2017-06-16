@@ -14,7 +14,7 @@
         "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
     "enable_tagging": true,
-        "tag_max_dist": 50, //in meters
+        "tag_max_dist": 10, //in meters
         "pose_filter_bbox": true,
         "fake_timestamp": true,
         "tag_altitude": true,
