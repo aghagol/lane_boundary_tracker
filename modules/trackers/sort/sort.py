@@ -36,7 +36,11 @@ def d2t_sim(z,x): #detection to track similarity
 
   y = z-(x[:2].reshape(2,1)) #vector from detection to prediction (displacement)
   v = x[2:].reshape(2,1) #velocity (motion) vector
-  d = y-(np.sum(y*v)/np.sum(v*v))*v #orthogonal projection of displacement onto motion
+  v_l2_squared = np.sum(v*v)
+  if v_l2_squared>0:
+    d = y-(np.sum(y*v)/v_l2_squared)*v #orthogonal projection of displacement onto motion
+  else:
+    d = y
   return np.exp(-np.sqrt(np.sum(d*d)))
 
 class KalmanBoxTracker(object):
