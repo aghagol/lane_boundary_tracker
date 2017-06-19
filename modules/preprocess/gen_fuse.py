@@ -23,7 +23,7 @@ parser.add_argument("--config", help="path to config file")
 parser.add_argument("--drives", help="path to drives list text-file")
 args = parser.parse_args()
 input_path = args.input+'/'
-images_path = args.input+'/'
+images_path = args.images+'/'
 output_path = args.output+'/'
 poses_path = args.poses+'/'
 
@@ -46,18 +46,28 @@ for drive in drive_list:
 
   for n,res in meta.iterrows():
     image_tag = '%d'%((res['time_start']+res['time_end'])/2)
+
     if os.path.exists(output_path+drive+'_'+image_tag+'.png.fuse'): continue
     if not os.path.exists(os.path.join(images_path,res['name'])): continue
     print('\tworking on %s'%(res['name']))
 
     pred_im = misc.imread(os.path.join(images_path,res['name']))/(2.**16-1)
+    print(pred_im.shape)
+    #find peaks
     peaks = peak_finding.peaks_clean(pred_im, 0.3, input_as_mag=True)
+    #apply peaks and mask filters
     pred_im = pred_im*peaks
+    #reduce the number of detection points
+    mask = np.zeros_like(pred_im)
+    mask[::parameters['scanline_step'],::parameters['scanline_step'],...] = 1
+    pred_im = pred_im*mask
+    #only retain high confidence detection points
     ok = pred_im>0.99 # Choose your own threshold -- this isn't necessarily a good one.
+    #get lat-lon coordiantes of detection points
     bbox = np.r_[res['min_lat'], res['min_lon'], res['max_lat'], res['max_lon']]
     loc_pix = np.c_[np.nonzero(ok)] # row and column pixel indices
     loc_im = loc_pix.astype(float)/pred_im.shape # scale to [0,1] in each direction
     lat_lon = (loc_im[:,::-1])*(bbox[2:]-bbox[:2]) + bbox[:2] # Final lat-lon coordinates
     print('\t\t%d points'%(lat_lon.shape[0]))
-    
+
     np.savetxt(output_path+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)
