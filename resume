@@ -3,9 +3,10 @@
 CACHE="/home/mo/Desktop/tmp/"
 
 ./scripts/runall \
-  --input   ~/data_ian/ \
-  --fuses   ~/data_ian/input/Lane/fuse/ \
-  --tagged  ~/data_ian/input/Lane/fuse_tagged/ \
+  --input   ~/data_ian/input/ \
+  --images  ~/data_ian/input/images/ \
+  --fuses   ~/data_ian/input/fuse/ \
+  --tagged  ~/data_ian/input/fuse_tagged/ \
   --poses   ~/data_ian/input/poses/ \
   --chunks  ~/data_ian/input/chunks/ \
   --drives  ~/Desktop/drive_poc.txt \

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-USAGE="runall --input   path/to/CNN_predictions \
+USAGE="runall --input   path/to/input_data_dir \
+              --images  path/to/CNN_predictions \
               --fuses   path/to/fuse_files \
               --tagged  path/to/tagged_fuse_files \
               --cache   path/to/cache \
@@ -12,6 +13,7 @@ USAGE="runall --input   path/to/CNN_predictions \
 
 while [[ "$#" > 1 ]]; do case $1 in
     --input)    INPUT_PATH="$2";;
+    --images)   IMAGES_PATH="$2";;
     --fuses)    FUSE_PATH="$2";;
     --tagged)   TAGGED_PATH="$2";;
     --cache)    CACHE="$2";;
@@ -35,7 +37,7 @@ if [[ $INPUT_PATH ]] ; then
     echo "Saving the drive names in $CACHE/preprocess"
     DRIVE_LIST=$CACHE/preprocess/drive_list.txt
   fi
-  ./scripts/preprocess  --input $INPUT_PATH           --output $CACHE/preprocess  --config $CONFIG  --drives $DRIVE_LIST  --poses $POSE_PATH  --tagged $TAGGED_PATH --fuses $FUSE_PATH
+  ./scripts/preprocess  --input $INPUT_PATH  --images $IMAGES_PATH  --output $CACHE/preprocess  --config $CONFIG  --drives $DRIVE_LIST  --poses $POSE_PATH  --tagged $TAGGED_PATH --fuses $FUSE_PATH
   ./scripts/$TRACKER    --input $CACHE/preprocess/mot --output $CACHE/$TRACKER    --config $CONFIG
   ./scripts/postprocess --input $CACHE/preprocess/mot --output $CACHE/postprocess --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
   ./scripts/fuse        --input $CACHE/preprocess/mot --output $CACHE/fuse        --config $CONFIG  --tracks $CACHE/postprocess/tracks  --chunks $CHUNK_PATH
