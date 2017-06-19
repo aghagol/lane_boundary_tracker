@@ -20,7 +20,7 @@ if  [[ -z "$INPUT_POSTPROCESS"  ]] || \
   exit 1
 fi
 
-mkdir $OUTPUT_POSTPROCESS
+mkdir -p $OUTPUT_POSTPROCESS
 
 ./modules/postprocess/print_param.py --config $CONFIG_POSTPROCESS
 

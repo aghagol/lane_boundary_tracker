@@ -16,7 +16,7 @@ if [[ -z "$INPUT_SORT" ]] || [[ -z "$OUTPUT_SORT" ]] || [[ -z "$CONFIG_SORT" ]] 
   exit 1
 fi
 
-mkdir $OUTPUT_SORT
+mkdir -p $OUTPUT_SORT
 
 ./modules/trackers/sort/print_param.py --config $CONFIG_SORT
 

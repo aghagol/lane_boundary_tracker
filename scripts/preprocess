@@ -24,7 +24,7 @@ if  [[ -z "$INPUT_PREPROCESS"   ]] || \
   exit 1
 fi
 
-mkdir $OUTPUT_PREPROCESS
+mkdir -p $OUTPUT_PREPROCESS
 
 ./modules/preprocess/print_param.py --config $CONFIG_PREPROCESS
 

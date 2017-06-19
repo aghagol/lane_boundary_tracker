@@ -23,7 +23,7 @@ if  [[ -z "$INPUT_FUSE"   ]] || \
   exit 1
 fi
 
-mkdir $OUTPUT_FUSE
+mkdir -p $OUTPUT_FUSE
 
 ./modules/fuse/print_param.py --config $CONFIG_FUSE
 

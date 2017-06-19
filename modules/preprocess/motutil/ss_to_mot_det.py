@@ -24,6 +24,7 @@ def ss_to_mot_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
       pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   for subdrive in clusters:
+    if os.path.exists(output_path+'%s/det/det.txt'%(subdrive)): continue
     if subdrive in tiny_subdrives: continue
 
     #load detections from txt file

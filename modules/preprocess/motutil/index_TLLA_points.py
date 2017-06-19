@@ -8,6 +8,8 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
   Output: CSV file consisting of all detections
   """
   for subdrive in clusters:
+    if os.path.exists(output_path+'%s/det/itllal.txt'%(subdrive)) and os.path.exists(output_path+'%s/det/tmap.txt'%(subdrive)): continue
+
     filelist = clusters[subdrive]
 
     dets = []
@@ -59,7 +61,8 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
     itllal = np.hstack((np.arange(dets.shape[0]).reshape(-1,1)+1,dets[:,:5])) #index,time,lat,lon,altitude,label
 
     #save result to CSV file
-    os.makedirs(output_path+'%s/det/'%(subdrive))
+    if not os.path.exists(output_path+'%s/det/'%(subdrive)):
+      os.makedirs(output_path+'%s/det/'%(subdrive))
     fmt = ['%05d','%d','%.10f','%.10f','%.10f','%02d']
     np.savetxt(output_path+'%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
     if parameters['fake_timestamp']:

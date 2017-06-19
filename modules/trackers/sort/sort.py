@@ -280,6 +280,8 @@ if __name__ == '__main__':
   sequences = os.listdir(args.input)
   print("")
   for seq in sequences:
+    if os.path.exists('%s/%s.txt'%(args.output,seq)): continue
+    
     mot_tracker = Sort(
       max_age_since_update=param['max_age_after_last_update'],
       max_mov_since_update=param['max_mov_after_last_update'],

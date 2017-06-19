@@ -24,6 +24,7 @@ def ss_to_mot_gt(output_path,clusters,tiny_subdrives,pose_path,parameters):
       pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
 
   for subdrive in clusters:
+    if os.path.exists(output_path+'%s/gt/gt.txt'%(subdrive)): continue
     if subdrive in tiny_subdrives: continue
 
     #load detections from txt file
@@ -62,5 +63,6 @@ def ss_to_mot_gt(output_path,clusters,tiny_subdrives,pose_path,parameters):
     else:
       out[:,4:6] = parameters['object_size'] *zoom
 
-    os.makedirs(output_path+'%s/gt/'%(subdrive))
+    if not os.path.exists(output_path+'%s/gt/'%(subdrive)):
+      os.makedirs(output_path+'%s/gt/'%(subdrive))
     np.savetxt(output_path+'%s/gt/gt.txt'%(subdrive),out,fmt=fmt,delimiter=',')

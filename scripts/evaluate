@@ -20,7 +20,7 @@ if  [[ -z "$INPUT_EVALUATE"   ]] || \
   exit 1
 fi
 
-mkdir $OUTPUT_EVALUATE
+mkdir -p $OUTPUT_EVALUATE
 
 echo $(date) >> $OUTPUT_EVALUATE/log.txt
 

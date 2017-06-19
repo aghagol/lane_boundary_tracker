@@ -27,8 +27,9 @@ if [[ -z $CACHE ]] ; then
   echo "Usage: $USAGE"; exit 1
 fi
 
+mkdir -p $CACHE
+
 if [[ $FUSES_PATH ]] ; then
-  if mkdir $CACHE ; then
     if [[ -z $DRIVE_LIST ]] ; then
       echo "Saving the drive names in $CACHE/preprocess"
       DRIVE_LIST=$CACHE/preprocess/drive_list.txt
@@ -38,9 +39,6 @@ if [[ $FUSES_PATH ]] ; then
     ./scripts/postprocess --input $CACHE/preprocess/mot --output $CACHE/postprocess --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
     ./scripts/fuse        --input $CACHE/preprocess/mot --output $CACHE/fuse        --config $CONFIG  --tracks $CACHE/postprocess/tracks  --chunks $CHUNKS_PATH --tagged $TAGGED_PATH
     # ./scripts/evaluate    --input $CACHE/preprocess/mot --output $CACHE/evaluate    --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
-  else
-    echo "Output path exists.. Please enter another path for outputs."
-  fi
 fi
 
 read -sp "Press [ENTER] to Visualize"; echo ""
