@@ -7,6 +7,7 @@ print(__doc__)
 import pandas as pd
 import numpy as np
 from scipy import misc
+from scipy.ndimage.filters import maximum_filter
 import os
 import argparse
 import json
@@ -53,16 +54,20 @@ for drive in drive_list:
 
     pred_im = misc.imread(os.path.join(images_path,res['name']))/(2.**16-1)
     print(pred_im.shape)
-    #find peaks
-    peaks = peak_finding.peaks_clean(pred_im, 0.3, input_as_mag=True)
-    #apply peaks and mask filters
-    pred_im = pred_im*peaks
-    #reduce the number of detection points
-    mask = np.zeros_like(pred_im)
-    mask[::parameters['scanline_step'],::parameters['scanline_step'],...] = 1
-    pred_im = pred_im*mask
+    #find peaks and filter
+    if parameters['peak_filter']:
+      peaks = peak_finding.peaks_clean(pred_im, 0.3, input_as_mag=True)
+      pred_im = pred_im*peaks
+    # #mask some more points
+    # mask = np.zeros_like(pred_im)
+    # mask[::parameters['scanline_step'],::parameters['scanline_step'],...] = 1
+    # pred_im = pred_im*mask
+
+    # pred_im = pred_im*(pred_im==maximum_filter(pred_im,size=parameters['scanline_step']))
+    pred_im[pred_im!=maximum_filter(pred_im,size=parameters['scanline_step'])]=0
+
     #only retain high confidence detection points
-    ok = pred_im>0.99 # Choose your own threshold -- this isn't necessarily a good one.
+    ok = pred_im>parameters['confidence_thresh']
     #get lat-lon coordiantes of detection points
     bbox = np.r_[res['min_lat'], res['min_lon'], res['max_lat'], res['max_lon']]
     loc_pix = np.c_[np.nonzero(ok)] # row and column pixel indices

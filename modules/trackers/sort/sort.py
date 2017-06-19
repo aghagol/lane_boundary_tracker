@@ -257,7 +257,7 @@ class Sort(object):
     for t in range(len(self.trackers)-1,-1,-1):
       dead_flag_age = (self.trackers[t].age_since_update >= self.max_age_since_update)
       dead_flag_mov = (np.sqrt(((self.trackers[t].det_x-self.trackers[t].kf.x[:2])**2).sum()) > self.max_mov_since_update)
-      if dead_flag_mov and dead_flag_age:
+      if dead_flag_mov or dead_flag_age:
         self.trackers.pop(t)
 
     if(len(ret)>0):

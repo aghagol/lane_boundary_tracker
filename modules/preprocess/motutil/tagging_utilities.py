@@ -36,7 +36,7 @@ def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
         r2 +=1
 
     p0,p1 = pose_id[r1],pose_id[r2]
-    if l2_squared_dist[p1]>parameters['tag_max_dist'] and l2_squared_dist[p0]>parameters['tag_max_dist']:
+    if min(l2_squared_dist[[p0,p1]])>parameters['tag_max_dist']**2:
       OK[i] = False
 
     #extract parameters for interpolating timestamps
