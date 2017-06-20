@@ -64,7 +64,7 @@ for drive in drive_list:
     # pred_im = pred_im*mask
 
     # pred_im = pred_im*(pred_im==maximum_filter(pred_im,size=parameters['scanline_step']))
-    pred_im[pred_im!=maximum_filter(pred_im,size=parameters['scanline_step'])]=0
+    pred_im[pred_im!=maximum_filter(pred_im,size=parameters['maxpool_size'])]=0
 
     #only retain high confidence detection points
     ok = pred_im>parameters['confidence_thresh']
