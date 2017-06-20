@@ -4,7 +4,7 @@
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
     "peak_filter": false,
-    "maxpool_size": 10, //maxpool filter size for extracting high confidence points
+    "maxpool_size": 20, //maxpool filter size for extracting high confidence points
     "confidence_thresh": 0.4,
     "recall": 1, //drop detections randomly
     "generate_gt": false,
