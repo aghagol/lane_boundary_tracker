@@ -326,5 +326,5 @@ if __name__ == '__main__':
 
     total_time += time.time() - start_time
     total_frames += seq_points.shape[0]
-  print("Total Tracking took: %.3f for %d frames or %.1f FPS"%(total_time,total_frames,total_frames/total_time))
+  print("Total Tracking took: %.3f for %d frames"%(total_time,total_frames))
 

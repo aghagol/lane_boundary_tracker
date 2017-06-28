@@ -19,7 +19,8 @@ args = parser.parse_args()
 input_path = args.input+'/'
 output_path = args.output+'/'
 
-os.makedirs(output_path)
+if not os.path.exists(output_path):
+  os.makedirs(output_path)
 
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["fuse"]
@@ -30,14 +31,16 @@ fuse_to_drive_map = {fuse_dir:'_'.join(fuse_dir.split('_')[:2]) for fuse_dir in 
 drive_list = sorted(set(fuse_to_drive_map.values()))
 
 for drive in drive_list:
-  os.makedirs(output_path+drive)
+  if not os.path.exists(output_path+drive):
+    os.makedirs(output_path+drive)
 
 line_counter = {drive:0 for drive in drive_list}
 for fuse_dir in fuse_dir_list:
   fuse_files = [i for i in os.listdir(input_path+fuse_dir) if i.endswith('_laneMarking.fuse')]
   for fuse_file in fuse_files:
-    name = '%d_laneMarking.fuse'%(line_counter[fuse_to_drive_map[fuse_dir]])
-    copyfile(input_path+fuse_dir+'/'+fuse_file,output_path+fuse_to_drive_map[fuse_dir]+'/'+name)
+    output_file = output_path+fuse_to_drive_map[fuse_dir]+'/%d_laneMarking.fuse'%(line_counter[fuse_to_drive_map[fuse_dir]])
+    if not os.path.exists(output_file):
+      copyfile(input_path+fuse_dir+'/'+fuse_file,output_file)
     line_counter[fuse_to_drive_map[fuse_dir]] +=1
 
 for drive in line_counter:

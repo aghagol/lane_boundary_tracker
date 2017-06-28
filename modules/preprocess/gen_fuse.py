@@ -53,7 +53,7 @@ for drive in drive_list:
     print('\tworking on %s'%(res['name']))
 
     pred_im = misc.imread(os.path.join(images_path,res['name']))/(2.**16-1)
-    print(pred_im.shape)
+    print('\t\timage size: %d x %d'%(pred_im.shape[0],pred_im.shape[1]))
     #find peaks and filter
     if parameters['peak_filter']:
       peaks = peak_finding.peaks_clean(pred_im, 0.3, input_as_mag=True)
@@ -73,6 +73,6 @@ for drive in drive_list:
     loc_pix = np.c_[np.nonzero(ok)] # row and column pixel indices
     loc_im = loc_pix.astype(float)/pred_im.shape # scale to [0,1] in each direction
     lat_lon = (loc_im[:,::-1])*(bbox[2:]-bbox[:2]) + bbox[:2] # Final lat-lon coordinates
-    print('\t\t%d points'%(lat_lon.shape[0]))
+    print('\t\trecording %d points'%(lat_lon.shape[0]))
 
     np.savetxt(output_path+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)
