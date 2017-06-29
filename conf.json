@@ -49,14 +49,16 @@
   },
   "postprocess":
   {
-    "stitch": false,
-        "gating_thresh": 1,
-        "affinity_thresh_min": 2,
-        "affinity_thresh_max": 500
+    "stitch_tracklets": false,
+        "gating_thresh": 1, //max distance between two points to be marked neighbors
+        "affinity_thresh_min": 2, //minimum number of neighboring points to mark two tracks for stitching
+        "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
+    "point_reduction": true,
+        "rdp_epsilon": 0.05 //in meters
   },
   "fuse":
   {
     "enable": true,
-    "min_seq_length": 5
+    "min_seq_length": 2
   }
 }

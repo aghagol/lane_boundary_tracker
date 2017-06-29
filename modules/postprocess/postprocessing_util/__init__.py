@@ -1,1 +1,2 @@
-from tracklet_fusion import fuse
+from tracklet_fusion import stitch
+from track_reduction import reducer

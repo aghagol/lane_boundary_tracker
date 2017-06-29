@@ -45,9 +45,9 @@ for seq_idx,seq in seqs.iterrows():
   chunk_id = pd.read_csv(chunk_id_path)
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
 
-  dets = np.loadtxt(seq.dpath,delimiter=',')
-  tmap = {row[0]:row[1] for row in np.loadtxt(seq.tmap, delimiter=',')}
-  trks = np.loadtxt(seq.tpath,delimiter=',')
+  tlla = np.loadtxt(seq.dpath,delimiter=',') #format: detection_id, timestamp, latitude, longitude, altitude, -1 (ground-truth label)
+  tmap = {row[0]:row[1] for row in np.loadtxt(seq.tmap, delimiter=',')} #mapping from fake timestamps to true timestamps
+  trks = np.loadtxt(seq.tpath,delimiter=',') #format: frame_id, target_id, x, y, detection_id, confidence
   trks = trks[trks[:,4]>0,:] #remove the guide
 
   for lb_number,target_id in enumerate(sorted(set(trks[:,1]))):
@@ -56,18 +56,22 @@ for seq_idx,seq in seqs.iterrows():
     if os.path.exists(output_fuse_chunk): continue
 
     dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
-    if len(dets_ids)<param['min_seq_length']: continue #prune short lane boundaries
 
+    #prune short lane boundaries
+    if len(dets_ids)<param['min_seq_length']: continue
+
+    #make LLAT fuse (latitude, longitude, altitude, timestamp)
     out_fuse = []
     for det_id in dets_ids:
-      out_fuse.append(dets[dets[:,0]==det_id,[2,3,4,1]].reshape(1,-1)) #LLAT format
+      out_fuse.append(tlla[tlla[:,0]==det_id,[2,3,4,1]].reshape(1,-1))
     out_fuse = np.vstack(out_fuse)
     
+    #replace timestamp with chunk number
     in_chunk = np.zeros((out_fuse.shape[0]),dtype=bool)
-    for row in range(out_fuse.shape[0]): #replace timestamp with chunk number
+    for row in range(out_fuse.shape[0]):
       timestamp = tmap[out_fuse[row,3]]
       mask = np.logical_and(chunk_id['StartTime']<=timestamp,chunk_id['EndTime']>timestamp)
-      if mask.sum()==1:
+      if mask.sum()==1: #ignore points that do not belong to any chunk (or belong to multiple chunks -> must not happen)
         in_chunk[row] = True
         out_fuse[row,3] = chunk_id['ChunkId'][mask]
 

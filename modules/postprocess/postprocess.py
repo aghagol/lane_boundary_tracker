@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """ 
-This is a script for plotting detections and tracks (in MOT format)
-CTRL+C to pause
+This is a script for performing a sequece of postprocessing operations on the tracking resutls
 """
 print(__doc__)
 
@@ -25,31 +24,41 @@ parser.add_argument("--output",help="output path to save tracklet fusion results
 parser.add_argument("--config",help="configuration JSON file")
 args = parser.parse_args()
 
-fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
+out_fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f'] #frame_id, target_id, x, y, detection_id, confidence
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["postprocess"]
+flag_stitch = param['stitch_tracklets']
+flag_reduce = param['point_reduction']
+flag_postprocess = flag_stitch or flag_reduce
 
 if not os.path.exists(args.output):
   os.makedirs(args.output)
 
 seqs = pd.read_csv(args.input)
+
+if not flag_postprocess:
+  print('No post-processing required; linking to tracker output.')
+  for seq_idx,seq in seqs.iterrows():
+    os.system('ln -s %s %s'%(seq.tpath,'%s/%s.txt'%(args.output,seqs.name[seq_idx])))
+
 for seq_idx,seq in seqs.iterrows():
-  if os.path.exists('%s/%s.txt'%(args.output,seqs.name[seq_idx])): continue
+  output_path_final = '%s/%s.txt'%(args.output,seqs.name[seq_idx])
+  if os.path.exists(output_path_final): continue
 
   print('Working on sequence %s'%seqs.name[seq_idx])
-
-  if not param['stitch']:
-    print('\tStitching disabled; linking to tracker output!')
-    os.system('ln -s %s %s'%(seq.tpath,'%s/%s.txt'%(args.output,seqs.name[seq_idx])))
-    continue
-
-  #read sequence data (detections, tracks, ...)
+  
+  #read detections (if needed)
   # dets = np.loadtxt(seq.dpath,delimiter=',')
-  # if os.path.exists(seq.mpath): timestamps = np.loadtxt(seq.mpath,delimiter=',')
+
+  #start with the original tracking results
   trks = np.loadtxt(seq.tpath,delimiter=',')
 
-  out = postprocessing_util.fuse(trks,param)
+  if flag_stitch:
+    trks = postprocessing_util.stitch(trks,param)
 
-  np.savetxt('%s/%s.txt'%(args.output,seqs.name[seq_idx]),out,fmt=fmt,delimiter=',')
+  if flag_reduce:
+    trks = postprocessing_util.reducer(trks,param)
+
+  np.savetxt(output_path_final,trks,fmt=out_fmt,delimiter=',')
 
 

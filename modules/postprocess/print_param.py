@@ -13,7 +13,7 @@ args = parser.parse_args()
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["postprocess"]
 
-if param['stitch']:
+if param['stitch_tracklets']:
 	print('...Stitching is enabled')
 else:
 	print('...Stitching is disabled')
