@@ -20,7 +20,7 @@ To execute the complete process, run:
 To just visualize the cached results, run:
 
 ```bash
-./scripts/runall --cache path/to/cache
+./scripts/runall --cache path/to/cache --config  configuration_json_file
 ```
 
  - The configuration file `conf.json` is located at the repository root.
@@ -37,10 +37,7 @@ The `runall` scripts runs the following scripts:
 ./scripts/preprocess
 ```
 
-This script:
- - Breaks drive-based (pose-centric) JSON files to smaller surface-based JSON files
- - Extracts detection points and tracking ground-truth CSV files from JSON files
- - Optional: applies detection noise and drop
+This script converts the input to format that can be read by a tracking algorithm (MOT format)
 
 ## (Lane boundary) Tracking:
 
@@ -48,8 +45,7 @@ This script:
 ./scripts/sort
 ```
 
-This script:
- - Applied SORT tracking over detections and saves the results in CSV format
+This script applies SORT tracking over detections and saves the results in CSV format
 
 ## Evaluation:
 
@@ -57,9 +53,7 @@ This script:
 ./scripts/evaluate
 ```
 
-This script:
- - Converts tracking and ground-truth CSV files to SLOTH formatted JSON files
- - Applies PYMOT evaluation (multi-object tracking metrics) on JSON files and prints the output
+This script applies PYMOT evaluation (multi-object tracking metrics) on the tracking output
 
 ## Visualization:
 
@@ -67,5 +61,4 @@ This script:
 ./scripts/visualize
 ```
 
-This script:
- - Displays the tracking CSV output of tracking algorithm (e.g. SORT)
+This script displays the output of tracking (e.g. SORT)

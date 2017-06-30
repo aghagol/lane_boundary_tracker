@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo -e "\033[1;31m"$(date)"\033[0m" Preprocessing
+echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing"
 
 USAGE="preprocess --input [dir] --images [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir] --fuses [dir]"
 while [[ "$#" > 1 ]]; do case $1 in

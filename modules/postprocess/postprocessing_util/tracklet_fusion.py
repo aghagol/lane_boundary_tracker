@@ -16,12 +16,26 @@ def stitch(tracks,param):
 
   #Compute track-to-track affinities
   A = np.zeros((len(lb2node),len(lb2node)),dtype=int)
+  
   frames = np.unique(tracks[:,0])
   for frame_idx,frame in enumerate(frames[:-1]):
     active_tracks = tracks[np.logical_and(tracks[:,0]>=frame,tracks[:,0]<=frames[frame_idx+1]),:]
     active_nodes_pdist = squareform(pdist(active_tracks[:,2:4],metric='euclidean'))
-    active_nodes = [lb2node[lb] for lb in active_tracks[:,1]] #I admit there will be duplicates in active_nodes
+    active_nodes = [lb2node[lb] for lb in active_tracks[:,1]] #admitting there will be duplicates in active_nodes
     A[np.ix_(active_nodes,active_nodes)] += (active_nodes_pdist<param['gating_thresh'])
+
+  # for lb1_idx,lb1 in enumerate(lb2node):
+  #   trk1 = tracks[tracks[:,1]==lb1,2:4]
+  #   for lb2 in lb2node[:lb1_idx]:
+  #     trk2 = tracks[tracks[:,1]==lb2,2:4]
+  #     d1 = np.sqrt(((trk1[0]-trk2[0])**2).sum())
+  #     d2 = np.sqrt(((trk1[-1]-trk2[-1])**2).sum())
+  #     d3 = np.sqrt(((trk1[0]-trk2[-1])**2).sum())
+  #     d4 = np.sqrt(((trk1[-1]-trk2[0])**2).sum())
+  #     dist = min(d1,d2,d3,d4)
+  #     A[lb2node[lb2],lb2node[lb1]] += (dist<param['gating_thresh'])
+  #     A[lb2node[lb1],lb2node[lb2]] = A[lb2node[lb2],lb2node[lb1]]
+
   np.fill_diagonal(A,0) #discard self-loops
 
   #Mark tracks for fusion according to the connected components of the tracklet affinity graph:

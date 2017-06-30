@@ -55,10 +55,20 @@ for seq_idx,seq in seqs.iterrows():
     output_fuse_chunk = output_path+'%s/%d_laneMarking.fuse'%(subdrive,lb_number)
     if os.path.exists(output_fuse_chunk): continue
 
-    dets_ids = trks[trks[:,1]==target_id,4].astype(int).tolist()
+    trk_active = trks[trks[:,1]==target_id,:]
+    dets_ids = trk_active[:,4].astype(int).tolist()
 
-    #prune short lane boundaries
-    if len(dets_ids)<param['min_seq_length']: continue
+    #prune short lane boundaries (polylines)
+    flag_too_few_points = len(dets_ids)<param['min_seq_length']
+
+    #prune tracks that lie in a bbox of size smaller than min_bbox_size
+    bbox_x = trk_active[:,2].max()-trk_active[:,2].min()
+    bbox_y = trk_active[:,3].max()-trk_active[:,3].min()
+    flag_too_small = max(bbox_x,bbox_y)<param['min_bbox_size']
+
+    flag_skip_track = flag_too_few_points or flag_too_small
+
+    if flag_skip_track: continue
 
     #make LLAT fuse (latitude, longitude, altitude, timestamp)
     out_fuse = []

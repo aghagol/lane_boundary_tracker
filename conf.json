@@ -4,7 +4,7 @@
     "pixel_size": 1, //in meters
     "object_size": 10, //for bounding box size
     "peak_filter": false,
-    "maxpool_size": 20, //maxpool filter size for extracting high confidence points
+    "maxpool_size": 10, //maxpool filter size for extracting high confidence points
     "confidence_thresh": 0.4,
     "recall": 1, //drop detections randomly
     "generate_gt": false,
@@ -16,7 +16,7 @@
         "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
     "enable_tagging": true,
-        "tag_max_dist": 50, //in meters
+        "tag_max_dist": 25, //in meters
         "pose_filter_bbox": false,
         "fake_timestamp": true,
         "tag_altitude": true,
@@ -51,7 +51,7 @@
   {
     "stitch_tracklets": false,
         "gating_thresh": 1, //max distance between two points to be marked neighbors
-        "affinity_thresh_min": 2, //minimum number of neighboring points to mark two tracks for stitching
+        "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
     "point_reduction": true,
         "rdp_epsilon": 0.05 //in meters
@@ -59,6 +59,7 @@
   "fuse":
   {
     "enable": true,
-    "min_seq_length": 2
+    "min_seq_length": 2,
+    "min_bbox_size": 3 //in meters
   }
 }

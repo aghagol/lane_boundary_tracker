@@ -52,12 +52,15 @@ for seq_idx,seq in seqs.iterrows():
 
   #start with the original tracking results
   trks = np.loadtxt(seq.tpath,delimiter=',')
-
-  if flag_stitch:
-    trks = postprocessing_util.stitch(trks,param)
+  trks = trks[trks[:,4]>0,:] #remove the guide?
 
   if flag_reduce:
+    print('\tApplying point reduction')
     trks = postprocessing_util.reducer(trks,param)
+
+  if flag_stitch:
+    print('\tApplying tracklet stitching')
+    trks = postprocessing_util.stitch(trks,param)
 
   np.savetxt(output_path_final,trks,fmt=out_fmt,delimiter=',')
 
