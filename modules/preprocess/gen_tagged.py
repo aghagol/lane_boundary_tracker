@@ -75,6 +75,7 @@ for drive in drive_list:
         i = seed_idx
         while pose[i,0]>min_lat and pose[i,0]<max_lat and pose[i,1]>min_lon and pose[i,1]<max_lon:
           i +=step
+          if i<0 or i>=len(pose): break
         edge_idx.append(i-step)
       pose_filtered = pose_meterized[edge_idx[0]:edge_idx[1],:]
     else:

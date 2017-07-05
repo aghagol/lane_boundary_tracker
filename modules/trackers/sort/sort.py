@@ -322,7 +322,8 @@ if __name__ == '__main__':
         else:
           tracks = mot_tracker.update(points[:,2:8]) #[x_loc, y_loc, x_vel, y_vel, det_idx, timestamp]
           for d in tracks:
-            print('%05d,%05d,%011.5f,%011.5f,%05d,%.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+            if d[3]>0: #don't record unmatched predictions
+              print('%05d,%05d,%011.5f,%011.5f,%05d,%.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
 
     total_time += time.time() - start_time
     total_frames += seq_points.shape[0]

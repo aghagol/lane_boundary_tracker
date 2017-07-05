@@ -53,20 +53,17 @@ for drive in drive_list:
 
     pred_im = misc.imread(os.path.join(input_path,drive,res['name']))/(2.**16-1)
     print('\t\timage size: %d x %d'%(pred_im.shape[0],pred_im.shape[1]))
+
     #find peaks and filter
     if parameters['peak_filter']:
       peaks = peak_finding.peaks_clean(pred_im, 0.3, input_as_mag=True)
       pred_im = pred_im*peaks
-    # #mask some more points
-    # mask = np.zeros_like(pred_im)
-    # mask[::parameters['scanline_step'],::parameters['scanline_step'],...] = 1
-    # pred_im = pred_im*mask
 
-    # pred_im = pred_im*(pred_im==maximum_filter(pred_im,size=parameters['scanline_step']))
     pred_im[pred_im!=maximum_filter(pred_im,size=parameters['maxpool_size'])]=0
 
     #only retain high confidence detection points
     ok = pred_im>parameters['confidence_thresh']
+    
     #get lat-lon coordiantes of detection points
     bbox = np.r_[res['min_lat'], res['min_lon'], res['max_lat'], res['max_lon']]
     loc_pix = np.c_[np.nonzero(ok)] # row and column pixel indices

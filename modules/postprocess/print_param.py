@@ -16,4 +16,9 @@ with open(args.config) as fparam:
 if param['stitch_tracklets']:
 	print('...Stitching is enabled')
 else:
-	print('...Stitching is disabled')
+	print('...Stitching is DISABLED')
+
+if param['point_reduction']:
+  print('...Polyline point reduction is enabled')
+else:
+  print('...Polyline point reduction is DISABLED')

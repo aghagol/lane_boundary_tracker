@@ -47,8 +47,8 @@ for drive in drive_list:
         t0 = points[:,0].min()*1e-6
         t1 = points[:,0].max()*1e-6
         for part in drive_parts:
-          if (part['t0']-t0<param['gap_min'] and t0-part['t0']<param['gap_min']) or \
-             (part['t1']-t1<param['gap_min'] and t1-part['t1']<param['gap_min']):
+          if (part['t0']-t0<param['gap_min'] and t0-part['t1']<param['gap_min']) or \
+             (part['t0']-t1<param['gap_min'] and t1-part['t1']<param['gap_min']):
             part['members'].append(filename)
             part['t0'] = min(part['t0'],t0)
             part['t1'] = max(part['t1'],t1)
