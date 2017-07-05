@@ -16,15 +16,13 @@ from jsmin import jsmin
 import peak_finding
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",  help="path to data root directory")
-parser.add_argument("--images", help="path to CNN predictions")
+parser.add_argument("--input",  help="path to CNN predictions")
 parser.add_argument("--output", help="path to output fuse files")
 parser.add_argument("--poses",  help="path to pose CSV files")
 parser.add_argument("--config", help="path to config file")
 parser.add_argument("--drives", help="path to drives list text-file")
 args = parser.parse_args()
 input_path = args.input+'/'
-images_path = args.images+'/'
 output_path = args.output+'/'
 poses_path = args.poses+'/'
 
@@ -43,16 +41,17 @@ fuse_fmt = ['%.16f','%.16f']
 for drive in drive_list:
   print('Working on drive %s'%drive)
 
-  meta = pd.read_csv(os.path.join(input_path,'meta.csv'), skipinitialspace=True)
+  meta = pd.read_csv(os.path.join(input_path,drive,'meta.csv'), skipinitialspace=True)
 
   for n,res in meta.iterrows():
-    image_tag = '%d'%((res['time_start']+res['time_end'])/2)
+    # image_tag = '%d'%((res['time_start']+res['time_end'])/2)
+    image_tag = '%d'%(res['time_start'])
 
     if os.path.exists(output_path+drive+'_'+image_tag+'.png.fuse'): continue
-    if not os.path.exists(os.path.join(images_path,res['name'])): continue
+    if not os.path.exists(os.path.join(input_path,drive,res['name'])): continue
     print('\tworking on %s'%(res['name']))
 
-    pred_im = misc.imread(os.path.join(images_path,res['name']))/(2.**16-1)
+    pred_im = misc.imread(os.path.join(input_path,drive,res['name']))/(2.**16-1)
     print('\t\timage size: %d x %d'%(pred_im.shape[0],pred_im.shape[1]))
     #find peaks and filter
     if parameters['peak_filter']:

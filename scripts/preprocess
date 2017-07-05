@@ -2,9 +2,8 @@
 
 echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing"
 
-USAGE="preprocess --input [dir] --images [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir] --fuses [dir]"
+USAGE="preprocess --images [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir] --fuses [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  INPUT_PREPROCESS="$2";;
     --images) IMAGES_PREPROCESS="$2";;
     --output) OUTPUT_PREPROCESS="$2";;
     --config) CONFIG_PREPROCESS="$2";;
@@ -16,8 +15,7 @@ while [[ "$#" > 1 ]]; do case $1 in
   esac; shift; shift
 done
 
-if  [[ -z "$INPUT_PREPROCESS"   ]] || \
-    [[ -z "$IMAGES_PREPROCESS"  ]] || \
+if  [[ -z "$IMAGES_PREPROCESS"  ]] || \
     [[ -z "$OUTPUT_PREPROCESS"  ]] || \
     [[ -z "$CONFIG_PREPROCESS"  ]] || \
     [[ -z "$DRIVE_LIST"         ]] || \
@@ -38,14 +36,13 @@ echo $(date) >> $OUTPUT_PREPROCESS/log.txt
   >> $OUTPUT_PREPROCESS/log.txt
 
 ./modules/preprocess/gen_drive_list.py \
-  --input   $INPUT_PREPROCESS \
+  --images   $IMAGES_PREPROCESS \
   --drives  $DRIVE_LIST \
   >> $OUTPUT_PREPROCESS/log.txt
 
 echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
 ./modules/preprocess/gen_fuse.py \
-  --input   $INPUT_PREPROCESS \
-  --images  $IMAGES_PREPROCESS \
+  --input   $IMAGES_PREPROCESS \
   --output  $FUSES_PREPROCESS \
   --poses   $POSES_PREPROCESS \
   --config  $CONFIG_PREPROCESS \
@@ -56,6 +53,7 @@ echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
 ./modules/preprocess/gen_tagged.py \
   --input   $FUSES_PREPROCESS \
   --output  $TAGGED_PREPROCESS \
+  --images  $IMAGES_PREPROCESS \
   --poses   $POSES_PREPROCESS \
   --config  $CONFIG_PREPROCESS \
   --drives  $DRIVE_LIST \

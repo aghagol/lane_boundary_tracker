@@ -62,8 +62,8 @@ for seq_idx,seq in seqs.iterrows():
     flag_too_few_points = len(dets_ids)<param['min_seq_length']
 
     #prune tracks that lie in a bbox of size smaller than min_bbox_size
-    bbox_x = trk_active[:,2].max()-trk_active[:,2].min()
-    bbox_y = trk_active[:,3].max()-trk_active[:,3].min()
+    bbox_x = trk_active[:,2].max()-trk_active[:,2].min() #width
+    bbox_y = trk_active[:,3].max()-trk_active[:,3].min() #height
     flag_too_small = max(bbox_x,bbox_y)<param['min_bbox_size']
 
     flag_skip_track = flag_too_few_points or flag_too_small

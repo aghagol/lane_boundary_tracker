@@ -11,9 +11,9 @@ from rdp import rdp
 def reducer(tracks,param):
   rdp_mask = np.zeros(tracks.shape[0],dtype=bool)
   for target_id in set(tracks[:,1]):
-    print('\t\ttarget id= %d'%(target_id))
+    # print('\t\ttarget id= %d'%(target_id))
     label_mask = (tracks[:,1]==target_id) #put points with same label together
-    print('\t\tinitial number of points= %d'%(label_mask.sum()))
+    # print('\t\tinitial number of points= %d'%(label_mask.sum()))
     rdp_mask[label_mask] = rdp(tracks[label_mask,2:4],epsilon=param['rdp_epsilon'],return_mask=True)
-    print('\t\tfinal number of points= %d'%(rdp_mask[label_mask].sum()))
+    # print('\t\tfinal number of points= %d'%(rdp_mask[label_mask].sum()))
   return tracks[rdp_mask,:]

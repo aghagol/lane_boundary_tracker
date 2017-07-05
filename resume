@@ -3,7 +3,6 @@
 CACHE="/home/mo/Desktop/tmp/"
 
 ./scripts/runall \
-  --input   ~/data_ian/input/ \
   --images  ~/data_ian/input/images/ \
   --fuses   ~/data_ian/input/fuse/ \
   --tagged  ~/data_ian/input/fuse_tagged/ \
