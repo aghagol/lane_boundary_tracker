@@ -2,7 +2,6 @@
 """ 
 This is a script for fusing tracking output (in MOT format)
 """
-print(__doc__)
 
 import sys, os
 import numpy as np
@@ -12,17 +11,18 @@ import json
 from jsmin import jsmin
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input", help="CSV file containing paths")
-parser.add_argument("--chunks",help="path to chunks metadata")
-parser.add_argument("--output",help="path to output folder")
-parser.add_argument("--config",help="configuration JSON file")
-
+parser.add_argument("--input",      help="CSV file containing paths")
+parser.add_argument("--chunks",     help="path to chunks metadata")
+parser.add_argument("--output",     help="path to output folder")
+parser.add_argument("--config",     help="configuration JSON file")
+parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
-output_path = args.output+'/'
-chunks_path = args.chunks+'/'
 
-if not os.path.exists(output_path):
-  os.makedirs(output_path)
+if args.verbosity>=2:
+  print(__doc__)
+
+if not os.path.exists(args.output):
+  os.makedirs(args.output)
 
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["fuse"]
@@ -36,12 +36,14 @@ for seq_idx,seq in seqs.iterrows():
 
   subdrive = seqs.name[seq_idx]
   drive = '_'.join(subdrive.split('_')[:2])
-  print('Working on sequence %s'%subdrive)
 
-  if not os.path.exists(output_path+subdrive):
-    os.makedirs(output_path+subdrive)
+  if args.verbosity>=2:
+    print('Working on sequence %s'%subdrive)
 
-  chunk_id_path = chunks_path+drive+'.csv'
+  if not os.path.exists(args.output+'/'+subdrive):
+    os.makedirs(args.output+'/'+subdrive)
+
+  chunk_id_path = args.chunks+'/'+drive+'.csv'
   chunk_id = pd.read_csv(chunk_id_path)
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
 
@@ -52,7 +54,7 @@ for seq_idx,seq in seqs.iterrows():
 
   for lb_number,target_id in enumerate(sorted(set(trks[:,1]))):
 
-    output_fuse_chunk = output_path+'%s/%d_laneMarking.fuse'%(subdrive,lb_number)
+    output_fuse_chunk = args.output+'/%s/%d_laneMarking.fuse'%(subdrive,lb_number)
     if os.path.exists(output_fuse_chunk): continue
 
     trk_active = trks[trks[:,1]==target_id,:]

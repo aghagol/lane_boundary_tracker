@@ -1,52 +1,41 @@
 #!/usr/bin/env bash
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Fusion for EarthScape viewing"
-
-USAGE="fuse --input [dir] --tracks [dir] --output [dir] --config [json] --chunks [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  INPUT_FUSE="$2";;
-    --tracks) TRACKS_FUSE="$2";;
-    --output) OUTPUT_FUSE="$2";;
-    --config) CONFIG_FUSE="$2";;
-    --chunks) CHUNKS_FUSE="$2";;
-    *) echo "Usage: $USAGE"; exit 1;;
+    --input)      INPUT_FUSE="$2";;
+    --tracks)     TRACKS_FUSE="$2";;
+    --output)     OUTPUT_FUSE="$2";;
+    --config)     CONFIG_FUSE="$2";;
+    --chunks)     CHUNKS_FUSE="$2";;
+    --verbosity)  VERBOSITY_FUSE="$2";;
+    *) echo "Usage error"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$INPUT_FUSE"   ]] || \
-    [[ -z "$TRACKS_FUSE"  ]] || \
-    [[ -z "$OUTPUT_FUSE"  ]] || \
-    [[ -z "$CONFIG_FUSE"  ]] || \
-    [[ -z "$CHUNKS_FUSE"   ]] ; then
-  echo "Usage: $USAGE"
-  exit 1
+if [[ $VERBOSITY_FUSE -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Fusion for EarthScape viewing"
 fi
 
 mkdir -p $OUTPUT_FUSE
 
-./modules/fuse/print_param.py --config $CONFIG_FUSE
-
-echo $(date) >> $OUTPUT_FUSE/log.txt
-
-./modules/fuse/log_param.py \
-  --config  $CONFIG_FUSE \
-  >> $OUTPUT_FUSE/log.txt
+./modules/fuse/print_param.py \
+  --config    $CONFIG_FUSE \
+  --verbosity $VERBOSITY_FUSE
 
 ./modules/fuse/make_seq_list.py \
   --input   $INPUT_FUSE \
   --tracks  $TRACKS_FUSE \
   --output  $OUTPUT_FUSE/seqs.csv \
-  >> $OUTPUT_FUSE/log.txt
+  --verbosity $VERBOSITY_FUSE
 
 ./modules/fuse/fuse.py \
   --input   $OUTPUT_FUSE/seqs.csv \
   --output  $OUTPUT_FUSE/fused \
   --config  $CONFIG_FUSE \
   --chunks  $CHUNKS_FUSE \
-  >> $OUTPUT_FUSE/log.txt
+  --verbosity $VERBOSITY_FUSE
 
 ./modules/fuse/merge_subdrives.py \
   --input   $OUTPUT_FUSE/fused \
   --output  $OUTPUT_FUSE/fused_merged \
   --config  $CONFIG_FUSE \
-  >> $OUTPUT_FUSE/log.txt
+  --verbosity $VERBOSITY_FUSE

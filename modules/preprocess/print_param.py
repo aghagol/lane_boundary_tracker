@@ -7,7 +7,7 @@ import json
 from jsmin import jsmin
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config",help="path to config file")
+parser.add_argument("--config",     help="path to config file")
 parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
 

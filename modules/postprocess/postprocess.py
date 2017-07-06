@@ -2,7 +2,6 @@
 """ 
 This is a script for performing a sequece of postprocessing operations on the tracking resutls
 """
-print(__doc__)
 
 import sys, os
 import numpy as np
@@ -14,15 +13,15 @@ from jsmin import jsmin
 
 import postprocessing_util
 
-#this is an optional feature
-import warnings
-warnings.filterwarnings("ignore")
-
 parser = argparse.ArgumentParser()
-parser.add_argument("--input", help="path to a CSV file containing sequence-related paths")
-parser.add_argument("--output",help="output path to save tracklet fusion results")
-parser.add_argument("--config",help="configuration JSON file")
+parser.add_argument("--input",      help="path to a CSV file containing sequence-related paths")
+parser.add_argument("--output",     help="output path to save tracklet fusion results")
+parser.add_argument("--config",     help="configuration JSON file")
+parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
+
+if args.verbosity>=2:
+  print(__doc__)
 
 out_fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f'] #frame_id, target_id, x, y, detection_id, confidence
 with open(args.config) as fparam:
@@ -37,7 +36,8 @@ if not os.path.exists(args.output):
 seqs = pd.read_csv(args.input)
 
 if not flag_postprocess:
-  print('No post-processing required; linking to tracker output.')
+  if args.verbosity>=2:
+    print('No post-processing required; linking to tracker output.')
   for seq_idx,seq in seqs.iterrows():
     os.system('ln -s %s %s'%(seq.tpath,'%s/%s.txt'%(args.output,seqs.name[seq_idx])))
 
@@ -45,9 +45,10 @@ for seq_idx,seq in seqs.iterrows():
   output_path_final = '%s/%s.txt'%(args.output,seqs.name[seq_idx])
   if os.path.exists(output_path_final): continue
 
-  print('Working on sequence %s'%seqs.name[seq_idx])
+  if args.verbosity>=2:
+    print('Working on sequence %s'%seqs.name[seq_idx])
   
-  #read detections (if needed)
+  #import detections (if needed)
   # dets = np.loadtxt(seq.dpath,delimiter=',')
 
   #start with the original tracking results
@@ -55,11 +56,13 @@ for seq_idx,seq in seqs.iterrows():
   trks = trks[trks[:,4]>0,:] #remove the guide?
 
   if flag_reduce:
-    print('\tApplying point reduction')
+    if args.verbosity>=2:
+      print('\tApplying point reduction')
     trks = postprocessing_util.reducer(trks,param)
 
   if flag_stitch:
-    print('\tApplying tracklet stitching')
+    if args.verbosity>=2:
+      print('\tApplying tracklet stitching')
     trks = postprocessing_util.stitch(trks,param)
 
   np.savetxt(output_path_final,trks,fmt=out_fmt,delimiter=',')

@@ -1,43 +1,33 @@
 #!/usr/bin/env bash
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Postprocessing"
-
-USAGE="postprocess --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  INPUT_POSTPROCESS="$2";;
-    --tracks) TRACKS_POSTPROCESS="$2";;
-    --output) OUTPUT_POSTPROCESS="$2";;
-    --config) CONFIG_POSTPROCESS="$2";;
-    *) echo "Usage: "; exit 1;;
+    --input)      INPUT_POSTPROCESS="$2";;
+    --tracks)     TRACKS_POSTPROCESS="$2";;
+    --output)     OUTPUT_POSTPROCESS="$2";;
+    --config)     CONFIG_POSTPROCESS="$2";;
+    --verbosity)  VERBOSITY_POSTPROCESS="$2";;
+    *) echo "Usage: error"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$INPUT_POSTPROCESS"  ]] || \
-    [[ -z "$TRACKS_POSTPROCESS" ]] || \
-    [[ -z "$OUTPUT_POSTPROCESS" ]] || \
-    [[ -z "$CONFIG_POSTPROCESS" ]] ; then
-  echo "Usage: $USAGE"
-  exit 1
+if [[ $VERBOSITY_POSTPROCESS -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Postprocessing"
 fi
 
 mkdir -p $OUTPUT_POSTPROCESS
 
-./modules/postprocess/print_param.py --config $CONFIG_POSTPROCESS
-
-echo $(date) >> $OUTPUT_POSTPROCESS/log.txt
-
-./modules/postprocess/log_param.py \
-  --config  $CONFIG_POSTPROCESS \
-  >> $OUTPUT_POSTPROCESS/log.txt
+./modules/postprocess/print_param.py \
+  --config    $CONFIG_POSTPROCESS \
+  --verbosity $VERBOSITY_POSTPROCESS
 
 ./modules/postprocess/make_seq_list.py \
   --input   $INPUT_POSTPROCESS \
   --tracks  $TRACKS_POSTPROCESS \
   --output  $OUTPUT_POSTPROCESS/seqs.csv \
-  >> $OUTPUT_POSTPROCESS/log.txt
+  --verbosity $VERBOSITY_POSTPROCESS
 
 ./modules/postprocess/postprocess.py \
   --input   $OUTPUT_POSTPROCESS/seqs.csv \
   --output  $OUTPUT_POSTPROCESS/tracks \
   --config  $CONFIG_POSTPROCESS \
-  >> $OUTPUT_POSTPROCESS/log.txt
+  --verbosity $VERBOSITY_POSTPROCESS

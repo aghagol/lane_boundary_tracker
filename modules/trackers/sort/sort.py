@@ -274,6 +274,7 @@ if __name__ == '__main__':
   parser.add_argument("--input",help="path to MOT dataset")
   parser.add_argument("--output",help="output path to save tracking results")
   parser.add_argument("--config",help="configuration JSON file")
+  parser.add_argument("--verbosity",help="verbosity level", type=int)
   args = parser.parse_args()
   total_time = 0.0
   total_frames = 0
@@ -285,7 +286,6 @@ if __name__ == '__main__':
     os.makedirs(args.output)
 
   sequences = os.listdir(args.input)
-  print("")
   for seq in sequences:
     if os.path.exists('%s/%s.txt'%(args.output,seq)): continue
     
@@ -302,15 +302,15 @@ if __name__ == '__main__':
 
     if param['bypass_tracking_use_gt']:
       seq_points = np.loadtxt('%s/%s/gt/gt.txt'%(args.input,seq),delimiter=',') #load detections
+      if args.verbosity>=2:
+        print('\tWARNING: using ground-truth data (no tracking)')
     else:
       seq_points = np.loadtxt('%s/%s/det/det.txt'%(args.input,seq),delimiter=',') #load detections
 
     seq_points[:,7] *=1e-6 #convert micro-seconds to seconds
 
-    print("Processing %s"%(seq))
-
-    if param['bypass_tracking_use_gt']:
-      print('\tWARNING: using ground-truth data (no tracking)')
+    if args.verbosity>=2:
+      print("Processing %s"%(seq))
 
     start_time = time.time()
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:
@@ -327,5 +327,6 @@ if __name__ == '__main__':
 
     total_time += time.time() - start_time
     total_frames += seq_points.shape[0]
-  print("Total Tracking took: %.3f for %d frames"%(total_time,total_frames))
+  if args.verbosity>=2:
+    print("Total Tracking took: %.3f for %d frames"%(total_time,total_frames))
 

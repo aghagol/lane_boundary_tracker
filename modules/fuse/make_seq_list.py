@@ -1,25 +1,21 @@
 #!/usr/bin/env python
 """ 
-Creating a list of sequences as input to disp.py
-
-output CSV has 5 columns:
-  name..............this is the sequence name
-  dpath.............this is the detection file path
-  mpath.............this is the frame timestamps file path (if any)
-  tpath.............this is the track file path
-  gpath.............this is the groundtruth file path
+Creating a list of sequences
 """
-print(__doc__)
 
 import pandas as pd
 import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input", help="path to MOT dataset")
-parser.add_argument("--tracks",help="path to predicted tracks")
-parser.add_argument("--output",help="output path to save seq.csv")
+parser.add_argument("--input",      help="path to MOT dataset")
+parser.add_argument("--tracks",     help="path to predicted tracks")
+parser.add_argument("--output",     help="output path to save seq.csv")
+parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
+
+if args.verbosity>=2:
+  print(__doc__)
 
 sequences = sorted([i for i in os.listdir(args.input)])
 if os.path.exists(args.tracks):

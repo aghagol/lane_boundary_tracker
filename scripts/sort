@@ -1,35 +1,28 @@
 #!/usr/bin/env bash
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Tracking: SORT"
-
-USAGE="sort --input [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  INPUT_SORT="$2";;
-    --output) OUTPUT_SORT="$2";;
-		--config) CONFIG_SORT="$2";;
-    *) echo "Usage: $USAGE"; exit 1;;
+    --input)      INPUT_SORT="$2";;
+    --output)     OUTPUT_SORT="$2";;
+		--config)     CONFIG_SORT="$2";;
+    --verbosity)  VERBOSITY_SORT="$2";;
+    *) echo "Usage error"; exit 1;;
   esac; shift; shift
 done
 
-if [[ -z "$INPUT_SORT" ]] || [[ -z "$OUTPUT_SORT" ]] || [[ -z "$CONFIG_SORT" ]] ; then
-  echo "Usage: $USAGE"
-  exit 1
+if [[ $VERBOSITY_SORT -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Tracking: SORT"
 fi
 
 mkdir -p $OUTPUT_SORT
 
-./modules/trackers/sort/print_param.py --config $CONFIG_SORT
-
-echo $(date) >> $OUTPUT_SORT/log.txt
-
-./modules/trackers/sort/log_param.py \
-  --config  $CONFIG_SORT \
-  >> $OUTPUT_SORT/log.txt
+./modules/trackers/sort/print_param.py \
+  --config    $CONFIG_SORT \
+  --verbosity $VERBOSITY_SORT
 
 ./modules/trackers/sort/sort.py \
   --input   $INPUT_SORT \
   --output  $OUTPUT_SORT/tracks \
   --config  $CONFIG_SORT \
-  >> $OUTPUT_SORT/log.txt
+  --verbosity $VERBOSITY_SORT
 
 

@@ -9,7 +9,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     --tagged)     TAGGED_PREPROCESS="$2";;
     --fuses)      FUSES_PREPROCESS="$2";;
     --verbosity)  VERBOSITY_PREPROCESS="$2";;
-    *) echo "Usage: $USAGE"; exit 1;;
+    *) echo "Usage error"; exit 1;;
   esac; shift; shift
 done
 
