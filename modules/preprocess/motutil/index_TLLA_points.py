@@ -42,7 +42,7 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
       dets = np.delete(dets,mark_for_deletion,axis=0)
 
     if dets.shape[0]<2:
-      print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
+      # print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
       tiny_subdrives.add(subdrive)
       continue
 

@@ -3,7 +3,6 @@
 This is a script for plotting detections and tracks
 CTRL+C for more options
 """
-print(__doc__)
 
 import sys, os
 import numpy as np
@@ -27,10 +26,13 @@ parser.add_argument("--margin",type=int,default=5,help="add this many pixels to 
 parser.add_argument("--groundtruth",action='store_true',help="Show ground-truth.")
 parser.add_argument("--window-size",type=float,default=100.,help="Display window size.")
 parser.add_argument("--config",help="configuration JSON file")
-
+parser.add_argument("--verbosity",help="verbosity level", type=int)
 args = parser.parse_args()
 w = float(args.window_size)
 delay = args.delay
+
+if args.verbosity>=2:
+  print(__doc__)
 
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["visualize"]
@@ -49,7 +51,8 @@ seq_idx = 0
 while seq_idx < seqs.shape[0]:
   seq = seqs.iloc[seq_idx]
 
-  print('Working on sequence %s'%seqs.name[seq_idx])
+  if args.verbosity>=2:
+    print('Working on sequence %s'%seqs.name[seq_idx])
 
   dets = np.loadtxt(seq.dpath,delimiter=',')
   dets = dets[dets[:,6]>0,:] #remove the guide (fake points)

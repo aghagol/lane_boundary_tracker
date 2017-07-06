@@ -2,6 +2,7 @@
 """
 This script prints out parameters for this module
 """
+
 import argparse
 import json
 from jsmin import jsmin

@@ -1,41 +1,32 @@
 #!/usr/bin/env bash
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Visualization"
-
-USAGE="visualize --input [dir] --tracks [dir] --output [dir] --config [json]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --input)  INPUT_VISUALIZE="$2";;
-    --tracks) TRACKS_VISUALIZE="$2";;
-    --output) OUTPUT_VISUALIZE="$2";;
-    --config) CONFIG_VISUALIZE="$2";;
-    *) echo "Usage: $USAGE"; exit 1;;
+    --input)      INPUT_VISUALIZE="$2";;
+    --tracks)     TRACKS_VISUALIZE="$2";;
+    --output)     OUTPUT_VISUALIZE="$2";;
+    --config)     CONFIG_VISUALIZE="$2";;
+    --verbosity)  VERBOSITY_VISUALIZE="$2";;
+    *) echo "Usage error"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$INPUT_VISUALIZE"  ]] || \
-    [[ -z "$TRACKS_VISUALIZE" ]] || \
-    [[ -z "$OUTPUT_VISUALIZE" ]] || \
-    [[ -z "$CONFIG_VISUALIZE" ]] ; then
-  echo "Usage: $USAGE"
-  exit 1
+if [[ $VERBOSITY_VISUALIZE -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Visualization"
 fi
 
 mkdir -p $OUTPUT_VISUALIZE
 
-./modules/visualize/print_param.py --config $CONFIG_VISUALIZE
-
-echo $(date) >> $OUTPUT_VISUALIZE/log.txt
-
-./modules/visualize/log_param.py \
-  --config $CONFIG_VISUALIZE \
-  >> $OUTPUT_VISUALIZE/log.txt
+./modules/visualize/print_param.py \
+  --config    $CONFIG_VISUALIZE \
+  --verbosity $VERBOSITY_VISUALIZE
 
 ./modules/visualize/make_seq_list.py \
   --input $INPUT_VISUALIZE \
   --tracks $TRACKS_VISUALIZE \
   --output $OUTPUT_VISUALIZE/seqs.csv \
-  >> $OUTPUT_VISUALIZE/log.txt
+  --verbosity $VERBOSITY_VISUALIZE
 
 ./modules/visualize/disp.py \
   --input $OUTPUT_VISUALIZE/seqs.csv \
-  --config $CONFIG_VISUALIZE
+  --config $CONFIG_VISUALIZE \
+  --verbosity $VERBOSITY_VISUALIZE

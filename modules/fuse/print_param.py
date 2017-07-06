@@ -2,6 +2,7 @@
 """
 This script prints out parameters that were used for JSON to MOT conversion
 """
+
 import argparse
 import json
 from jsmin import jsmin

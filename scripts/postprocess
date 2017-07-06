@@ -6,7 +6,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     --output)     OUTPUT_POSTPROCESS="$2";;
     --config)     CONFIG_POSTPROCESS="$2";;
     --verbosity)  VERBOSITY_POSTPROCESS="$2";;
-    *) echo "Usage: error"; exit 1;;
+    *) echo "Usage error"; exit 1;;
   esac; shift; shift
 done
 
