@@ -21,13 +21,13 @@ mkdir -p $OUTPUT_POSTPROCESS
   --verbosity $VERBOSITY_POSTPROCESS
 
 ./modules/postprocess/make_seq_list.py \
-  --input   $INPUT_POSTPROCESS \
-  --tracks  $TRACKS_POSTPROCESS \
-  --output  $OUTPUT_POSTPROCESS/seqs.csv \
+  --input     $INPUT_POSTPROCESS \
+  --tracks    $TRACKS_POSTPROCESS \
+  --output    $OUTPUT_POSTPROCESS/seqs.csv \
   --verbosity $VERBOSITY_POSTPROCESS
 
 ./modules/postprocess/postprocess.py \
-  --input   $OUTPUT_POSTPROCESS/seqs.csv \
-  --output  $OUTPUT_POSTPROCESS/tracks \
-  --config  $CONFIG_POSTPROCESS \
+  --input     $OUTPUT_POSTPROCESS/seqs.csv \
+  --output    $OUTPUT_POSTPROCESS/tracks \
+  --config    $CONFIG_POSTPROCESS \
   --verbosity $VERBOSITY_POSTPROCESS

@@ -21,12 +21,12 @@ mkdir -p $OUTPUT_VISUALIZE
   --verbosity $VERBOSITY_VISUALIZE
 
 ./modules/visualize/make_seq_list.py \
-  --input $INPUT_VISUALIZE \
-  --tracks $TRACKS_VISUALIZE \
-  --output $OUTPUT_VISUALIZE/seqs.csv \
+  --input     $INPUT_VISUALIZE \
+  --tracks    $TRACKS_VISUALIZE \
+  --output    $OUTPUT_VISUALIZE/seqs.csv \
   --verbosity $VERBOSITY_VISUALIZE
 
 ./modules/visualize/disp.py \
-  --input $OUTPUT_VISUALIZE/seqs.csv \
-  --config $CONFIG_VISUALIZE \
+  --input     $OUTPUT_VISUALIZE/seqs.csv \
+  --config    $CONFIG_VISUALIZE \
   --verbosity $VERBOSITY_VISUALIZE

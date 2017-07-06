@@ -22,20 +22,20 @@ mkdir -p $OUTPUT_FUSE
   --verbosity $VERBOSITY_FUSE
 
 ./modules/fuse/make_seq_list.py \
-  --input   $INPUT_FUSE \
-  --tracks  $TRACKS_FUSE \
-  --output  $OUTPUT_FUSE/seqs.csv \
+  --input     $INPUT_FUSE \
+  --tracks    $TRACKS_FUSE \
+  --output    $OUTPUT_FUSE/seqs.csv \
   --verbosity $VERBOSITY_FUSE
 
 ./modules/fuse/fuse.py \
-  --input   $OUTPUT_FUSE/seqs.csv \
-  --output  $OUTPUT_FUSE/fused \
-  --config  $CONFIG_FUSE \
-  --chunks  $CHUNKS_FUSE \
+  --input     $OUTPUT_FUSE/seqs.csv \
+  --output    $OUTPUT_FUSE/fused \
+  --config    $CONFIG_FUSE \
+  --chunks    $CHUNKS_FUSE \
   --verbosity $VERBOSITY_FUSE
 
 ./modules/fuse/merge_subdrives.py \
-  --input   $OUTPUT_FUSE/fused \
-  --output  $OUTPUT_FUSE/fused_merged \
-  --config  $CONFIG_FUSE \
+  --input     $OUTPUT_FUSE/fused \
+  --output    $OUTPUT_FUSE/fused_merged \
+  --config    $CONFIG_FUSE \
   --verbosity $VERBOSITY_FUSE

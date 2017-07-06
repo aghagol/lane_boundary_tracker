@@ -59,34 +59,34 @@ mkdir -p $CACHE
 
 if [[ $ARGS_COMPLETE = "true" ]] ; then
   ./scripts/preprocess \
-      --images $IMAGES_PATH \
-      --output $CACHE/preprocess \
-      --config $CONFIG \
-      --drives $DRIVE_LIST \
-      --poses $POSE_PATH \
-      --tagged $TAGGED_PATH \
-      --fuses $FUSE_PATH \
+      --images    $IMAGES_PATH \
+      --output    $CACHE/preprocess \
+      --config    $CONFIG \
+      --drives    $DRIVE_LIST \
+      --poses     $POSE_PATH \
+      --tagged    $TAGGED_PATH \
+      --fuses     $FUSE_PATH \
       --verbosity $VERBOSITY
 
   ./scripts/$TRACKER \
-      --input $CACHE/preprocess/mot \
-      --output $CACHE/$TRACKER \
-      --config $CONFIG \
+      --input     $CACHE/preprocess/mot \
+      --output    $CACHE/$TRACKER \
+      --config    $CONFIG \
       --verbosity $VERBOSITY
 
   ./scripts/postprocess \
-      --input $CACHE/preprocess/mot \
-      --output $CACHE/postprocess \
-      --config $CONFIG \
-      --tracks $CACHE/$TRACKER/tracks \
+      --input     $CACHE/preprocess/mot \
+      --output    $CACHE/postprocess \
+      --config    $CONFIG \
+      --tracks    $CACHE/$TRACKER/tracks \
       --verbosity $VERBOSITY
 
   ./scripts/fuse \
-      --input $CACHE/preprocess/mot \
-      --output $CACHE/fuse \
-      --config $CONFIG \
-      --tracks $CACHE/postprocess/tracks \
-      --chunks $CHUNK_PATH \
+      --input     $CACHE/preprocess/mot \
+      --output    $CACHE/fuse \
+      --config    $CONFIG \
+      --tracks    $CACHE/postprocess/tracks \
+      --chunks    $CHUNK_PATH \
       --verbosity $VERBOSITY
 fi
 
@@ -94,10 +94,10 @@ if [[ $VISUALIZE -ge 1 ]] ; then
   read -sp "Press [ENTER] to Visualize"; echo ""
   rm -rf $CACHE/visualize
   ./scripts/visualize \
-      --input $CACHE/preprocess/mot \
-      --output $CACHE/visualize \
-      --config $CONFIG \
-      --tracks $CACHE/postprocess/tracks \
+      --input     $CACHE/preprocess/mot \
+      --output    $CACHE/visualize \
+      --config    $CONFIG \
+      --tracks    $CACHE/postprocess/tracks \
       --verbosity $VERBOSITY
 fi
 

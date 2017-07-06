@@ -20,9 +20,9 @@ mkdir -p $OUTPUT_SORT
   --verbosity $VERBOSITY_SORT
 
 ./modules/trackers/sort/sort.py \
-  --input   $INPUT_SORT \
-  --output  $OUTPUT_SORT/tracks \
-  --config  $CONFIG_SORT \
+  --input     $INPUT_SORT \
+  --output    $OUTPUT_SORT/tracks \
+  --config    $CONFIG_SORT \
   --verbosity $VERBOSITY_SORT
 
 
