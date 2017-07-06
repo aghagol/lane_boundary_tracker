@@ -11,4 +11,6 @@ CACHE="/home/mo/Desktop/tmp/"
   --drives  ~/Desktop/drive_poc.txt \
   --tracker "sort" \
   --config  ./conf.json \
-  --cache   $CACHE
+  --cache   $CACHE \
+  --verbosity 1 \
+  --visualize 0
