@@ -6,13 +6,13 @@ rm -rf $CACHE
 
 ./scripts/runall \
   --images  ~/data_ian/input/images/ \
-  --fuses   ~/data_ian/input/fuse/ \
-  --tagged  ~/data_ian/input/fuse_tagged/ \
   --poses   ~/data_ian/input/poses/ \
   --chunks  ~/data_ian/input/chunks/ \
   --drives  ~/Desktop/drive_poc.txt \
   --tracker "sort" \
   --config  ./conf.json \
-  --cache   $CACHE \
   --verbosity 1 \
-  --visualize 0
+  --visualize 0 \
+  --fuses   ~/data_ian/input/fuse/ \
+  --tagged  ~/data_ian/input/fuse_tagged/ \
+  --cache   $CACHE
