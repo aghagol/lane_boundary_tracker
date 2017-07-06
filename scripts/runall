@@ -1,48 +1,104 @@
 #!/usr/bin/env bash
 
-USAGE="runall --images  path/to/CNN_predictions \
-              --fuses   path/to/fuse_files \
-              --tagged  path/to/tagged_fuse_files \
-              --cache   path/to/cache \
-              --drives  list_of_drives_txt_file \
-              --poses   path/to/pose_csv_files \
-              --chunks  path/to/chunk_metadata \
-              --tracker tracking_method_name \
-              --config  configuration_json_file"
+USAGE="runall --images    path/to/CNN_predictions \
+              --fuses     path/to/fuse_files \
+              --tagged    path/to/tagged_fuse_files \
+              --cache     path/to/cache \
+              --drives    list_of_drives_txt_file \
+              --poses     path/to/pose_csv_files \
+              --chunks    path/to/chunk_metadata \
+              --tracker   tracking_method_name \
+              --config    configuration_json_file \
+              --verbosity verbosity level (0,1,2), default is 1 \
+              --visualize visualize (0=NO,1=YES), default is 1"
 
 while [[ "$#" > 1 ]]; do case $1 in
-    --images)   IMAGES_PATH="$2";;
-    --fuses)    FUSE_PATH="$2";;
-    --tagged)   TAGGED_PATH="$2";;
-    --cache)    CACHE="$2";;
-    --drives)   DRIVE_LIST="$2";;
-    --poses)    POSE_PATH="$2";;
-    --chunks)   CHUNK_PATH="$2";;
-    --tracker)  TRACKER="$2";;
-    --config)   CONFIG="$2";;
+    --images)     IMAGES_PATH="$2";;
+    --fuses)      FUSE_PATH="$2";;
+    --tagged)     TAGGED_PATH="$2";;
+    --cache)      CACHE="$2";;
+    --drives)     DRIVE_LIST="$2";;
+    --poses)      POSE_PATH="$2";;
+    --chunks)     CHUNK_PATH="$2";;
+    --tracker)    TRACKER="$2";;
+    --config)     CONFIG="$2";;
+    --verbosity)  VERBOSITY="$2";;
+    --visualize)  VISUALIZE="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
-  esac; shift; shift
+  esac;shift;shift
 done
 
-if [[ -z $CACHE ]] ; then
+if [[ -z $CACHE ]] || [[ -z $CONFIG ]] ; then
   echo "Usage: $USAGE"; exit 1
+fi
+
+if [[ -z $VERBOSITY ]] ; then
+  VERBOSITY=1
+fi
+
+if [[ -z $VISUALIZE ]] ; then
+  VISUALIZE=1
+fi
+
+if [[ -z $DRIVE_LIST ]] ; then
+  DRIVE_LIST=$CACHE/preprocess/drive_list.txt
+fi
+
+if [[ -z $IMAGES_PATH  ]] || \
+   [[ -z $FUSE_PATH    ]] || \
+   [[ -z $TAGGED_PATH  ]] || \
+   [[ -z $POSE_PATH    ]] || \
+   [[ -z $CHUNK_PATH   ]] || \
+   [[ -z $TRACKER      ]] ; then
+  ARGS_COMPLETE="false"
+else
+  ARGS_COMPLETE="true"
 fi
 
 mkdir -p $CACHE
 
-if [[ $IMAGES_PATH ]] ; then
-  if [[ -z $DRIVE_LIST ]] ; then
-    echo "Saving the drive names in $CACHE/preprocess"
-    DRIVE_LIST=$CACHE/preprocess/drive_list.txt
-  fi
-  ./scripts/preprocess  --images $IMAGES_PATH  --output $CACHE/preprocess  --config $CONFIG  --drives $DRIVE_LIST  --poses $POSE_PATH  --tagged $TAGGED_PATH --fuses $FUSE_PATH
-  ./scripts/$TRACKER    --input $CACHE/preprocess/mot --output $CACHE/$TRACKER    --config $CONFIG
-  ./scripts/postprocess --input $CACHE/preprocess/mot --output $CACHE/postprocess --config $CONFIG  --tracks $CACHE/$TRACKER/tracks
-  ./scripts/fuse        --input $CACHE/preprocess/mot --output $CACHE/fuse        --config $CONFIG  --tracks $CACHE/postprocess/tracks  --chunks $CHUNK_PATH
-  # ./scripts/evaluate    --input $CACHE/preprocess/mot --cache $CACHE/evaluate    --config $CONFIG  --tracks $CACHE/sort/tracks
+if [[ $ARGS_COMPLETE = "true" ]] ; then
+  ./scripts/preprocess \
+      --images $IMAGES_PATH \
+      --output $CACHE/preprocess \
+      --config $CONFIG \
+      --drives $DRIVE_LIST \
+      --poses $POSE_PATH \
+      --tagged $TAGGED_PATH \
+      --fuses $FUSE_PATH \
+      --verbosity $VERBOSITY
+
+  ./scripts/$TRACKER \
+      --input $CACHE/preprocess/mot \
+      --output $CACHE/$TRACKER \
+      --config $CONFIG \
+      --verbosity $VERBOSITY
+
+  ./scripts/postprocess \
+      --input $CACHE/preprocess/mot \
+      --output $CACHE/postprocess \
+      --config $CONFIG \
+      --tracks $CACHE/$TRACKER/tracks \
+      --verbosity $VERBOSITY
+
+  ./scripts/fuse \
+      --input $CACHE/preprocess/mot \
+      --output $CACHE/fuse \
+      --config $CONFIG \
+      --tracks $CACHE/postprocess/tracks \
+      --chunks $CHUNK_PATH \
+      --verbosity $VERBOSITY
 fi
 
-read -sp "Press [ENTER] to Visualize"; echo ""
-rm -rf $CACHE/visualize
-./scripts/visualize --input $CACHE/preprocess/mot --output $CACHE/visualize --config $CONFIG --tracks $CACHE/postprocess/tracks
+if [[ $VISUALIZE -ge 1 ]] ; then
+  read -sp "Press [ENTER] to Visualize"; echo ""
+  rm -rf $CACHE/visualize
+  ./scripts/visualize \
+      --input $CACHE/preprocess/mot \
+      --output $CACHE/visualize \
+      --config $CONFIG \
+      --tracks $CACHE/postprocess/tracks \
+      --verbosity $VERBOSITY
+fi
+
 

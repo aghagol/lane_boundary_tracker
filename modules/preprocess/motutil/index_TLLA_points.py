@@ -8,17 +8,17 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
   Output: CSV file consisting of all detections
   """
   for subdrive in clusters:
-    if os.path.exists(output_path+'%s/det/itllal.txt'%(subdrive)) and os.path.exists(output_path+'%s/det/tmap.txt'%(subdrive)): continue
+    if os.path.exists(output_path+'/%s/det/itllal.txt'%(subdrive)) and os.path.exists(output_path+'/%s/det/tmap.txt'%(subdrive)): continue
 
     filelist = clusters[subdrive]
 
     dets = []
     tmap = []
     for filename in filelist:
-      if os.stat(input_path+filename).st_size:
-        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,4)
+      if os.stat(input_path+'/'+filename).st_size:
+        points = np.loadtxt(input_path+'/'+filename,delimiter=',').reshape(-1,4)
         dets.append(points)
-        tmap.append(np.loadtxt(input_path+filename+'.tmap',delimiter=',').reshape(-1,2))
+        tmap.append(np.loadtxt(input_path+'/'+filename+'.tmap',delimiter=',').reshape(-1,2))
     dets = np.vstack(dets)
     if parameters['fake_timestamp']: tmap = np.vstack(tmap)
 
@@ -53,9 +53,9 @@ def index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,parameters)
     itllal[:,5] = -1 #no labels
 
     #save result to CSV file
-    if not os.path.exists(output_path+'%s/det/'%(subdrive)):
-      os.makedirs(output_path+'%s/det/'%(subdrive))
+    if not os.path.exists(output_path+'/%s/det/'%(subdrive)):
+      os.makedirs(output_path+'/%s/det/'%(subdrive))
     fmt = ['%05d','%d','%.10f','%.10f','%.10f','%02d']
-    np.savetxt(output_path+'%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
+    np.savetxt(output_path+'/%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
     if parameters['fake_timestamp']:
-      np.savetxt(output_path+'%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')
+      np.savetxt(output_path+'/%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')

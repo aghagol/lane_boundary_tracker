@@ -2,10 +2,8 @@
 """
 This script assigns timestamps to detections
 """
-print(__doc__)
 
 import os
-# from PIL import Image
 import numpy as np
 import pandas as pd
 import argparse
@@ -21,13 +19,14 @@ parser.add_argument("--images", help="path to image metadata")
 parser.add_argument("--config", help="path to config file")
 parser.add_argument("--drives", help="path to drives list file")
 parser.add_argument("--poses",  help="path to drive pose CSV files")
+parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
-input_path = args.input+'/'
-output_path = args.output+'/'
-poses_path = args.poses+'/'
 
-if not os.path.exists(output_path):
-  os.makedirs(output_path)
+if args.verbosity>=2:
+  print(__doc__)
+
+if not os.path.exists(args.output):
+  os.makedirs(args.output)
 
 with open(args.config) as fparam:
   parameters = json.loads(jsmin(fparam.read()))["preprocess"]
@@ -39,10 +38,11 @@ with open(args.drives) as fdrivelist:
 
 tag_fmt = ['%d','%.10f','%.10f','%.10f']
 for drive in drive_list:
-  print('Working on drive %s'%drive)
+  if args.verbosity>=2:
+    print('Working on drive %s'%drive)
 
   #get and process drive pose
-  pose_path = poses_path+drive+'-pose.csv'
+  pose_path = args.poses+'/'+drive+'-pose.csv'
   pose = np.loadtxt(pose_path) #format: latitude longitude altitude timestamp
   pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
   pose_meterized, scale_meta = motutil.meterize(pose)
@@ -52,14 +52,16 @@ for drive in drive_list:
   meta = pd.read_csv(os.path.join(args.images,drive,'meta.csv'), skipinitialspace=True) #format: name, time_start, time_end, min_lat, min_lon, max_lat, max_lon
 
   #get the list of image annotations on this drive
-  filelist = sorted([i for i in os.listdir(input_path) if '_'.join(i.split('_')[:2])==drive])
+  filelist = sorted([i for i in os.listdir(args.input) if '_'.join(i.split('_')[:2])==drive])
 
   for filename in filelist:
-    if os.path.exists(output_path+filename) and os.path.exists(output_path+filename+'.tmap')>=parameters['fake_timestamp']:
-      # print('\t%s exists! skipping'%(output_path+filename))
+    if os.path.exists(args.output+'/'+filename) and os.path.exists(args.output+'/'+filename+'.tmap')>=parameters['fake_timestamp']:
+      if args.verbosity>=2:
+        print('\t%s exists! skipping'%(args.output+'/'+filename))
       continue
-    print('\tworking on %s'%(output_path+filename))
-    points = np.loadtxt(input_path+filename)
+    if args.verbosity>=2:
+      print('\tworking on %s'%(args.output+'/'+filename))
+    points = np.loadtxt(args.input+'/'+filename)
 
     #clip the pose according to the topdown image
     if parameters['pose_filter_bbox']:
@@ -83,6 +85,6 @@ for drive in drive_list:
 
     #warning: points are meterized in place
     tagged,tagged_tmap = motutil.get_tagged(points,pose_filtered,pose_tmap,scale_meta,parameters)
-    np.savetxt(output_path+filename,tagged,fmt=tag_fmt,delimiter=',')
+    np.savetxt(args.output+'/'+filename,tagged,fmt=tag_fmt,delimiter=',')
     if parameters['fake_timestamp']:
-      np.savetxt(output_path+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')
+      np.savetxt(args.output+'/'+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')

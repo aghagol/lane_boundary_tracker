@@ -1,69 +1,63 @@
 #!/usr/bin/env bash
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing"
-
-USAGE="preprocess --images [dir] --output [dir] --config [json] --drives [txt] --poses [dir] --tagged [dir] --fuses [dir]"
 while [[ "$#" > 1 ]]; do case $1 in
-    --images) IMAGES_PREPROCESS="$2";;
-    --output) OUTPUT_PREPROCESS="$2";;
-    --config) CONFIG_PREPROCESS="$2";;
-    --drives) DRIVE_LIST="$2";;
-    --poses)  POSES_PREPROCESS="$2";;
-    --tagged) TAGGED_PREPROCESS="$2";;
-    --fuses)  FUSES_PREPROCESS="$2";;
+    --images)     IMAGES_PREPROCESS="$2";;
+    --output)     OUTPUT_PREPROCESS="$2";;
+    --config)     CONFIG_PREPROCESS="$2";;
+    --drives)     DRIVE_LIST="$2";;
+    --poses)      POSES_PREPROCESS="$2";;
+    --tagged)     TAGGED_PREPROCESS="$2";;
+    --fuses)      FUSES_PREPROCESS="$2";;
+    --verbosity)  VERBOSITY_PREPROCESS="$2";;
     *) echo "Usage: $USAGE"; exit 1;;
   esac; shift; shift
 done
 
-if  [[ -z "$IMAGES_PREPROCESS"  ]] || \
-    [[ -z "$OUTPUT_PREPROCESS"  ]] || \
-    [[ -z "$CONFIG_PREPROCESS"  ]] || \
-    [[ -z "$DRIVE_LIST"         ]] || \
-    [[ -z "$POSES_PREPROCESS"   ]] || \
-    [[ -z "$TAGGED_PREPROCESS"  ]] ; then
-  echo "Usage: $USAGE"
-  exit 1
+if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing"
 fi
 
 mkdir -p $OUTPUT_PREPROCESS
 
-./modules/preprocess/print_param.py --config $CONFIG_PREPROCESS
-
-echo $(date) >> $OUTPUT_PREPROCESS/log.txt
-
-./modules/preprocess/log_param.py \
-  --config  $CONFIG_PREPROCESS \
-  >> $OUTPUT_PREPROCESS/log.txt
+./modules/preprocess/print_param.py \
+  --config    $CONFIG_PREPROCESS \
+  --verbosity $VERBOSITY_PREPROCESS
 
 ./modules/preprocess/gen_drive_list.py \
-  --images   $IMAGES_PREPROCESS \
-  --drives  $DRIVE_LIST \
-  >> $OUTPUT_PREPROCESS/log.txt
+  --images    $IMAGES_PREPROCESS \
+  --drives    $DRIVE_LIST \
+  --verbosity $VERBOSITY_PREPROCESS
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
+if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
+fi
 ./modules/preprocess/gen_fuse.py \
-  --input   $IMAGES_PREPROCESS \
-  --output  $FUSES_PREPROCESS \
-  --poses   $POSES_PREPROCESS \
-  --config  $CONFIG_PREPROCESS \
-  --drives  $DRIVE_LIST \
-  >> $OUTPUT_PREPROCESS/log.txt
+  --input     $IMAGES_PREPROCESS \
+  --output    $FUSES_PREPROCESS \
+  --poses     $POSES_PREPROCESS \
+  --config    $CONFIG_PREPROCESS \
+  --drives    $DRIVE_LIST \
+  --verbosity $VERBOSITY_PREPROCESS
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
+if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
+fi
 ./modules/preprocess/gen_tagged.py \
-  --input   $FUSES_PREPROCESS \
-  --output  $TAGGED_PREPROCESS \
-  --images  $IMAGES_PREPROCESS \
-  --poses   $POSES_PREPROCESS \
-  --config  $CONFIG_PREPROCESS \
-  --drives  $DRIVE_LIST \
-  >> $OUTPUT_PREPROCESS/log.txt
+  --input     $FUSES_PREPROCESS \
+  --output    $TAGGED_PREPROCESS \
+  --images    $IMAGES_PREPROCESS \
+  --poses     $POSES_PREPROCESS \
+  --config    $CONFIG_PREPROCESS \
+  --drives    $DRIVE_LIST \
+  --verbosity $VERBOSITY_PREPROCESS
 
-echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating MOT"
+if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating MOT"
+fi
 ./modules/preprocess/gen_mot.py \
-  --input   $TAGGED_PREPROCESS \
-  --output  $OUTPUT_PREPROCESS/mot \
-  --poses   $POSES_PREPROCESS \
-  --config  $CONFIG_PREPROCESS \
-  --drives  $DRIVE_LIST \
-  >> $OUTPUT_PREPROCESS/log.txt
+  --input     $TAGGED_PREPROCESS \
+  --output    $OUTPUT_PREPROCESS/mot \
+  --poses     $POSES_PREPROCESS \
+  --config    $CONFIG_PREPROCESS \
+  --drives    $DRIVE_LIST \
+  --verbosity $VERBOSITY_PREPROCESS

@@ -2,7 +2,6 @@
 """
 This script creates an MOT-like dataset
 """
-print(__doc__)
 
 import os
 from PIL import Image
@@ -19,10 +18,11 @@ parser.add_argument("--output", help="output path to MOT dataset")
 parser.add_argument("--config", help="path to config file")
 parser.add_argument("--drives", help="path to drives list file")
 parser.add_argument("--poses",  help="path to drive pose CSV files")
+parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
-input_path = args.input+'/'
-poses_path = args.poses+'/'
-output_path = args.output+'/'
+
+if args.verbosity>=2:
+  print(__doc__)
 
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["preprocess"]
@@ -33,17 +33,19 @@ with open(args.drives) as fdrivelist:
     drive_list.append(line.strip())
 
 for drive in drive_list:
-  print('Working on drive %s'%drive)
+  if args.verbosity>=2:
+    print('Working on drive %s'%drive)
 
   #split the drives on large gaps (cluster the images)
-  filelist = sorted([i for i in os.listdir(input_path) if ('_'.join(i.split('_')[:2])==drive and i.endswith('.fuse'))])
+  filelist = sorted([i for i in os.listdir(args.input) if ('_'.join(i.split('_')[:2])==drive and i.endswith('.fuse'))])
   if param['split_on_temporal_gaps']:
-    print('\tClustering images based on time overlap...')
+    if args.verbosity>=2:
+      print('\tClustering images based on time overlap...')
     drive_parts = []
     for filename in filelist:
-      if os.stat(input_path+filename).st_size:
+      if os.stat(args.input+'/'+filename).st_size:
         file_ismember = False
-        points = np.loadtxt(input_path+filename,delimiter=',').reshape(-1,4)
+        points = np.loadtxt(args.input+'/'+filename,delimiter=',').reshape(-1,4)
         t0 = points[:,0].min()*1e-6
         t1 = points[:,0].max()*1e-6
         for part in drive_parts:
@@ -61,11 +63,14 @@ for drive in drive_list:
     #log
     for i,part in enumerate(drive_parts):
       if part['n']<param['min_seq_size']:
-        print('\t...discarding %s_part_%05d due to small size (%d<%d)'%(drive,i,part['n'],param['min_seq_size']))
+        if args.verbosity>=2:
+          print('\t...discarding %s_part_%05d due to small size (%d<%d)'%(drive,i,part['n'],param['min_seq_size']))
       else:
-        print('\t...subdrive %s_part_%05d has the following members:'%(drive,i))
+        if args.verbosity>=2:
+          print('\t...subdrive %s_part_%05d has the following members:'%(drive,i))
         for member in sorted(part['members']):
-          print('\t\t%s'%(member))
+          if args.verbosity>=2:
+            print('\t\t%s'%(member))
   else:
     clusters = {drive:filelist}
 
@@ -73,14 +78,14 @@ for drive in drive_list:
   #these subdrives go unseen until now because points can be removed in later stages
   tiny_subdrives = set()
 
-  motutil.index_TLLA_points(input_path,output_path,clusters,tiny_subdrives,param)
-  motutil.ss_to_mot_det(output_path,clusters,tiny_subdrives,poses_path+drive+'-pose.csv',param)
+  motutil.index_TLLA_points(args.input,args.output,clusters,tiny_subdrives,param)
+  motutil.ss_to_mot_det(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
   
   #save groundtruth
   if param['generate_gt']:
-    motutil.ss_to_mot_gt(output_path,clusters,tiny_subdrives,poses_path+drive+'-pose.csv',param)
+    motutil.ss_to_mot_gt(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
 
   # #save (fake) images
-  # img_out = output_path+'%s_%s/img1/'%(drive,surface_name)
+  # img_out = args.output+'/%s_%s/img1/'%(drive,surface_name)
   # os.makedirs(img_out)
   # Image.fromarray(np.zeros((param['image_nrows'],param['image_ncols']))).convert('RGB').save(img_out+'000001.jpg')

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """
-This script generates fuse files from CNN predictions (images)
+This script generates points (fuse format) from CNN predictions
 """
-print(__doc__)
 
 import pandas as pd
 import numpy as np
@@ -16,18 +15,19 @@ from jsmin import jsmin
 import peak_finding
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",  help="path to CNN predictions")
-parser.add_argument("--output", help="path to output fuse files")
-parser.add_argument("--poses",  help="path to pose CSV files")
-parser.add_argument("--config", help="path to config file")
-parser.add_argument("--drives", help="path to drives list text-file")
+parser.add_argument("--input",      help="path to CNN predictions")
+parser.add_argument("--output",     help="path to output fuse files")
+parser.add_argument("--poses",      help="path to pose CSV files")
+parser.add_argument("--config",     help="path to config file")
+parser.add_argument("--drives",     help="path to drives list text-file")
+parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
-input_path = args.input+'/'
-output_path = args.output+'/'
-poses_path = args.poses+'/'
 
-if not os.path.exists(output_path):
-  os.makedirs(output_path)
+if args.verbosity>=2:
+  print(__doc__)
+
+if not os.path.exists(args.output):
+  os.makedirs(args.output)
 
 with open(args.config) as fparam:
   parameters = json.loads(jsmin(fparam.read()))["preprocess"]
@@ -39,20 +39,22 @@ with open(args.drives) as fdrivelist:
 
 fuse_fmt = ['%.16f','%.16f']
 for drive in drive_list:
-  print('Working on drive %s'%drive)
+  if args.verbosity>=2:
+    print('Working on drive %s'%drive)
 
-  meta = pd.read_csv(os.path.join(input_path,drive,'meta.csv'), skipinitialspace=True)
+  meta = pd.read_csv(os.path.join(args.input,drive,'meta.csv'), skipinitialspace=True)
 
   for n,res in meta.iterrows():
-    # image_tag = '%d'%((res['time_start']+res['time_end'])/2)
     image_tag = '%d'%(res['time_start'])
 
-    if os.path.exists(output_path+drive+'_'+image_tag+'.png.fuse'): continue
-    if not os.path.exists(os.path.join(input_path,drive,res['name'])): continue
-    print('\tworking on %s'%(res['name']))
+    if os.path.exists(args.output+'/'+drive+'_'+image_tag+'.png.fuse'): continue
+    if not os.path.exists(os.path.join(args.input,drive,res['name'])): continue
+    if args.verbosity>=2:
+      print('\tworking on %s'%(res['name']))
 
-    pred_im = misc.imread(os.path.join(input_path,drive,res['name']))/(2.**16-1)
-    print('\t\timage size: %d x %d'%(pred_im.shape[0],pred_im.shape[1]))
+    pred_im = misc.imread(os.path.join(args.input,drive,res['name']))/(2.**16-1)
+    if args.verbosity>=2:
+      print('\t\timage size: %d x %d'%(pred_im.shape[0],pred_im.shape[1]))
 
     #find peaks and filter
     if parameters['peak_filter']:
@@ -69,6 +71,7 @@ for drive in drive_list:
     loc_pix = np.c_[np.nonzero(ok)] # row and column pixel indices
     loc_im = loc_pix.astype(float)/pred_im.shape # scale to [0,1] in each direction
     lat_lon = (loc_im[:,::-1])*(bbox[2:]-bbox[:2]) + bbox[:2] # Final lat-lon coordinates
-    print('\t\trecording %d points'%(lat_lon.shape[0]))
+    if args.verbosity>=2:
+      print('\t\trecording %d points'%(lat_lon.shape[0]))
 
-    np.savetxt(output_path+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)
+    np.savetxt(args.output+'/'+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)
