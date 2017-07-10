@@ -12,7 +12,7 @@ rm -rf $CACHE
   --tracker "sort" \
   --config  ./conf.json \
   --verbosity 1 \
-  --visualize 0 \
+  --visualize 1 \
   --fuses   ~/data_ian/input/fuse/ \
   --tagged  ~/data_ian/input/fuse_tagged/ \
   --cache   $CACHE

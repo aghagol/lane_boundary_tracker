@@ -23,15 +23,15 @@ mkdir -p $OUTPUT_PREPROCESS
   --config    $CONFIG_PREPROCESS \
   --verbosity $VERBOSITY_PREPROCESS
 
-./modules/preprocess/gen_drive_list.py \
+./modules/preprocess/generate_drive_list.py \
   --images    $IMAGES_PREPROCESS \
   --drives    $DRIVE_LIST \
   --verbosity $VERBOSITY_PREPROCESS
 
 if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
-  echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating fuse files"
+  echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Extracting detection points"
 fi
-./modules/preprocess/gen_fuse.py \
+./modules/preprocess/extract_points_from_FCN_probability_image.py \
   --input     $IMAGES_PREPROCESS \
   --output    $FUSES_PREPROCESS \
   --poses     $POSES_PREPROCESS \
@@ -42,7 +42,7 @@ fi
 if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
   echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Tagging (timestamps)"
 fi
-./modules/preprocess/gen_tagged.py \
+./modules/preprocess/generate_timestamps_for_detection_points.py \
   --input     $FUSES_PREPROCESS \
   --output    $TAGGED_PREPROCESS \
   --images    $IMAGES_PREPROCESS \
@@ -54,7 +54,7 @@ fi
 if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
   echo -e "\033[1;31m"$(date)"\033[0m" "Preprocessing: Generating MOT"
 fi
-./modules/preprocess/gen_mot.py \
+./modules/preprocess/generate_MOT_data.py \
   --input     $TAGGED_PREPROCESS \
   --output    $OUTPUT_PREPROCESS/mot \
   --poses     $POSES_PREPROCESS \

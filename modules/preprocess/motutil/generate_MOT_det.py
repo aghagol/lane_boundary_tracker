@@ -1,44 +1,40 @@
 import numpy as np
-# import pandas as pd
 import os,sys
 import haversine
 
-def ss_to_mot_gt(output_path,clusters,tiny_subdrives,pose_path,parameters):
+def generate_MOT_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
   """
-  Input: a JSON file (chucai's format)
+  Input: fuse files, itllal.txt
   Output: MOT-formatted det.txt
-
-  usage:
-    JSON_to_MOT_det(input_file_path, output_file_path, parameters)
-
-  parameters must be a dictionary with following keys:
-    pixel_size................pixel size in meters
-    object_size...............target size in meters
   """
-  zoom = 1. / parameters['pixel_size']
-
+  #for each detection point, extract the direction of travel from pose
   if parameters['motion_observations']:
-    pose = np.loadtxt(pose_path)[:,[3,0,1,2]] #in TLL format
-    pose = pose[pose[:,0].argsort(),:] #sort based on timestamp
+    pose = np.loadtxt(pose_path)[:,[3,0,1,2]] #format: timestamp, latitude, longitude, altitude
+    pose = pose[pose[:,0].argsort(),:] #re-arrange based on timestamp
     if parameters['fake_timestamp']:
-      pose[:,0] = np.arange(pose.shape[0])*1e6 #constant speed model
+      #consecutive pose points must be 1 second (1e6 microseconds) apart
+      pose[:,0] = np.arange(pose.shape[0])*1e6
 
   for subdrive in clusters:
-    if os.path.exists(output_path+'%s/gt/gt.txt'%(subdrive)): continue
+
+    #skip subdrive sequence if det.txt already exists
+    if os.path.exists(output_path+'/%s/det/det.txt'%(subdrive)): continue
+
+    #skip subdrive sequence if subdrive is marked as "tiny"
     if subdrive in tiny_subdrives: continue
 
-    #load detections from txt file
-    dets = np.loadtxt(output_path+'%s/det/itllal.txt'%(subdrive),delimiter=',')
+    #read detection points from itllal.txt
+    dets = np.loadtxt(output_path+'/%s/det/itllal.txt'%(subdrive),delimiter=',')
 
     lat_min, lat_max = (dets[:,2].min(), dets[:,2].max())
     lon_min, lon_max = (dets[:,3].min(), dets[:,3].max())
     h = haversine.dist(lon_min,lat_min,lon_min,lat_max)
     w = haversine.dist(lon_min,lat_min,lon_max,lat_min)
 
-    lat_scale = h*zoom/(lat_max-lat_min) if h>0 else 1.
-    lon_scale = w*zoom/(lon_max-lon_min) if w>0 else 1.
+    lat_scale = h/(lat_max-lat_min) if h>0 else 1.
+    lon_scale = w/(lon_max-lon_min) if w>0 else 1.
 
-    #replace bounding-boxes with motion observations from pose
+    #compute motion observations from pose for each detection point
     if parameters['motion_observations']:
       motion = np.zeros((dets.shape[0],2))
       for i in range(dets.shape[0]):
@@ -53,7 +49,7 @@ def ss_to_mot_gt(output_path,clusters,tiny_subdrives,pose_path,parameters):
     fmt = ['%05d','%d','%011.5f','%011.5f','%07.5f','%07.5f','%05d','%d']
     out = np.zeros((dets.shape[0],8))
     out[:,0] = range(1,out.shape[0]+1) #frame number
-    out[:,1] = dets[:,5]
+    out[:,1] = -1
     out[:,2] = (dets[:,2]-lat_min)*lat_scale #row (sub-pixel)
     out[:,3] = (dets[:,3]-lon_min)*lon_scale #column (sub-pixel)
     out[:,6] = dets[:,0] #detection's unique ID
@@ -61,8 +57,7 @@ def ss_to_mot_gt(output_path,clusters,tiny_subdrives,pose_path,parameters):
     if parameters['motion_observations']:
       out[:,4:6] = motion
     else:
-      out[:,4:6] = parameters['object_size'] *zoom
-
-    if not os.path.exists(output_path+'%s/gt/'%(subdrive)):
-      os.makedirs(output_path+'%s/gt/'%(subdrive))
-    np.savetxt(output_path+'%s/gt/gt.txt'%(subdrive),out,fmt=fmt,delimiter=',')
+      out[:,4:6] = parameters['object_size']
+    
+    #write MOT formatted data
+    np.savetxt(output_path+'/%s/det/det.txt'%(subdrive),out,fmt=fmt,delimiter=',')

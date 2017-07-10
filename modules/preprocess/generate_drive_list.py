@@ -18,7 +18,12 @@ if args.verbosity>=2:
 if not os.path.exists(args.drives):
   if args.verbosity>=2:
     print("Generating a drive list because it is missing")
-  drive_names = [i[:-8] for i in os.listdir(args.images) if i[:2]=='HT']
+
+  #Assuming the following data hierarchy:
+  #
+  #images/drive_id/startTimestamp_endTimestamp_pred.png
+
+  drive_names = [i for i in os.listdir(args.images) if i[:2]=='HT']
   with open(args.drives,'w') as fdrivelist:
     for drive_name in drive_names:
       fdrivelist.write('%s\n'%(drive_name))

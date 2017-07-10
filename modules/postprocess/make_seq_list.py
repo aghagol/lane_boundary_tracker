@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """ 
-Creating a list of sequences as input to disp.py
+Creating a list of sequences
 """
 
 import pandas as pd

@@ -36,34 +36,55 @@ with open(args.drives) as fdrivelist:
   for line in fdrivelist:
     drive_list.append(line.strip())
 
-tag_fmt = ['%d','%.10f','%.10f','%.10f']
+#final format for .fuse files with timestmaps
+tag_fmt = ['%d','%.10f','%.10f','%.10f'] #format: timestamp, latitude, longitude, altitude
+
 for drive in drive_list:
   if args.verbosity>=2:
     print('Working on drive %s'%drive)
 
-  #get and process drive pose
+  #read and process drive pose
   pose_path = args.poses+'/'+drive+'-pose.csv'
-  pose = np.loadtxt(pose_path) #format: latitude longitude altitude timestamp
-  pose = pose[pose[:,3].argsort(),:] #sort based on timestamp
+  pose = np.loadtxt(pose_path) #pose points format: latitude, longitude, altitude, timestamp
+
+  #re-arrange pose points (rows) based on their timestamps
+  pose = pose[pose[:,3].argsort(),:]
+
+  #convert pose point coordinates from lat-lon to meters of distance from the origin (bottom left corner)
+  #also, store the scaling parameters for meterization of detection points
   pose_meterized, scale_meta = motutil.meterize(pose)
-  pose_tmap = {ts_origin:counter*1e6 for counter,ts_origin in enumerate(pose[:,3])}
 
-  #get meta information about topdown images
-  meta = pd.read_csv(os.path.join(args.images,drive,'meta.csv'), skipinitialspace=True) #format: name, time_start, time_end, min_lat, min_lon, max_lat, max_lon
+  #generate a mapping from the original timestmaps to "fake" timestamps (in microseconds)
+  #the interval between each 2 consecutive pose points will be divided into 1e6 microseconds
+  pose_tmap = {original_timestamp:counter*1e6 for counter,original_timestamp in enumerate(pose[:,3])}
 
-  #get the list of image annotations on this drive
+  #get meta information (in CSV format) about topdown images
+  #meta column labels: name, time_start, time_end, min_lat, min_lon, max_lat, max_lon
+  meta = pd.read_csv(os.path.join(args.images,drive,'meta.csv'), skipinitialspace=True)
+
+  #get the list of all fuse files (containing detection points) for this drive
   filelist = sorted([i for i in os.listdir(args.input) if '_'.join(i.split('_')[:2])==drive])
 
   for filename in filelist:
+
+    #skip timestamp generation if the current image has been processed before
     if os.path.exists(args.output+'/'+filename) and os.path.exists(args.output+'/'+filename+'.tmap')>=parameters['fake_timestamp']:
       if args.verbosity>=2:
         print('\t%s exists! skipping'%(args.output+'/'+filename))
       continue
+
     if args.verbosity>=2:
       print('\tworking on %s'%(args.output+'/'+filename))
+
+    #read the detection points for the current image
     points = np.loadtxt(args.input+'/'+filename)
 
-    #clip the pose according to the topdown image
+    #clip the pose path according to the current image lat-lon bounds
+    #this is how it works:
+    # 1 - start from a "seed" point in the pose seq around the center of the image
+    # 2 - scan the pose seq by going back in time until an image edge is reached
+    # 3 - scan the pose seq by going forward in time until an image edge is reached
+    # 4 - clip parts of the pose seq that lie outside of the image
     if parameters['pose_filter_bbox']:
       image_tag = int(filename.split('_')[-1].split('.')[0])
       image_idx = list(meta['time_start']).index(image_tag)
@@ -83,8 +104,12 @@ for drive in drive_list:
     else:
       pose_filtered = pose_meterized
 
-    #warning: points are meterized in place
+    #WARNING: points array is modified in place (during conversion from lat-lon to meters)
     tagged,tagged_tmap = motutil.get_tagged(points,pose_filtered,pose_tmap,scale_meta,parameters)
+
+    #save extended fuse files (augmented with timestamps)
     np.savetxt(args.output+'/'+filename,tagged,fmt=tag_fmt,delimiter=',')
+
+    #save the mapping between original timestamps and the fake timestamps
     if parameters['fake_timestamp']:
       np.savetxt(args.output+'/'+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')
