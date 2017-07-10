@@ -43,11 +43,13 @@ for seq_idx,seq in seqs.iterrows():
   if not os.path.exists(args.output+'/'+subdrive):
     os.makedirs(args.output+'/'+subdrive)
 
+  #read chunk timestamp information for assigning points to chunks for visualization purposes
   chunk_id_path = args.chunks+'/'+drive+'.csv'
   chunk_id = pd.read_csv(chunk_id_path)
   chunk_id.rename(columns=lambda x: x.strip(),inplace=True) #remove whitespace from headers
 
-  tlla = np.loadtxt(seq.dpath,delimiter=',') #format: detection_id, timestamp, latitude, longitude, altitude, -1 (ground-truth label)
+  #load detection points and tracking output
+  itllal = np.loadtxt(seq.dpath,delimiter=',') #format: detection_id, timestamp, latitude, longitude, altitude, GT label (-1 for unknown)
   tmap = {row[0]:row[1] for row in np.loadtxt(seq.tmap, delimiter=',')} #mapping from fake timestamps to true timestamps
   trks = np.loadtxt(seq.tpath,delimiter=',') #format: frame_id, target_id, x, y, detection_id, confidence
   trks = trks[trks[:,4]>0,:] #remove the guide
@@ -72,10 +74,10 @@ for seq_idx,seq in seqs.iterrows():
 
     if flag_skip_track: continue
 
-    #make LLAT fuse (latitude, longitude, altitude, timestamp)
+    #make LLAT fuse files (latitude, longitude, altitude, timestamp)
     out_fuse = []
     for det_id in dets_ids:
-      out_fuse.append(tlla[tlla[:,0]==det_id,[2,3,4,1]].reshape(1,-1))
+      out_fuse.append(itllal[itllal[:,0]==det_id,[2,3,4,1]].reshape(1,-1))
     out_fuse = np.vstack(out_fuse)
     
     #replace timestamp with chunk number

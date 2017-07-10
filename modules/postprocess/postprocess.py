@@ -23,9 +23,13 @@ args = parser.parse_args()
 if args.verbosity>=2:
   print(__doc__)
 
-out_fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f'] #frame_id, target_id, x, y, detection_id, confidence
+#format for output file (similar to tracking output)
+#format: frame_id, target_id, x, y, detection_id, confidence
+out_fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
+
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["postprocess"]
+
 flag_stitch = param['stitch_tracklets']
 flag_reduce = param['point_reduction']
 flag_postprocess = flag_stitch or flag_reduce
@@ -48,9 +52,6 @@ for seq_idx,seq in seqs.iterrows():
   if args.verbosity>=2:
     print('Working on sequence %s'%seqs.name[seq_idx])
   
-  #import detections (if needed)
-  # dets = np.loadtxt(seq.dpath,delimiter=',')
-
   #start with the original tracking results
   trks = np.loadtxt(seq.tpath,delimiter=',')
   trks = trks[trks[:,4]>0,:] #remove the guide?

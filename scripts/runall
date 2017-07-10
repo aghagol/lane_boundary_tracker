@@ -81,7 +81,7 @@ if [[ $ARGS_COMPLETE = "true" ]] ; then
       --tracks    $CACHE/$TRACKER/tracks \
       --verbosity $VERBOSITY
 
-  ./scripts/fuse \
+  ./scripts/gen_fuse \
       --input     $CACHE/preprocess/mot \
       --output    $CACHE/fuse \
       --config    $CONFIG \
