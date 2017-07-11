@@ -7,18 +7,18 @@ Bash and Python scripts for preprocessing, processing (tracking), visualization 
 To execute the complete process, run:
 
 ```bash
-
-scripts/runall  --images    path/to/CNN_predictions \
-                --drives    list_of_drives_txt_file \
-                --poses     path/to/pose_csv_files \
-                --chunks    path/to/chunk_metadata \
-                --tracker   tracking_method_name \
-                --config    configuration_json_file \
-                --verbosity verbosity level (0,1,2), default is 1 \
-                --visualize visualize (0=NO,1=YES), default is 1 \
-                --cache     path/to/cache \
-                --fuses     path/to/fuse_files \
-                --tagged    path/to/tagged_fuse_files
+scripts/runall  
+  --images    path/to/CNN_predictions \
+  --drives    list_of_drives_txt_file \
+  --poses     path/to/pose_csv_files \
+  --chunks    path/to/chunk_metadata \
+  --tracker   tracking_method_name \
+  --config    configuration_json_file \
+  --verbosity verbosity level (0,1,2), default is 1 \
+  --visualize visualize (0=NO,1=YES), default is 1 \
+  --cache     path/to/cache \
+  --fuses     path/to/fuse_files \
+  --tagged    path/to/tagged_fuse_files
 ```
 
  - A sample configuration file `conf.json` is located at the repository root.
