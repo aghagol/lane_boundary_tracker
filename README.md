@@ -7,7 +7,7 @@ Bash and Python scripts for preprocessing, processing (tracking), visualization 
 To execute the complete process, run:
 
 ```bash
-scripts/runall  
+scripts/runall \
   --images    path/to/CNN_predictions \
   --drives    list_of_drives_txt_file \
   --poses     path/to/pose_csv_files \
