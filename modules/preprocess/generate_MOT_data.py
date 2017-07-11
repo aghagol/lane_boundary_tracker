@@ -95,21 +95,29 @@ for drive in drive_list:
   tiny_subdrives = set()
 
   #create initial sequences in ITLLAL format (detection index,timestamp,latitude,longitude,altitude,GT label)
+  if args.verbosity>=2:
+    print('\tCreating ITLLAL.txt')
   motutil.generate_ITLLAL_and_tmap(args.input,args.output,clusters,tiny_subdrives,param)
-
-  #create MOT formated det.txt files
-  motutil.generate_MOT_det(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
 
   for subdrive in tiny_subdrives:
     if args.verbosity>=2:
-      print('\tERROR: Marking %s for deletion due to insufficient points!'%(subdrive))
+      print('\tMarking %s for deletion due to insufficient points!'%(subdrive))
+
+  #create MOT formated det.txt files
+  if args.verbosity>=2:
+    print('\tCreating MOT det.txt')
+  motutil.generate_MOT_det(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
   
   #save groundtruth for MOT compatibility
   if param['generate_gt']:
+    if args.verbosity>=2:
+      print('\tCreating MOT gt.txt')
     motutil.generate_MOT_gt(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
 
   #save (fake) images for MOT compatibility
   if param['generate_fake_images']:
+    if args.verbosity>=2:
+      print('\tCreating MOT (fake) images')
     for subdrive in clusters:
       img_out = args.output+'/%s/img1/'%(subdrive)
       if not os.path.exists(img_out):

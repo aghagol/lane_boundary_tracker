@@ -11,8 +11,8 @@ rm -rf $CACHE
   --drives  ~/Desktop/drive_poc.txt \
   --tracker "sort" \
   --config  ./conf.json \
-  --verbosity 1 \
-  --visualize 1 \
+  --verbosity 2 \
+  --visualize 0 \
   --fuses   ~/data_ian/input/fuse/ \
   --tagged  ~/data_ian/input/fuse_tagged/ \
   --cache   $CACHE
