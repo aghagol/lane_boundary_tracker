@@ -36,7 +36,7 @@ Python packages needed for running the code are:
 
  - `numpy`
  - `scipy`
- - 'pandas'
+ - `pandas`
  - `networkx`
  - `pillow`
  - `matplotlib` (for visualization)
