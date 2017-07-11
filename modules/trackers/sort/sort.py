@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-# from numba import jit
+from numba import jit
 import os
 import numpy as np
 from sklearn.utils.linear_assignment_ import linear_assignment
@@ -27,6 +27,7 @@ import json
 from jsmin import jsmin
 from filterpy.kalman import KalmanFilter
 
+@jit
 def d2t_sim(z,x): #detection to track similarity
   """
   Computes similarity between a detection (2x1 numpy array) and a prediction (2x1 numpy array)
@@ -310,7 +311,7 @@ if __name__ == '__main__':
     seq_points[:,7] *=1e-6 #convert micro-seconds to seconds
 
     if args.verbosity>=2:
-      print("Processing %s"%(seq))
+      print("\nProcessing %s"%(seq))
 
     start_time = time.time()
     with open('%s/%s.txt'%(args.output,seq),'w') as out_file:

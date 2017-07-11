@@ -6,7 +6,6 @@ This is a script for performing a sequece of postprocessing operations on the tr
 import sys, os
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import argparse
 import json
 from jsmin import jsmin
