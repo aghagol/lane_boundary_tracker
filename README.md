@@ -42,7 +42,6 @@ Python packages needed for running the code are:
  - `pillow`
  - `matplotlib` (for visualization)
  - `scikit-learn`
- - `numba` (included in Anaconda)
  - `json`
  - `jsmin`
  - `filterpy`

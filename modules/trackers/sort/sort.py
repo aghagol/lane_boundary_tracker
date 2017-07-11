@@ -17,7 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-from numba import jit
 import os
 import numpy as np
 from sklearn.utils.linear_assignment_ import linear_assignment
@@ -27,7 +26,6 @@ import json
 from jsmin import jsmin
 from filterpy.kalman import KalmanFilter
 
-@jit
 def d2t_sim(z,x): #detection to track similarity
   """
   Computes similarity between a detection (2x1 numpy array) and a prediction (2x1 numpy array)
