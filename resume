@@ -2,6 +2,8 @@
 
 CACHE="/home/mo/Desktop/tmp/"
 
+
+
 ./scripts/runall \
   --images  ~/data_ian/input/images/ \
   --poses   ~/data_ian/input/poses/ \

@@ -19,28 +19,21 @@
 from __future__ import print_function
 import os
 import numpy as np
-from sklearn.utils.linear_assignment_ import linear_assignment
+from scipy.optimize import linear_sum_assignment
 import time
 import argparse
 import json
 from jsmin import jsmin
 from filterpy.kalman import KalmanFilter
 
-def d2t_sim(z,x): #detection to track similarity
+def d2t_dist(z,x): #detection to track similarity
   """
-  Computes similarity between a detection (2x1 numpy array) and a prediction (2x1 numpy array)
+  Computes distance between a detection (2x1 numpy array) and a prediction (2x1 numpy array)
   """
-  # return np.exp(-np.sqrt(np.dot((z-HFx).T, np.dot(np.linalg.inv(S),(z-HFx)))))
-  # return np.exp(-np.sqrt(np.dot((z-HFx).T, (z-HFx))))
-
-  y = z-(x[:2].reshape(2,1)) #vector from detection to prediction (displacement)
-  v = x[2:].reshape(2,1) #velocity (motion) vector
-  v_l2_squared = np.sum(v*v)
-  if v_l2_squared>0:
-    d = y-(np.sum(y*v)/v_l2_squared)*v #orthogonal projection of displacement onto motion
-  else:
-    d = y
-  return np.exp(-np.sqrt(np.sum(d*d)))
+  y = (z-x[:2]).squeeze() #vector from detection to prediction (displacement)
+  v = x[2:].squeeze() #velocity (motion) vector
+  d = y-(y.dot(v)/v.dot(v))*v if abs(v).sum()>0 else y
+  return d.dot(d)
 
 class KalmanBoxTracker(object):
   """
@@ -51,16 +44,11 @@ class KalmanBoxTracker(object):
     """
     Initialises a tracker
     """
-    #define constant velocity model
     self.kf = KalmanFilter(dim_x=4, dim_z=2)
     self.kf.F = np.array([[1,0,1,0],[0,1,0,1],[0,0,1,0],[0,0,0,1]])
     self.kf.H = np.array([[1,0,0,0],[0,1,0,0]])
-
-    # self.kf.P *= 10. #initial state variance/uncertainty - default 10
-    # self.kf.P[2:,2:] *= 1000. #initial motion variance/uncertainty - default 1000
     self.kf.Q[2:,2:] *= motion_model_var #model-induced motion variance - default 0.01
     self.kf.R *= observation_var #observation variance/uncertainty - default 10
-
     self.kf.x = initial_state
     self.age_since_update = 0
     self.id = KalmanBoxTracker.count
@@ -85,7 +73,6 @@ class KalmanBoxTracker(object):
     self.hit_streak += 1
     self.confidence = 1.
     self.kf.update(target_location)
-    # self.ret = target_location
     self.ret = self.kf.x[:2]
     self.det_idx = det_idx
     self.det_time = det_time
@@ -104,8 +91,6 @@ class KalmanBoxTracker(object):
     self.ret = self.kf.x[:2]
     self.det_idx = 0
     return self.kf.x
-    # self.history.append(self.kf.x)
-    # return self.history[-1]
 
 def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
   """
@@ -114,34 +99,29 @@ def associate_detections_to_trackers(detections,trackers,d2t_dist_thresh):
   """
   if(len(trackers)==0):
     return np.empty((0,2),dtype=int), np.arange(len(detections)), np.empty((0,2),dtype=int)
-  d2t_sim_matrix = np.zeros((len(detections),len(trackers)),dtype=np.float32)
-
+  
+  d2t_dist_matrix = np.zeros((len(detections),len(trackers)),dtype=np.float32)
   for d,det in enumerate(detections):
     for t,trk in enumerate(trackers):
-      d2t_sim_matrix[d,t] = d2t_sim(det.reshape(2,1),trk.reshape(4,1))
-  matched_indices = linear_assignment(1-d2t_sim_matrix)
+      d2t_dist_matrix[d,t] = d2t_dist(det.reshape(2,1),trk.reshape(4,1))
 
-  unmatched_detections = []
-  for d,det in enumerate(detections):
-    if(d not in matched_indices[:,0]):
-      unmatched_detections.append(d)
-  unmatched_trackers = []
-  for t,trk in enumerate(trackers):
-    if(t not in matched_indices[:,1]):
-      unmatched_trackers.append(t)
+  matched_detections,matched_tracks = [i.flatten() for i in linear_sum_assignment(d2t_dist_matrix)]
 
-  #filter out matched with low d2t_sim
+  unmatched_detections = np.delete(np.arange(len(detections)),matched_detections).tolist()
+  unmatched_trackers = np.delete(np.arange(len(trackers)),matched_tracks).tolist()
+
+  #filter out matched with high d2t_dist
   matches = []
-  for m in matched_indices:
-    if(d2t_sim_matrix[m[0],m[1]]<np.exp(-d2t_dist_thresh[m[1]])):
-      unmatched_detections.append(m[0])
-      unmatched_trackers.append(m[1])
+  for d,t in zip(matched_detections,matched_tracks):
+    if(d2t_dist_matrix[d,t]>d2t_dist_thresh[t]):
+      unmatched_detections.append(d)
+      unmatched_trackers.append(t)
     else:
-      matches.append(m.reshape(1,2))
+      matches.append([d,t])
   if(len(matches)==0):
     matches = np.empty((0,2),dtype=int)
   else:
-    matches = np.concatenate(matches,axis=0)
+    matches = np.array(matches)
 
   return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
 
@@ -184,18 +164,23 @@ class Sort(object):
     NOTE: The number of objects returned may differ from the number of detections provided.
     """
     self.frame_count +=1
+
+    #compute time step from the last update until now
     self.time_gap = dets[0,5]-self.time_now if self.frame_count>1 else 0
+
+    #update the current time
     self.time_now = dets[0,5]
 
-    self.time_gap += 1e-7 #to prevent numerical instability
+    #add a tiny amount (eps=0.1 microseconds) to time_gap to prevent numerical instability
+    self.time_gap += 1e-7
 
-    #get predicted locations from existing trackers.
-    trks = np.zeros((len(self.trackers),4))
+    #get predicted locations from existing trackers
+    trks = np.zeros((len(self.trackers),4)) #columns: x,y,velocity_x,velocity_y
     to_del = []
-    ret = []
+    
     for t,trk in enumerate(trks):
       self.trackers[t].kf.F = np.array([[1,0,self.time_gap,0],[0,1,0,self.time_gap],[0,0,1,0],[0,0,0,1]])
-      self.trackers[t].kf.Q *= self.time_gap #more uncertainty for large time steps
+      # self.trackers[t].kf.Q *= self.time_gap #more uncertainty for large time steps
       target_state = self.trackers[t].predict()
       trk[:] = target_state.squeeze()
       if(np.any(np.isnan(target_state))):
@@ -209,9 +194,9 @@ class Sort(object):
     d2t_dist_thresh = []
     for t, trk in enumerate(self.trackers):
       if trk.hits>0:
-        d2t_dist_thresh.append(self.d2t_dist_threshold_tight)
+        d2t_dist_thresh.append((self.d2t_dist_threshold_tight)**2)
       else:
-        d2t_dist_thresh.append(self.d2t_dist_threshold_loose)
+        d2t_dist_thresh.append((self.d2t_dist_threshold_loose)**2)
     matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets[:,:2],trks,d2t_dist_thresh)
     #-------------------------------------------------------
 
@@ -223,18 +208,22 @@ class Sort(object):
 
     #create and initialise new trackers for unmatched detections
     for i in unmatched_dets:
+
+      #generate the initial state for new trackers
       if self.motion_init_pose:
+        #use pose-based estimated motion
         initial_state = dets[i,:4].reshape(4,1)
       elif self.motion_init_sync:
-        #compute average motion for track initialization
+        #compute average motion of matched tracks
         tracker_states = [np.array(trk.kf.x) for trk in self.trackers if trk.hits>0]
-        if len(tracker_states):
+        if len(tracker_states)>0:
           avg_velocity = np.array(tracker_states).mean(axis=0)[2:].reshape(2,1)
         else:
           avg_velocity = np.zeros((2,1))
         initial_state = np.concatenate((dets[i,:2].reshape(2,1),avg_velocity))
       else:
         initial_state = np.concatenate((dets[i,:2].reshape(2,1),np.zeros((2,1))))
+
       trk = KalmanBoxTracker(
         initial_state=initial_state,
         det_idx=dets[i,4],
@@ -244,22 +233,22 @@ class Sort(object):
       self.trackers.append(trk)
 
     #output tracking results
+    ret = []
     for trk in self.trackers:
       d = trk.ret.squeeze() #customized return value
-      # if((trk.age_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits)):
-      if True: #EDIT -------- output all (mohammad)
+      if trk.det_idx: #only output if matched with an observation (trk.det_idx will be zero otherwise)
         ret_item = []
-        ret_item.append(trk.id+1) # +1 as MOT benchmark requires positive
-        ret_item.append(d[0])
-        ret_item.append(d[1])
-        ret_item.append(trk.det_idx)
-        ret_item.append(trk.confidence)
+        ret_item.append(trk.id+1) # target id (+1 as MOT benchmark requires positive)
+        ret_item.append(d[0]) #x location
+        ret_item.append(d[1]) #y location
+        ret_item.append(trk.det_idx) #unique detection id
+        ret_item.append(trk.confidence) #tracking confidence
         ret.append(np.array(ret_item).reshape((1,-1)))
 
     #remove dead tracklets
     for t in range(len(self.trackers)-1,-1,-1):
       dead_flag_age = (self.trackers[t].age_since_update >= self.max_age_since_update)
-      dead_flag_mov = (np.sqrt(((self.trackers[t].det_x-self.trackers[t].kf.x[:2])**2).sum()) > self.max_mov_since_update)
+      dead_flag_mov = (((self.trackers[t].det_x-self.trackers[t].kf.x[:2])**2).sum() > self.max_mov_since_update**2)
       if dead_flag_mov or dead_flag_age:
         self.trackers.pop(t)
 
@@ -321,8 +310,7 @@ if __name__ == '__main__':
         else:
           tracks = mot_tracker.update(points[:,2:8]) #[x_loc, y_loc, x_vel, y_vel, det_idx, timestamp]
           for d in tracks:
-            if d[3]>0: #don't record unmatched predictions
-              print('%05d,%05d,%011.5f,%011.5f,%05d,%.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
+            print('%05d,%05d,%011.5f,%011.5f,%05d,%.2f'%(frame,d[0],d[1],d[2],d[3],d[4]),file=out_file)
 
     total_time += time.time() - start_time
     total_frames += seq_points.shape[0]
