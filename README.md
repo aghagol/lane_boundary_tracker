@@ -46,6 +46,6 @@ Python packages needed for running the code are:
  - `jsmin`
  - `filterpy`
  - `rdp`
-sudo apt-get install python-tk
+ - `python-tk`, install using `sudo apt-get install python-tk`
 
 Most (if not all) of these packages can be installed simply using `pip install package_name`.
