@@ -46,7 +46,8 @@ def generate_MOT_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
           motion[i,:] = 0
 
     # write to output
-    fmt = ['%05d','%d','%011.5f','%011.5f','%07.5f','%07.5f','%05d','%d']
+    #format: frame number, target id (-1), x, y, v_x, v_y, detection id, timestamp
+    fmt = ['%05d','%d','%011.5f','%011.5f','%07.5f','%07.5f','%07d','%016d']
     out = np.zeros((dets.shape[0],8))
     out[:,0] = range(1,out.shape[0]+1) #frame number
     out[:,1] = -1

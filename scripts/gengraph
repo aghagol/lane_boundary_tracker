@@ -30,7 +30,7 @@ mkdir -p $OUTPUT_GENGRAPH
 
 # ./modules/preprocess/generate_point_graph.py \
 #   --input     $IMAGES_GENGRAPH \
-#   --output    $FUSES_GENGRAPH \
+#   --output    $OUTPUT_GENGRAPH \
 #   --poses     $POSES_GENGRAPH \
 #   --config    $CONFIG_GENGRAPH \
 #   --drives    $DRIVELIST_GENGRAPH \

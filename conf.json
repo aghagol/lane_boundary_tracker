@@ -4,11 +4,12 @@
     "object_size": 10, //for MOT purposes
     "ians_peak_filter": false,
     "maxpool_size": 10, //maxpool filter size for extracting high confidence points
-    "confidence_thresh": 0.4,
+    "global_confidence_thresh": 0.4,
     "recall": 1, //drop detections randomly
     "generate_gt": false,
     "generate_fake_images": false,
     "remove_adjacent_points": false,
+        "fake_confidence": true, //when detection point confidences are unknown
         "min_pairwise_dist": 1,
         "search_window_size": 100,
     "split_on_temporal_gaps": true,
@@ -21,6 +22,10 @@
         "fake_timestamp": true,
         "tag_altitude": true,
             "pose_altitude_offset": 0 //meters (height of vehicle)
+  },
+  "gengraph":
+  {
+    "distance_threshold": 50
   },
   "sort":
   {

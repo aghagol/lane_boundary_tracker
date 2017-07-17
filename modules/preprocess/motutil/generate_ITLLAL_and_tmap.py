@@ -20,7 +20,8 @@ def generate_ITLLAL_and_tmap(input_path,output_path,clusters,tiny_subdrives,para
     tmap = []
     for filename in filelist:
       if os.stat(input_path+'/'+filename).st_size:
-        dets.append(np.loadtxt(input_path+'/'+filename,delimiter=',').reshape(-1,4))
+        #points format: id, latitude, longitude, altitude, timestamp
+        dets.append(np.loadtxt(input_path+'/'+filename,delimiter=',').reshape(-1,5))
         if parameters['fake_timestamp']:
           tmap.append(np.loadtxt(input_path+'/'+filename+'.tmap',delimiter=',').reshape(-1,2))
     dets = np.vstack(dets)
@@ -32,12 +33,11 @@ def generate_ITLLAL_and_tmap(input_path,output_path,clusters,tiny_subdrives,para
       dets = dets[np.random.rand(dets.shape[0])<parameters['recall'],:]
 
     #re-arrange detections according to timestamps
-    dets = dets[dets[:,0].argsort(),:]
+    dets = dets[dets[:,4].argsort(),:]
 
     #find detections that are very close to each other (and mark for deletion)
-    if parameters['remove_adjacent_points']:
-      if True: #in case detection point confidences are unknown
-        fake_confidence = np.random.rand(dets.shape[0])
+    if parameters['remove_adjacent_points'] and parameters['fake_confidence']:
+      fake_confidence = np.random.rand(dets.shape[0])
       mark_for_deletion = []
       search_window_size = parameters['search_window_size']
       for i in range(dets.shape[0]):
@@ -55,16 +55,19 @@ def generate_ITLLAL_and_tmap(input_path,output_path,clusters,tiny_subdrives,para
     #generate the itllal array
     #format: index,timestamp,lat,lon,altitude,label
     itllal = np.empty((dets.shape[0],6))
-    itllal[:,0] = np.arange(dets.shape[0])+1
-    itllal[:,1:5] = dets
+    itllal[:,0] = dets[:,0] #global unique detection id
+    itllal[:,1] = dets[:,4] #timestamp
+    itllal[:,2:5] = dets[:,1:4] #lat,lon,altitude
     itllal[:,5] = -1 #no GT labels
 
     #write itllal array to file
     if not os.path.exists(output_path+'/%s/det/'%(subdrive)):
       os.makedirs(output_path+'/%s/det/'%(subdrive))
-    fmt = ['%05d','%d','%.10f','%.10f','%.10f','%02d']
+
+    #format: index,timestamp,lat,lon,altitude,label
+    fmt = ['%07d','%016d','%.10f','%.10f','%.10f','%02d']
     np.savetxt(output_path+'/%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
 
     #write tmap array to file
     if parameters['fake_timestamp']:
-      np.savetxt(output_path+'/%s/det/tmap.txt'%(subdrive),tmap,fmt=['%d','%d'],delimiter=',')
+      np.savetxt(output_path+'/%s/det/tmap.txt'%(subdrive),tmap,fmt=['%012d','%016d'],delimiter=',')

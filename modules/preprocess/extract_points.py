@@ -40,11 +40,14 @@ with open(args.drives) as fdrivelist:
     drive_list.append(line.strip())
 
 #format of output .fuse files. 
-fuse_fmt = ['%.16f','%.16f'] #format: latitude, longitude
+fuse_fmt = ['%07d','%.16f','%.16f'] #format: global_peak_id, latitude, longitude
 
 for drive in drive_list:
   if args.verbosity>=2:
     print('Working on drive %s'%drive)
+
+  #global counter for peaks (global within each drive)
+  counter = 1
 
   #read metadata (in CSV format) for images of the current drive
   #meta column labels: name, time_start, time_end, min_lat, min_lon, max_lat, max_lon
@@ -78,17 +81,25 @@ for drive in drive_list:
     #discard detections that are not local maxima within a "maxpool_size" window
     pred_im[pred_im!=maximum_filter(pred_im,size=parameters['maxpool_size'])]=0
 
-    #only retain high confidence detection points
-    ok = pred_im>parameters['confidence_thresh']
-    
     #get lat-lon coordiantes of detection points
-    bbox = np.r_[res['min_lat'], res['min_lon'], res['max_lat'], res['max_lon']]
-    loc_pix = np.c_[np.nonzero(ok)] #row and column pixel indices
-    loc_im = loc_pix.astype(float)/pred_im.shape #scale to [0,1] in each direction
-    lat_lon = (loc_im[:,::-1])*(bbox[2:]-bbox[:2]) + bbox[:2] #final lat-lon coordinates
+    bbox = np.r_[res['min_lat'],res['min_lon'],res['max_lat'],res['max_lon']]
+
+    #extract row and column pixel indices
+    #but only retain high confidence detection points
+    loc_pix = np.argwhere(pred_im>parameters['global_confidence_thresh'])
+
+    #scale to [0,1] in each direction
+    loc_im = loc_pix.astype(float)/pred_im.shape
+
+    #compute final lat-lon coordinates
+    lat_lon = loc_im * (bbox[2:]-bbox[:2]) + bbox[:2]
+
+    #assign peaks with unique id's
+    lat_lon = np.hstack((np.arange(lat_lon.shape[0]).reshape(-1,1)+counter,lat_lon))
+    counter += lat_lon.shape[0]
 
     if args.verbosity>=2:
       print('\t\trecorded %d detection points from %s'%(lat_lon.shape[0],res['name']))
 
     #save detection points in .fuse files
-    np.savetxt(args.fuses+'/'+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)
+    np.savetxt(os.path.join(args.fuses,'%s_%s.png.fuse'%(drive,image_tag)),lat_lon,fmt=fuse_fmt,delimiter=',')

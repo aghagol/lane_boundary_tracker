@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-This script creates an MOT-like dataset
+This script creates an MOT-like dataset from timestamp tagged points
 """
 
 import os
@@ -50,8 +50,9 @@ for drive in drive_list:
     #read image stats
     image_stat = {}
     for filename in filelist:
-      points = np.loadtxt(args.tagged+'/'+filename,delimiter=',').reshape(-1,4)
-      image_stat[filename] = (points[:,0].min()*1e-6,points[:,0].max()*1e-6,points.shape[0])
+      #points format: id, latitude, longitude, altitude, timestamp
+      points = np.loadtxt(args.tagged+'/'+filename,delimiter=',').reshape(-1,5)
+      image_stat[filename] = (points[:,4].min()*1e-6,points[:,4].max()*1e-6,points.shape[0])
 
     #build an "interval graph" based on image stats
     A = np.zeros((len(filelist),len(filelist)),dtype=bool)

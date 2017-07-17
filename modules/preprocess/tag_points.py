@@ -37,7 +37,7 @@ with open(args.drives) as fdrivelist:
     drive_list.append(line.strip())
 
 #final format for .fuse files with timestmaps
-tag_fmt = ['%d','%.10f','%.10f','%.10f'] #format: timestamp, latitude, longitude, altitude
+tag_fmt = ['%07d','%.10f','%.10f','%.10f','%016d'] #format: id, latitude, longitude, altitude, timestamp
 
 for drive in drive_list:
   if args.verbosity>=2:
@@ -68,16 +68,16 @@ for drive in drive_list:
   for filename in filelist:
 
     #skip timestamp generation if the current image has been processed before
-    if os.path.exists(args.tagged+'/'+filename) and os.path.exists(args.tagged+'/'+filename+'.tmap')>=parameters['fake_timestamp']:
+    if os.path.exists(os.path.join(args.tagged,filename)) and os.path.exists(os.path.join(args.tagged,filename)+'.tmap')>=parameters['fake_timestamp']:
       if args.verbosity>=2:
         print('\t%s exists! skipping'%(args.tagged+'/'+filename))
       continue
 
     if args.verbosity>=2:
-      print('\tworking on %s'%(args.tagged+'/'+filename))
+      print('\tworking on %s'%(os.path.join(args.fuses,filename)))
 
     #read the detection points for the current image
-    points = np.loadtxt(args.fuses+'/'+filename)
+    points = np.loadtxt(os.path.join(args.fuses,filename),delimiter=',')
 
     #clip the pose path according to the current image lat-lon bounds
     #this is how it works:
@@ -108,8 +108,8 @@ for drive in drive_list:
     tagged,tagged_tmap = motutil.get_tagged(points,pose_filtered,pose_tmap,scale_meta,parameters)
 
     #save extended fuse files (augmented with timestamps)
-    np.savetxt(args.tagged+'/'+filename,tagged,fmt=tag_fmt,delimiter=',')
+    np.savetxt(os.path.join(args.tagged,filename),tagged,fmt=tag_fmt,delimiter=',')
 
     #save the mapping between original timestamps and the fake timestamps
     if parameters['fake_timestamp']:
-      np.savetxt(args.tagged+'/'+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')
+      np.savetxt(os.path.join(args.tagged,filename)+'.tmap',tagged_tmap,fmt=['%016d','%016d'],delimiter=',')

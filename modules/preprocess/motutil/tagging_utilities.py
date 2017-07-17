@@ -5,23 +5,23 @@ import haversine
 
 def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
   """
-  points  : points numpy array 1 (no   timestamp) format: latitude  longitude
-  pose    : points numpy array 2 (with timestamp) format: latitude  longitude altitude  timestamp
-  tagged  : points numpy array 1 (with timestamp) format: timestamp latitude  longitude altitude
+  points  : points numpy array 1 (no   timestamp) format: id, latitude, longitude
+  pose    : points numpy array 2 (with timestamp) format: latitude, longitude, altitude, timestamp
+  tagged  : points numpy array 1 (with timestamp) format: id, latitude, longitude, altitude, timestamp
 
   Note: pose lat-lon has been converted to meters of distance from origin (bottom left corner)
   """
-  tagged = np.zeros((points.shape[0],4))
+  tagged = np.zeros((points.shape[0],5))
 
-  #IMPORTANT NOTE: store the points' lat-lon values before they are overwritten
-  tagged[:,1:3] = points[:,0:2]
+  #IMPORTANT: store the points' lat-lon values before they are overwritten
+  tagged[:,:3] = points[:,:3]
 
   #keep a mapping between point timestamps in the original time space and the "fake" time space
   tagged_tmap = np.zeros((points.shape[0],2))
 
   #meterize points (lat-lon to meters conversion)
-  points[:,0] = (points[:,0]-scale_meta[0])*scale_meta[2]
-  points[:,1] = (points[:,1]-scale_meta[1])*scale_meta[3]
+  points[:,1] = (points[:,1]-scale_meta[0])*scale_meta[2]
+  points[:,2] = (points[:,2]-scale_meta[1])*scale_meta[3]
 
   #we flag points for exclusion when they are farther than a certain distance from the pose path
   OK = np.ones((points.shape[0]),dtype=bool)
@@ -29,7 +29,7 @@ def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
   for i in range(points.shape[0]):
 
     #calculate the l2 distance from the current detection point to all pose points!
-    l2_squared_dist = ((points[i,:2]-pose[:,:2])**2).sum(axis=1)
+    l2_squared_dist = ((points[i,1:3]-pose[:,:2])**2).sum(axis=1)
 
     #rank pose points based on their distances to the querry point (current detection point)
     pose_id = np.argsort(l2_squared_dist)
@@ -69,8 +69,8 @@ def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
     #extract parameters for interpolating timestamps
     #vector1: vector from the pose point 1 to the detection point
     #vector2: vector from the pose point 1 to the detection point
-    vector1 = points[i,:2]-pose[p0,:2]
-    vector2 = pose[p1,:2] -pose[p0,:2]
+    vector1 = points[i,1:3]-pose[p0,:2]
+    vector2 = pose[p1,:2]-pose[p0,:2]
 
     #formula for calculating the timestamp: 
     # (1-lambda)*(pose point 1 timestamp) + lambda*(pose point 2 timestamp)
@@ -84,17 +84,17 @@ def get_tagged(points,pose,pose_tmap,scale_meta,parameters):
     lam = max(lam,0)
     
     if parameters['fake_timestamp']:
-      tagged[i,0] = (1-lam)*pose_tmap[pose[p0,3]] + lam*pose_tmap[pose[p1,3]]
+      tagged[i,4] = (1-lam)*pose_tmap[pose[p0,3]] + lam*pose_tmap[pose[p1,3]]
       tagged_tmap[i,1] = (1-lam)*pose[p0,3] + lam*pose[p1,3]
     else: #use true timestamps
-      tagged[i,0] = (1-lam)*pose[p0,3] + lam*pose[p1,3]
+      tagged[i,4] = (1-lam)*pose[p0,3] + lam*pose[p1,3]
 
     #if detection points don't have altitude information, use altitude from the matched pose points
     if parameters['tag_altitude']:
       tagged[i,3] = (1-lam)*pose[p0,2] + lam*pose[p1,2] -parameters['pose_altitude_offset']
-    #parameters['pose_altitude_offset'] corresponds to the height of the vehicle
+    #note: parameters['pose_altitude_offset'] corresponds to the height of the vehicle
 
-  tagged_tmap[:,0] = tagged[:,0]
+  tagged_tmap[:,0] = tagged[:,4]
   return (tagged[OK],tagged_tmap[OK])
 
 def meterize(pose):
