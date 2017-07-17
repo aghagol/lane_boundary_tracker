@@ -40,7 +40,7 @@ with open(args.drives) as fdrivelist:
     drive_list.append(line.strip())
 
 #format of output .fuse files. 
-fuse_fmt = ['%07d','%.16f','%.16f'] #format: global_peak_id, latitude, longitude
+fuse_fmt = ['%07d','%.16f','%.16f','%05d','%05d'] #format: global_peak_id, latitude, longitude
 
 for drive in drive_list:
   if args.verbosity>=2:
@@ -95,7 +95,7 @@ for drive in drive_list:
     lat_lon = loc_im * (bbox[2:]-bbox[:2]) + bbox[:2]
 
     #assign peaks with unique id's
-    lat_lon = np.hstack((np.arange(lat_lon.shape[0]).reshape(-1,1)+counter,lat_lon))
+    lat_lon = np.hstack((np.arange(lat_lon.shape[0]).reshape(-1,1)+counter,lat_lon,loc_pix))
     counter += lat_lon.shape[0]
 
     if args.verbosity>=2:

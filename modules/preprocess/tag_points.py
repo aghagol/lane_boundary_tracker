@@ -37,7 +37,8 @@ with open(args.drives) as fdrivelist:
     drive_list.append(line.strip())
 
 #final format for .fuse files with timestmaps
-tag_fmt = ['%07d','%.10f','%.10f','%.10f','%016d'] #format: id, latitude, longitude, altitude, timestamp
+#format: id, latitude, longitude, altitude, timestamp
+tag_fmt = ['%07d','%.10f','%.10f','%.10f','%016d']
 
 for drive in drive_list:
   if args.verbosity>=2:

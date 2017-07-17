@@ -25,7 +25,8 @@
   },
   "gengraph":
   {
-    "distance_threshold": 50
+    "distance_threshold": 50,
+    "min_avg_pixel": 0.9
   },
   "sort":
   {

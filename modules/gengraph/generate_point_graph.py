@@ -1,5 +1,7 @@
+#!/usr/bin/env python
 """
-This script uses FCN output to infer connections between extracted peak points
+This script uses FCN output to infer detection point clusterings
+each output file contains the unique detection IDs belonging to a single cluster
 """
 
 import numpy as np
@@ -9,11 +11,13 @@ from scipy.spatial.distance import pdist, squareform
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 import networkx as nx
-import os, time
+import os
+import argparse
 import json
 from jsmin import jsmin
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--fuses",      help="path to fuse files")
 parser.add_argument("--images",     help="path to CNN predictions")
 parser.add_argument("--output",     help="path to output fuse files")
 parser.add_argument("--poses",      help="path to pose CSV files")
@@ -50,48 +54,34 @@ for drive in drive_list:
   image_list = [i for i in os.listdir(image_path) if i.endswith('png')]
 
   for image in image_list:
+    if os.path.exists(os.path.join(args.output,drive,image)): continue
 
     if args.verbosity>=2:
       print('Working on image %s'%(image))
 
-    if os.path.exists(os.path.join(args.output,drive,image)):
-      continue
-    else:
-      os.makedirs(os.path.join(args.output,drive,image))
-
     #load the image
     I = misc.imread(os.path.join(args.images,drive,image))/(2.**16-1)
 
-    peaks = (I==maximum_filter(I,size=10))
-    P = np.argwhere(np.logical_and(peaks,I>.4)) #points
+    #read the peak points from the fuse files
+    fuse_filename = '%s_%s.png.fuse'%(drive,image.split('_')[0])
+    P = np.loadtxt(os.path.join(args.fuses,fuse_filename),delimiter=',')
 
-    if verbosity>1: print('\tplotting the points')
-    ax.plot(P[:,0],P[:,1],'g.')
+    #build the affinity matrix
+    A = np.tril(squareform(pdist(P[:,3:5])<parameters['distance_threshold']))
 
-    if verbosity>1: print('\tbuilding the affinity matrix')
-    A = np.tril(squareform(pdist(P)<50))
-
-    if verbosity>1: print('\tdiscarding links with gaps along them')
+    #discard links with gaps along them
     links = np.argwhere(A)
-    ratios = np.arange(.1,1,.1) #there are 9 checkpoints on each link
+    checkpoints = np.arange(.1,1,.1) #there are 9 checkpoints on each link
+    n_checkpoints = len(checkpoints)
     for i,j in links:
-      w = np.sum(I[tuple((P[i]+alpha*(P[j]-P[i])).astype(int))] for alpha in ratios) / 9
-      if w<.9: A[i,j] = False
+      w = np.sum(I[tuple((P[i,3:5]+alpha*(P[j,3:5]-P[i,3:5])).astype(int))] for alpha in checkpoints)
+      if w/n_checkpoints<parameters['min_avg_pixel']: A[i,j] = False
 
-    if verbosity>1: print('\tcomputing the minimum spanning forest')
-    B = np.tril(nx.to_numpy_matrix(nx.minimum_spanning_tree(nx.from_numpy_matrix(A+A.T))).astype(bool))
+    #finding the connected components (trees)
+    cc_list = nx.connected_components(nx.from_numpy_matrix(A+A.T)) #list of sets
 
-    if verbosity>1: print('\tfinding the connected components (trees)')
-    cc_list = nx.connected_components(nx.from_numpy_matrix(B+B.T)) #list of sets
-
-    if verbosity>1: print('\tplotting lane boundaries')
-    mask = np.zeros_like(B,dtype=bool)
-    for cc in cc_list:
+    os.makedirs(os.path.join(args.output,drive,image[:-4]))
+    for group_id,cc in enumerate(cc_list):
       if len(cc)>1:
-        mask[...] = False; mask[np.ix_(list(cc),list(cc))] = True
-        ax.add_collection(LineCollection(([P[i],P[j]] for i,j in np.argwhere(np.logical_and(B,mask))),color=np.random.rand(3)))
-
-    if verbosity>1: print('\tsaving the figure')
-    plt.savefig('out/%s'%(image))
-
-    if verbosity>1: print('\ttook %f seconds for this image'%(time.time()-t0))
+        out_filename = os.path.join(args.output,drive,image[:-4],'group_%d.fuse'%(group_id))
+        np.savetxt(out_filename,[P[i,0] for i in cc],fmt=['%07d'],delimiter=',')

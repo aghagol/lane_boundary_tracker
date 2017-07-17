@@ -28,10 +28,11 @@ mkdir -p $OUTPUT_GENGRAPH
 #   --drives    $DRIVELIST_GENGRAPH \
 #   --verbosity $VERBOSITY_GENGRAPH
 
-# ./modules/preprocess/generate_point_graph.py \
-#   --input     $IMAGES_GENGRAPH \
-#   --output    $OUTPUT_GENGRAPH \
-#   --poses     $POSES_GENGRAPH \
-#   --config    $CONFIG_GENGRAPH \
-#   --drives    $DRIVELIST_GENGRAPH \
-#   --verbosity $VERBOSITY_GENGRAPH
+./modules/gengraph/generate_point_graph.py \
+  --fuses     $FUSES_GENGRAPH \
+  --images    $IMAGES_GENGRAPH \
+  --output    $OUTPUT_GENGRAPH \
+  --poses     $POSES_GENGRAPH \
+  --config    $CONFIG_GENGRAPH \
+  --drives    $DRIVELIST_GENGRAPH \
+  --verbosity $VERBOSITY_GENGRAPH
