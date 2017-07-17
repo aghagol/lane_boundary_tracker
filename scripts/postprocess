@@ -6,12 +6,12 @@ while [[ "$#" > 1 ]]; do case $1 in
     --output)     OUTPUT_POSTPROCESS="$2";;
     --config)     CONFIG_POSTPROCESS="$2";;
     --verbosity)  VERBOSITY_POSTPROCESS="$2";;
-    *) echo "Usage error"; exit 1;;
+    *) echo "Postprocessing: usage error"; exit 1;;
   esac; shift; shift
 done
 
 if [[ $VERBOSITY_POSTPROCESS -ge 1 ]] ; then
-  echo -e "\033[1;31m"$(date)"\033[0m" "Postprocessing"
+  echo -e "\033[1;31m"$(date)"\033[0m" "Postprocessing: Stitching and Point Reduction"
 fi
 
 mkdir -p $OUTPUT_POSTPROCESS

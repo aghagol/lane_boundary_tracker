@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+while [[ "$#" > 1 ]]; do case $1 in
+    --images)     IMAGES_GENGRAPH="$2";;
+    --output)     OUTPUT_GENGRAPH="$2";;
+    --config)     CONFIG_GENGRAPH="$2";;
+    --drives)     DRIVELIST_GENGRAPH="$2";;
+    --poses)      POSES_GENGRAPH="$2";;
+    --tagged)     TAGGED_GENGRAPH="$2";;
+    --fuses)      FUSES_GENGRAPH="$2";;
+    --verbosity)  VERBOSITY_GENGRAPH="$2";;
+    *) echo "Graph generation: usage error"; exit 1;;
+  esac; shift; shift
+done
+
+if [[ $VERBOSITY_GENGRAPH -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Point Graph Inference (Image-based)"
+fi
+
+mkdir -p $OUTPUT_GENGRAPH
+
+# ./modules/preprocess/print_param.py \
+#   --config    $CONFIG_GENGRAPH \
+#   --verbosity $VERBOSITY_GENGRAPH
+
+# ./modules/preprocess/generate_drive_list.py \
+#   --images    $IMAGES_GENGRAPH \
+#   --drives    $DRIVELIST_GENGRAPH \
+#   --verbosity $VERBOSITY_GENGRAPH
+
+# ./modules/preprocess/generate_point_graph.py \
+#   --input     $IMAGES_GENGRAPH \
+#   --output    $FUSES_GENGRAPH \
+#   --poses     $POSES_GENGRAPH \
+#   --config    $CONFIG_GENGRAPH \
+#   --drives    $DRIVELIST_GENGRAPH \
+#   --verbosity $VERBOSITY_GENGRAPH

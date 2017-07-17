@@ -13,20 +13,20 @@ from jsmin import jsmin
 import motutil
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",  help="path to fuse files")
-parser.add_argument("--output", help="path to tagged annotations")
-parser.add_argument("--images", help="path to image metadata")
-parser.add_argument("--config", help="path to config file")
-parser.add_argument("--drives", help="path to drives list file")
-parser.add_argument("--poses",  help="path to drive pose CSV files")
+parser.add_argument("--fuses",      help="path to fuse files")
+parser.add_argument("--tagged",     help="path to tagged annotations")
+parser.add_argument("--images",     help="path to image metadata")
+parser.add_argument("--config",     help="path to config file")
+parser.add_argument("--drives",     help="path to drives list file")
+parser.add_argument("--poses",      help="path to drive pose CSV files")
 parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
 
 if args.verbosity>=2:
   print(__doc__)
 
-if not os.path.exists(args.output):
-  os.makedirs(args.output)
+if not os.path.exists(args.tagged):
+  os.makedirs(args.tagged)
 
 with open(args.config) as fparam:
   parameters = json.loads(jsmin(fparam.read()))["preprocess"]
@@ -63,21 +63,21 @@ for drive in drive_list:
   meta = pd.read_csv(os.path.join(args.images,drive,'meta.csv'), skipinitialspace=True)
 
   #get the list of all fuse files (containing detection points) for this drive
-  filelist = sorted([i for i in os.listdir(args.input) if '_'.join(i.split('_')[:2])==drive])
+  filelist = sorted([i for i in os.listdir(args.fuses) if '_'.join(i.split('_')[:2])==drive])
 
   for filename in filelist:
 
     #skip timestamp generation if the current image has been processed before
-    if os.path.exists(args.output+'/'+filename) and os.path.exists(args.output+'/'+filename+'.tmap')>=parameters['fake_timestamp']:
+    if os.path.exists(args.tagged+'/'+filename) and os.path.exists(args.tagged+'/'+filename+'.tmap')>=parameters['fake_timestamp']:
       if args.verbosity>=2:
-        print('\t%s exists! skipping'%(args.output+'/'+filename))
+        print('\t%s exists! skipping'%(args.tagged+'/'+filename))
       continue
 
     if args.verbosity>=2:
-      print('\tworking on %s'%(args.output+'/'+filename))
+      print('\tworking on %s'%(args.tagged+'/'+filename))
 
     #read the detection points for the current image
-    points = np.loadtxt(args.input+'/'+filename)
+    points = np.loadtxt(args.fuses+'/'+filename)
 
     #clip the pose path according to the current image lat-lon bounds
     #this is how it works:
@@ -108,8 +108,8 @@ for drive in drive_list:
     tagged,tagged_tmap = motutil.get_tagged(points,pose_filtered,pose_tmap,scale_meta,parameters)
 
     #save extended fuse files (augmented with timestamps)
-    np.savetxt(args.output+'/'+filename,tagged,fmt=tag_fmt,delimiter=',')
+    np.savetxt(args.tagged+'/'+filename,tagged,fmt=tag_fmt,delimiter=',')
 
     #save the mapping between original timestamps and the fake timestamps
     if parameters['fake_timestamp']:
-      np.savetxt(args.output+'/'+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')
+      np.savetxt(args.tagged+'/'+filename+'.tmap',tagged_tmap,fmt=['%d','%d'],delimiter=',')

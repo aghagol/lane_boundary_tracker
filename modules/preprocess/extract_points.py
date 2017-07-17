@@ -15,8 +15,8 @@ from jsmin import jsmin
 import peak_finding
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",      help="path to CNN predictions")
-parser.add_argument("--output",     help="path to output fuse files")
+parser.add_argument("--images",     help="path to CNN predictions")
+parser.add_argument("--fuses",      help="path to output fuse files")
 parser.add_argument("--poses",      help="path to pose CSV files")
 parser.add_argument("--config",     help="path to config file")
 parser.add_argument("--drives",     help="path to drives list text-file")
@@ -26,8 +26,8 @@ args = parser.parse_args()
 if args.verbosity>=2:
   print(__doc__)
 
-if not os.path.exists(args.output):
-  os.makedirs(args.output)
+if not os.path.exists(args.fuses):
+  os.makedirs(args.fuses)
 
 #read preprocessing parameters from the configuration JSON file
 with open(args.config) as fparam:
@@ -48,7 +48,7 @@ for drive in drive_list:
 
   #read metadata (in CSV format) for images of the current drive
   #meta column labels: name, time_start, time_end, min_lat, min_lon, max_lat, max_lon
-  meta = pd.read_csv(os.path.join(args.input,drive,'meta.csv'), skipinitialspace=True)
+  meta = pd.read_csv(os.path.join(args.images,drive,'meta.csv'), skipinitialspace=True)
 
   for n,res in meta.iterrows():
 
@@ -56,16 +56,16 @@ for drive in drive_list:
     image_tag = '%d'%(res['time_start'])
 
     #skip the .fuse file generation if the .fuse file exists already
-    if os.path.exists(args.output+'/'+drive+'_'+image_tag+'.png.fuse'): continue
+    if os.path.exists(args.fuses+'/'+drive+'_'+image_tag+'.png.fuse'): continue
 
     #skip the .fuse file generation if the image does not exist
-    if not os.path.exists(os.path.join(args.input,drive,res['name'])): continue
+    if not os.path.exists(os.path.join(args.images,drive,res['name'])): continue
 
     if args.verbosity>=2:
       print('\tworking on %s'%(res['name']))
 
     #read the probability image (FCN output)
-    pred_im = misc.imread(os.path.join(args.input,drive,res['name']))/(2.**16-1)
+    pred_im = misc.imread(os.path.join(args.images,drive,res['name']))/(2.**16-1)
 
     if args.verbosity>=2:
       print('\t\timage size: %d x %d'%(pred_im.shape[0],pred_im.shape[1]))
@@ -91,4 +91,4 @@ for drive in drive_list:
       print('\t\trecorded %d detection points from %s'%(lat_lon.shape[0],res['name']))
 
     #save detection points in .fuse files
-    np.savetxt(args.output+'/'+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)
+    np.savetxt(args.fuses+'/'+drive+'_'+image_tag+'.png.fuse',lat_lon,fmt=fuse_fmt)

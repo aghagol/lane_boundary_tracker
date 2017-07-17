@@ -7,7 +7,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     --config)     CONFIG_FUSE="$2";;
     --chunks)     CHUNKS_FUSE="$2";;
     --verbosity)  VERBOSITY_FUSE="$2";;
-    *) echo "Usage error"; exit 1;;
+    *) echo "Fuse: usage error"; exit 1;;
   esac; shift; shift
 done
 
@@ -26,6 +26,21 @@ mkdir -p $OUTPUT_FUSE
   --tracks    $TRACKS_FUSE \
   --output    $OUTPUT_FUSE/seqs.csv \
   --verbosity $VERBOSITY_FUSE
+
+if [[ $VERBOSITY_FUSE -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Fusion: Point Graph + Tracking"
+fi
+
+# ./modules/fuse/fuse_graph_tracking.py \
+#   --input     $OUTPUT_FUSE/seqs.csv \
+#   --output    $OUTPUT_FUSE/fused \
+#   --config    $CONFIG_FUSE \
+#   --chunks    $CHUNKS_FUSE \
+#   --verbosity $VERBOSITY_FUSE
+
+if [[ $VERBOSITY_FUSE -ge 1 ]] ; then
+  echo -e "\033[1;31m"$(date)"\033[0m" "Fusion: Generating .fuse files"
+fi
 
 ./modules/fuse/generate_fuse_files.py \
   --input     $OUTPUT_FUSE/seqs.csv \

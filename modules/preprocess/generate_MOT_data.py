@@ -14,11 +14,11 @@ import networkx as nx
 import motutil
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input",  help="path to tagged annotations")
-parser.add_argument("--output", help="output path to MOT dataset")
-parser.add_argument("--config", help="path to config file")
-parser.add_argument("--drives", help="path to drives list file")
-parser.add_argument("--poses",  help="path to drive pose CSV files")
+parser.add_argument("--tagged",     help="path to tagged annotations")
+parser.add_argument("--output",     help="output path to MOT dataset")
+parser.add_argument("--config",     help="path to config file")
+parser.add_argument("--drives",     help="path to drives list file")
+parser.add_argument("--poses",      help="path to drive pose CSV files")
 parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
 
@@ -39,8 +39,8 @@ for drive in drive_list:
     print('Working on drive %s'%drive)
 
   #compute a list of fuse files (one for each image) that belong to the current drive
-  filelist = sorted([ i for i in os.listdir(args.input)
-    if ('_'.join(i.split('_')[:2])==drive and i.endswith('.fuse') and os.stat(args.input+'/'+i).st_size) ])
+  filelist = sorted([ i for i in os.listdir(args.tagged)
+    if ('_'.join(i.split('_')[:2])==drive and i.endswith('.fuse') and os.stat(args.tagged+'/'+i).st_size) ])
 
   #if split_on_temporal_gaps option is enabled, break the drive into smaller parts in the presence of long time gaps
   if param['split_on_temporal_gaps']:
@@ -50,7 +50,7 @@ for drive in drive_list:
     #read image stats
     image_stat = {}
     for filename in filelist:
-      points = np.loadtxt(args.input+'/'+filename,delimiter=',').reshape(-1,4)
+      points = np.loadtxt(args.tagged+'/'+filename,delimiter=',').reshape(-1,4)
       image_stat[filename] = (points[:,0].min()*1e-6,points[:,0].max()*1e-6,points.shape[0])
 
     #build an "interval graph" based on image stats
@@ -97,7 +97,7 @@ for drive in drive_list:
   #create initial sequences in ITLLAL format (detection index,timestamp,latitude,longitude,altitude,GT label)
   if args.verbosity>=2:
     print('\tCreating ITLLAL.txt')
-  motutil.generate_ITLLAL_and_tmap(args.input,args.output,clusters,tiny_subdrives,param)
+  motutil.generate_ITLLAL_and_tmap(args.tagged,args.output,clusters,tiny_subdrives,param)
 
   for subdrive in tiny_subdrives:
     if args.verbosity>=2:

@@ -53,7 +53,7 @@
         "gating_thresh": 1, //max distance between two points to be marked neighbors
         "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
-    "point_reduction": true,
+    "point_reduction": false,
         "rdp_epsilon": 0.2 //in meters
   },
   "fuse":

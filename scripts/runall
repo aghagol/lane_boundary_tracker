@@ -17,7 +17,7 @@ while [[ "$#" > 1 ]]; do case $1 in
     --fuses)      FUSE_PATH="$2";;
     --tagged)     TAGGED_PATH="$2";;
     --cache)      CACHE="$2";;
-    --drives)     DRIVE_LIST="$2";;
+    --drives)     DRIVELIST="$2";;
     --poses)      POSE_PATH="$2";;
     --chunks)     CHUNK_PATH="$2";;
     --tracker)    TRACKER="$2";;
@@ -32,6 +32,10 @@ if [[ -z $CACHE ]] || [[ -z $CONFIG ]] ; then
   echo "Usage: $USAGE"; exit 1
 fi
 
+#define shared paths (between different modules) here
+PREPROCESS_PATH=$CACHE/preprocess
+POSTPROCESS_PATH=$CACHE/postprocess
+
 if [[ -z $VERBOSITY ]] ; then
   VERBOSITY=1
 fi
@@ -40,8 +44,8 @@ if [[ -z $VISUALIZE ]] ; then
   VISUALIZE=1
 fi
 
-if [[ -z $DRIVE_LIST ]] ; then
-  DRIVE_LIST=$CACHE/preprocess/drive_list.txt
+if [[ -z $DRIVELIST ]] ; then
+  DRIVELIST=$CACHE/preprocess/drive_list.txt
 fi
 
 if [[ -z $IMAGES_PATH  ]] || \
@@ -60,32 +64,42 @@ mkdir -p $CACHE
 if [[ $ARGS_COMPLETE = "true" ]] ; then
   ./scripts/preprocess \
       --images    $IMAGES_PATH \
-      --output    $CACHE/preprocess \
+      --output    $PREPROCESS_PATH \
       --config    $CONFIG \
-      --drives    $DRIVE_LIST \
+      --drives    $DRIVELIST \
       --poses     $POSE_PATH \
-      --tagged    $TAGGED_PATH \
       --fuses     $FUSE_PATH \
+      --tagged    $TAGGED_PATH \
+      --verbosity $VERBOSITY
+
+  ./scripts/gengraph \
+      --images    $IMAGES_PATH \
+      --output    $CACHE/graph \
+      --config    $CONFIG \
+      --drives    $DRIVELIST \
+      --poses     $POSE_PATH \
+      --fuses     $FUSE_PATH \
+      --tagged    $TAGGED_PATH \
       --verbosity $VERBOSITY
 
   ./scripts/$TRACKER \
-      --input     $CACHE/preprocess/mot \
+      --input     $PREPROCESS_PATH/MOT \
       --output    $CACHE/$TRACKER \
       --config    $CONFIG \
       --verbosity $VERBOSITY
 
   ./scripts/postprocess \
-      --input     $CACHE/preprocess/mot \
-      --output    $CACHE/postprocess \
+      --input     $PREPROCESS_PATH/MOT \
+      --output    $POSTPROCESS_PATH \
       --config    $CONFIG \
       --tracks    $CACHE/$TRACKER/tracks \
       --verbosity $VERBOSITY
 
-  ./scripts/gen_fuse \
-      --input     $CACHE/preprocess/mot \
-      --output    $CACHE/fuse \
+  ./scripts/fuse \
+      --input     $PREPROCESS_PATH/MOT \
+      --output    $CACHE/fusion \
       --config    $CONFIG \
-      --tracks    $CACHE/postprocess/tracks \
+      --tracks    $POSTPROCESS_PATH/tracks \
       --chunks    $CHUNK_PATH \
       --verbosity $VERBOSITY
 fi
@@ -94,10 +108,10 @@ if [[ $VISUALIZE -ge 1 ]] ; then
   read -sp "Press [ENTER] to Visualize"; echo ""
   rm -rf $CACHE/visualize
   ./scripts/visualize \
-      --input     $CACHE/preprocess/mot \
+      --input     $PREPROCESS_PATH/MOT \
       --output    $CACHE/visualize \
       --config    $CONFIG \
-      --tracks    $CACHE/postprocess/tracks \
+      --tracks    $POSTPROCESS_PATH/tracks \
       --verbosity $VERBOSITY
 fi
 
