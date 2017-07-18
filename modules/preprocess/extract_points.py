@@ -92,7 +92,7 @@ for drive in drive_list:
     loc_im = loc_pix.astype(float)/pred_im.shape
 
     #compute final lat-lon coordinates
-    lat_lon = loc_im * (bbox[2:]-bbox[:2]) + bbox[:2]
+    lat_lon = loc_im[:,::-1] * (bbox[2:]-bbox[:2]) + bbox[:2]
 
     #assign peaks with unique id's
     lat_lon = np.hstack((np.arange(lat_lon.shape[0]).reshape(-1,1)+counter,lat_lon,loc_pix))

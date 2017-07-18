@@ -19,15 +19,6 @@ fi
 
 mkdir -p $OUTPUT_GENGRAPH
 
-# ./modules/preprocess/print_param.py \
-#   --config    $CONFIG_GENGRAPH \
-#   --verbosity $VERBOSITY_GENGRAPH
-
-# ./modules/preprocess/generate_drive_list.py \
-#   --images    $IMAGES_GENGRAPH \
-#   --drives    $DRIVELIST_GENGRAPH \
-#   --verbosity $VERBOSITY_GENGRAPH
-
 ./modules/gengraph/generate_point_graph.py \
   --fuses     $FUSES_GENGRAPH \
   --images    $IMAGES_GENGRAPH \

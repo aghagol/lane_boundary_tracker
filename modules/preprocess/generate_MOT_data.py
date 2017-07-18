@@ -108,12 +108,6 @@ for drive in drive_list:
   if args.verbosity>=2:
     print('\tCreating MOT det.txt')
   motutil.generate_MOT_det(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
-  
-  #save groundtruth for MOT compatibility
-  if param['generate_gt']:
-    if args.verbosity>=2:
-      print('\tCreating MOT gt.txt')
-    motutil.generate_MOT_gt(args.output,clusters,tiny_subdrives,args.poses+'/'+drive+'-pose.csv',param)
 
   #save (fake) images for MOT compatibility
   if param['generate_fake_images']:
