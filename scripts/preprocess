@@ -33,7 +33,6 @@ if [[ $VERBOSITY_PREPROCESS -ge 1 ]] ; then
 fi
 ./modules/preprocess/extract_points.py \
   --images    $IMAGES_PREPROCESS \
-  --poses     $POSES_PREPROCESS \
   --config    $CONFIG_PREPROCESS \
   --drives    $DRIVELIST_PREPROCESS \
   --fuses     $FUSES_PREPROCESS \

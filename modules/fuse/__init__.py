@@ -1,0 +1,30 @@
+import print_param
+import make_seq_list
+import generate_fuse_files
+import merge_sequences
+import os
+import datetime
+
+
+def run(input, tracks, output, config, chunks, verbosity):
+    if verbosity >= 1:
+        print datetime.datetime.now(), ": Fusion"
+
+    if not os.path.exists(output):
+        os.mkdir(output)
+
+    print_param.run(config, verbosity)
+    fuse_output = output + "/seqs.csv"
+    fused_output = output + "/fused"
+    fused_merged_output = output + "/fused_merged"
+    make_seq_list.run(input, tracks, fuse_output, verbosity)
+
+    # if verbosity >= 1:
+    #     print datetime.datetime.now(), ": Fusion: Point Graph + Tracking"
+    # fuse_graph_tracking(fuse_output, fused_output, config, chunks, verbosity)
+
+    if verbosity >= 1:
+        print datetime.datetime.now(), ": Fusion: Generating .fuse files"
+
+    generate_fuse_files.run(fuse_output, chunks, fused_output, config, verbosity)
+    merge_sequences.run(fused_output, fused_merged_output, config, verbosity)

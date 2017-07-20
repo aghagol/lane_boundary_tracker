@@ -23,7 +23,6 @@ mkdir -p $OUTPUT_GENGRAPH
   --fuses     $FUSES_GENGRAPH \
   --images    $IMAGES_GENGRAPH \
   --output    $OUTPUT_GENGRAPH \
-  --poses     $POSES_GENGRAPH \
   --config    $CONFIG_GENGRAPH \
   --drives    $DRIVELIST_GENGRAPH \
   --verbosity $VERBOSITY_GENGRAPH

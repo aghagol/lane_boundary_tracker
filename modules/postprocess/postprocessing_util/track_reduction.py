@@ -8,9 +8,10 @@ from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 from rdp import rdp
 
-def reducer(tracks,param):
-  rdp_mask = np.zeros(tracks.shape[0],dtype=bool)
-  for target_id in set(tracks[:,1]):
-    label_mask = (tracks[:,1]==target_id) #put points with same label together
-    rdp_mask[label_mask] = rdp(tracks[label_mask,2:4],epsilon=param['rdp_epsilon'],return_mask=True)
-  return tracks[rdp_mask,:]
+
+def reducer(tracks, param):
+    rdp_mask = np.zeros(tracks.shape[0], dtype=bool)
+    for target_id in set(tracks[:, 1]):
+        label_mask = (tracks[:, 1] == target_id)  # put points with same label together
+        rdp_mask[label_mask] = rdp(tracks[label_mask, 2:4], epsilon=param['rdp_epsilon'], return_mask=True)
+    return tracks[rdp_mask, :]

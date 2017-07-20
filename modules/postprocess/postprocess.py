@@ -3,7 +3,8 @@
 This is a script for performing a sequece of postprocessing operations on the tracking resutls
 """
 
-import sys, os
+import sys
+import os
 import numpy as np
 import pandas as pd
 import argparse
@@ -12,68 +13,76 @@ from jsmin import jsmin
 
 import postprocessing_util
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--input",      help="path to a CSV file containing sequence-related paths")
-parser.add_argument("--output",     help="output path to save tracklet fusion results")
-parser.add_argument("--graphs",     help="path to image-based point clustering information")
-parser.add_argument("--config",     help="configuration JSON file")
-parser.add_argument("--verbosity",  help="verbosity level", type=int)
-args = parser.parse_args()
 
-if args.verbosity>=2:
-  print(__doc__)
+def run(input, output, graphs, config, verbosity):
+    # format for output file (similar to tracking output)
+    # format: frame_id, target_id, x, y, detection_id, confidence
+    out_fmt = ['%05d', '%05d', '%011.5f', '%011.5f', '%05d', '%04.2f']
 
-#format for output file (similar to tracking output)
-#format: frame_id, target_id, x, y, detection_id, confidence
-out_fmt = ['%05d','%05d','%011.5f','%011.5f','%05d','%04.2f']
+    with open(config) as fparam:
+        param = json.loads(jsmin(fparam.read()))["postprocess"]
 
-with open(args.config) as fparam:
-  param = json.loads(jsmin(fparam.read()))["postprocess"]
+    flag_stitch = param['stitch_tracklets']
+    flag_reduce = param['point_reduction']
+    flag_fusion = param['merge_image_based_connections']
+    flag_postprocess = flag_stitch or flag_reduce or flag_fusion
 
-flag_stitch = param['stitch_tracklets']
-flag_reduce = param['point_reduction']
-flag_fusion = param['merge_image_based_connections']
-flag_postprocess = flag_stitch or flag_reduce or flag_fusion
+    if not os.path.exists(output):
+        os.makedirs(output)
 
-if not os.path.exists(args.output):
-  os.makedirs(args.output)
+    seqs = pd.read_csv(input)
 
-seqs = pd.read_csv(args.input)
+    if not flag_postprocess:
+        if verbosity >= 1:
+            print('No post-processing requested; linking to tracker output.')
+        for seq_idx, seq in seqs.iterrows():
+            os.system('ln -s %s %s' % (seq.tpath, '%s/%s.txt' % (output, seqs.name[seq_idx])))
 
-if not flag_postprocess:
-  if args.verbosity>=1:
-    print('No post-processing requested; linking to tracker output.')
-  for seq_idx,seq in seqs.iterrows():
-    os.system('ln -s %s %s'%(seq.tpath,'%s/%s.txt'%(args.output,seqs.name[seq_idx])))
+    for seq_idx, seq in seqs.iterrows():
+        output_path_final = '%s/%s.txt' % (output, seqs.name[seq_idx])
+        if os.path.exists(output_path_final): continue
 
-for seq_idx,seq in seqs.iterrows():
-  output_path_final = '%s/%s.txt'%(args.output,seqs.name[seq_idx])
-  if os.path.exists(output_path_final): continue
+        if verbosity >= 2:
+            print('Working on sequence %s' % seqs.name[seq_idx])
 
-  if args.verbosity>=2:
-    print('Working on sequence %s'%seqs.name[seq_idx])
-  
-  #start with the original tracking results
-  trks = np.loadtxt(seq.tpath,delimiter=',')
-  trks = trks[trks[:,4]>0,:] #remove the guide?
+        # start with the original tracking results
+        trks = np.loadtxt(seq.tpath, delimiter=',')
+        trks = trks[trks[:, 4] > 0, :]  # remove the guide?
 
-  if flag_fusion:
-    if args.verbosity>=2:
-      print('\tFusion with image based peak points clusterings')
-    drive = '_'.join(seq.tpath.split('/')[-1].split('_')[:2])
-    groups = np.loadtxt(os.path.join(args.graphs,drive)+'.txt',delimiter=',')
-    trks = postprocessing_util.fusion(trks,groups,param)
+        if flag_fusion:
+            if verbosity >= 2:
+                print('\tFusion with image based peak points clusterings')
+            drive = '_'.join(seq.tpath.split('/')[-1].split('_')[:2])
+            groups = np.loadtxt(os.path.join(graphs, drive) + '.txt', delimiter=',')
+            trks = postprocessing_util.fusion(trks, groups, param)
 
-  if flag_reduce:
-    if args.verbosity>=2:
-      print('\tApplying point reduction')
-    trks = postprocessing_util.reducer(trks,param)
+        if flag_reduce:
+            if verbosity >= 2:
+                print('\tApplying point reduction')
+            trks = postprocessing_util.reducer(trks, param)
 
-  if flag_stitch:
-    if args.verbosity>=2:
-      print('\tApplying tracklet stitching')
-    trks = postprocessing_util.stitch(trks,param)
+        if flag_stitch:
+            if verbosity >= 2:
+                print('\tApplying tracklet stitching')
+            trks = postprocessing_util.stitch(trks, param)
 
-  np.savetxt(output_path_final,trks,fmt=out_fmt,delimiter=',')
+        np.savetxt(output_path_final, trks, fmt=out_fmt, delimiter=',')
 
 
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", help="path to a CSV file containing sequence-related paths")
+    parser.add_argument("--output", help="output path to save tracklet fusion results")
+    parser.add_argument("--graphs", help="path to image-based point clustering information")
+    parser.add_argument("--config", help="configuration JSON file")
+    parser.add_argument("--verbosity", help="verbosity level", type=int)
+    args = parser.parse_args()
+
+    if args.verbosity >= 2:
+        print(__doc__)
+
+    run(args.input, args.output, args.graphs, args.config, args.verbosity)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
