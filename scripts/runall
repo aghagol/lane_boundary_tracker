@@ -35,6 +35,7 @@ fi
 #define shared paths (between different modules) here
 PREPROCESS_PATH=$CACHE/preprocess
 POSTPROCESS_PATH=$CACHE/postprocess
+GENGRAPH_PATH=$CACHE/graphs
 
 if [[ -z $VERBOSITY ]] ; then
   VERBOSITY=1
@@ -74,7 +75,7 @@ if [[ $ARGS_COMPLETE = "true" ]] ; then
 
   ./scripts/gengraph \
       --images    $IMAGES_PATH \
-      --output    $CACHE/graph \
+      --output    $GENGRAPH_PATH \
       --config    $CONFIG \
       --drives    $DRIVELIST \
       --poses     $POSE_PATH \
@@ -91,6 +92,7 @@ if [[ $ARGS_COMPLETE = "true" ]] ; then
   ./scripts/postprocess \
       --input     $PREPROCESS_PATH/MOT \
       --output    $POSTPROCESS_PATH \
+      --graphs    $GENGRAPH_PATH \
       --config    $CONFIG \
       --tracks    $CACHE/$TRACKER/tracks \
       --verbosity $VERBOSITY

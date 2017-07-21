@@ -33,6 +33,9 @@ with open(args.drives) as fdrivelist:
   for line in fdrivelist:
     drive_list.append(line.strip())
 
+fuse_to_seq_map = os.path.join(args.output,'fuse2seq.txt')
+f_f2s = open(fuse_to_seq_map,'w')
+
 #for each drive generate a sequence (or a series of sequence in the presence of long time gaps)
 for drive in drive_list:
   if args.verbosity>=2:
@@ -91,6 +94,11 @@ for drive in drive_list:
     #process all images as part of a single sequence (for the entire drive)
     clusters = {drive:filelist}
 
+  #write image filename to subdrive mapping and inverse mapping to file
+  for subdrive in clusters:
+    for filename in clusters[subdrive]:
+      f_f2s.write('%s,%s\n'%(filename,subdrive))
+
   #keep track of subdrives with 0 or 1 detection points that will be marked for deletion
   #these subdrives go unseen until now because points can be removed in later stages
   tiny_subdrives = set()
@@ -114,7 +122,9 @@ for drive in drive_list:
     if args.verbosity>=2:
       print('\tCreating MOT (fake) images')
     for subdrive in clusters:
-      img_out = args.output+'/%s/img1/'%(subdrive)
+      img_out = os.path.join(args.output,'MOT',subdrive,'img1')
       if not os.path.exists(img_out):
         os.makedirs(img_out)
       Image.fromarray(np.zeros((1,1))).convert('RGB').save(img_out+'000001.jpg')
+
+f_f2s.close()

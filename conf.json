@@ -12,7 +12,7 @@
         "min_pairwise_dist": 1,
         "search_window_size": 100,
     "split_on_temporal_gaps": true,
-        "gap_min": 1, //temporal gaps more than this get split
+        "gap_min": -999999999999, //temporal gaps larger than this result in split
         "min_seq_size": 2,
     "motion_observations": true, //replace (w,h) with speed (u,v)
     "enable_tagging": true,
@@ -59,7 +59,8 @@
         "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
     "point_reduction": true,
-        "rdp_epsilon": 0.1 //in meters
+        "rdp_epsilon": 0.1, //in meters
+    "merge_image_based_connections": true
   },
   "fuse":
   {

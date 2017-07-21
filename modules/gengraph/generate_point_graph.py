@@ -43,19 +43,20 @@ with open(args.drives) as fdrivelist:
     drive_list.append(line.strip())
 
 for drive in drive_list:
+  if os.path.exists(os.path.join(args.output,drive)+'.txt'): continue
+
   if args.verbosity>=2:
     print('Working on drive %s'%drive)
 
-  if not os.path.exists(os.path.join(args.output,drive)):
-    os.makedirs(os.path.join(args.output,drive))
+  #global group_id counter for each drive
+  group_id = 1
+  clusters = []
 
   #get a list of images for this drive
   image_path = os.path.join(args.images,drive)
   image_list = [i for i in os.listdir(image_path) if i.endswith('png')]
 
   for image in image_list:
-    if os.path.exists(os.path.join(args.output,drive,image)): continue
-
     if args.verbosity>=2:
       print('Working on image %s'%(image))
 
@@ -80,8 +81,17 @@ for drive in drive_list:
     #finding the connected components (trees)
     cc_list = nx.connected_components(nx.from_numpy_matrix(A+A.T)) #list of sets
 
-    os.makedirs(os.path.join(args.output,drive,image[:-4]))
-    for group_id,cc in enumerate(cc_list):
+    for cc in cc_list:
       if len(cc)>1:
-        out_filename = os.path.join(args.output,drive,image[:-4],'group_%d.fuse'%(group_id))
-        np.savetxt(out_filename,[P[i,0] for i in cc],fmt=['%07d'],delimiter=',')
+        cc_array = np.empty((len(cc),2))
+        cc_array[:,0] = list(cc)
+        cc_array[:,1] = group_id
+        clusters.append(cc_array)
+      group_id +=1
+
+  #sort based on detection (peak) id
+  clusters = np.vstack(clusters)
+  clusters = clusters[np.argsort(clusters[:,0]),:]
+
+  #save the results in a text file
+  np.savetxt(os.path.join(args.output,drive)+'.txt',clusters,fmt=['%07d','%06d'],delimiter=',')

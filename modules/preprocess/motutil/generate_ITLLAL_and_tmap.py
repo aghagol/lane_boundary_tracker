@@ -10,7 +10,10 @@ def generate_ITLLAL_and_tmap(input_path,output_path,clusters,tiny_subdrives,para
   for subdrive in clusters:
 
     #skip if output files exist for this subdrive
-    if os.path.exists(output_path+'/%s/det/itllal.txt'%(subdrive)) and os.path.exists(output_path+'/%s/det/tmap.txt'%(subdrive)): continue
+    output_path += '/MOT/%s/det/'%(subdrive)
+    itllal_file_path = output_path+'itllal.txt'
+    tmap_file_path = output_path+'tmap.txt'
+    if os.path.exists(itllal_file_path) and os.path.exists(tmap_file_path): continue
 
     #list of fuse files for this subdrive
     filelist = clusters[subdrive]
@@ -61,13 +64,13 @@ def generate_ITLLAL_and_tmap(input_path,output_path,clusters,tiny_subdrives,para
     itllal[:,5] = -1 #no GT labels
 
     #write itllal array to file
-    if not os.path.exists(output_path+'/%s/det/'%(subdrive)):
-      os.makedirs(output_path+'/%s/det/'%(subdrive))
+    if not os.path.exists(output_path):
+      os.makedirs(output_path)
 
     #format: index,timestamp,lat,lon,altitude,label
     fmt = ['%07d','%016d','%.10f','%.10f','%.10f','%02d']
-    np.savetxt(output_path+'/%s/det/itllal.txt'%(subdrive),itllal,fmt=fmt,delimiter=',')
+    np.savetxt(itllal_file_path,itllal,fmt=fmt,delimiter=',')
 
     #write tmap array to file
     if parameters['fake_timestamp']:
-      np.savetxt(output_path+'/%s/det/tmap.txt'%(subdrive),tmap,fmt=['%012d','%016d'],delimiter=',')
+      np.savetxt(tmap_file_path,tmap,fmt=['%012d','%016d'],delimiter=',')

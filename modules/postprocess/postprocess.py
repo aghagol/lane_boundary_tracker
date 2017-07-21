@@ -15,6 +15,7 @@ import postprocessing_util
 parser = argparse.ArgumentParser()
 parser.add_argument("--input",      help="path to a CSV file containing sequence-related paths")
 parser.add_argument("--output",     help="output path to save tracklet fusion results")
+parser.add_argument("--graphs",     help="path to image-based point clustering information")
 parser.add_argument("--config",     help="configuration JSON file")
 parser.add_argument("--verbosity",  help="verbosity level", type=int)
 args = parser.parse_args()
@@ -31,7 +32,8 @@ with open(args.config) as fparam:
 
 flag_stitch = param['stitch_tracklets']
 flag_reduce = param['point_reduction']
-flag_postprocess = flag_stitch or flag_reduce
+flag_fusion = param['merge_image_based_connections']
+flag_postprocess = flag_stitch or flag_reduce or flag_fusion
 
 if not os.path.exists(args.output):
   os.makedirs(args.output)
@@ -39,8 +41,8 @@ if not os.path.exists(args.output):
 seqs = pd.read_csv(args.input)
 
 if not flag_postprocess:
-  if args.verbosity>=2:
-    print('No post-processing required; linking to tracker output.')
+  if args.verbosity>=1:
+    print('No post-processing requested; linking to tracker output.')
   for seq_idx,seq in seqs.iterrows():
     os.system('ln -s %s %s'%(seq.tpath,'%s/%s.txt'%(args.output,seqs.name[seq_idx])))
 
@@ -54,6 +56,13 @@ for seq_idx,seq in seqs.iterrows():
   #start with the original tracking results
   trks = np.loadtxt(seq.tpath,delimiter=',')
   trks = trks[trks[:,4]>0,:] #remove the guide?
+
+  if flag_fusion:
+    if args.verbosity>=2:
+      print('\tFusion with image based peak points clusterings')
+    drive = '_'.join(seq.tpath.split('/')[-1].split('_')[:2])
+    groups = np.loadtxt(os.path.join(args.graphs,drive)+'.txt',delimiter=',')
+    trks = postprocessing_util.fusion(trks,groups,param)
 
   if flag_reduce:
     if args.verbosity>=2:

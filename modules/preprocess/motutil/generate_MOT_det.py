@@ -18,13 +18,16 @@ def generate_MOT_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
   for subdrive in clusters:
 
     #skip subdrive sequence if det.txt already exists
-    if os.path.exists(output_path+'/%s/det/det.txt'%(subdrive)): continue
+    output_path += '/MOT/%s/det/'%(subdrive)
+    det_file_path = output_path+'det.txt'
+    if os.path.exists(det_file_path): continue
+    itllal_file_path = output_path+'itllal.txt'
 
     #skip subdrive sequence if subdrive is marked as "tiny"
     if subdrive in tiny_subdrives: continue
 
     #read detection points from itllal.txt
-    dets = np.loadtxt(output_path+'/%s/det/itllal.txt'%(subdrive),delimiter=',')
+    dets = np.loadtxt(itllal_file_path,delimiter=',')
 
     lat_min, lat_max = (dets[:,2].min(), dets[:,2].max())
     lon_min, lon_max = (dets[:,3].min(), dets[:,3].max())
@@ -61,4 +64,4 @@ def generate_MOT_det(output_path,clusters,tiny_subdrives,pose_path,parameters):
       out[:,4:6] = parameters['object_size']
     
     #write MOT formatted data
-    np.savetxt(output_path+'/%s/det/det.txt'%(subdrive),out,fmt=fmt,delimiter=',')
+    np.savetxt(det_file_path,out,fmt=fmt,delimiter=',')

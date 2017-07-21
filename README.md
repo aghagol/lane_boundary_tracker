@@ -25,13 +25,13 @@ scripts/runall \
  - The `list_of_drives_txt_file` contains IDs of drives to be processed.
  - If the `--drives` option is not used, a `drive_list.txt` is automatically generated.
  - If the `--drives` input file does not point to an existing file, it is generated from images.
- - `pose` and `chunk` files (drive metadata) are named as `driveID-pose.csv` and `driveID.csv` respectively.
- - `fuses` and `tagged` paths are separated from `cache` path since, unlike cache, they are reusable. 
- 
+ - `pose` and `chunk` files (drive metadata) are named as `{drive_id}-pose.csv` and `{drive_id}.csv` respectively.
+ - `fuses` and `tagged` paths are separated from `cache` path since, unlike cache, they are reusable.
+
 
 ## Installation
 
-I have tested the code with Anaconda 4.3.1 (Python 2.7.13 64-bit). 
+I have tested the code with Anaconda 4.3.1 (Python 2.7.13 64-bit).
 
 Python packages needed for running the code are:
 
@@ -46,6 +46,7 @@ Python packages needed for running the code are:
  - `jsmin`
  - `filterpy`
  - `rdp`
- - `python-tk`, install using `sudo apt-get install python-tk`
+
+If not using Anaconda, dependecny `python-tk` must be installed manually, for example using `sudo apt-get install python-tk`.
 
 Most (if not all) of these packages can be installed simply using `pip install package_name`.
