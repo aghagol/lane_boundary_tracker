@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """ 
 This is a script for merging fuse files from drive segments for each drive
+lane marking outputs from previous stage must be grouped according to drive IDs
 """
 
 import sys, os
@@ -19,14 +20,16 @@ args = parser.parse_args()
 if args.verbosity>=2:
   print(__doc__)
 
-if not os.path.exists(args.output):
-  os.makedirs(args.output)
-
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["fuse"]
-if not param['enable']: exit()
 
-#lane marking outputs from previous stage must be grouped according to drive IDs
+if not param['merge_subdrives']:
+  if args.verbosity>=1:
+    print('Subdrive merging is disabled. Skipping.')
+  exit()
+
+if not os.path.exists(args.output):
+  os.makedirs(args.output)
 
 #get a list of sequence names
 fuse_dir_list = [i for i in os.listdir(args.input) if os.path.isdir(args.input+'/'+i)]

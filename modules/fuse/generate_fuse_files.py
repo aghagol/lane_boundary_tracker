@@ -21,13 +21,16 @@ args = parser.parse_args()
 if args.verbosity>=2:
   print(__doc__)
 
-if not os.path.exists(args.output):
-  os.makedirs(args.output)
-
 with open(args.config) as fparam:
   param = json.loads(jsmin(fparam.read()))["fuse"]
 
-if not param['enable']: exit('Fusion is disabled. Aborting!')
+if not param['enable']:
+  if verbosity>=1:
+    print('Fusion is disabled. Skipping.')
+  exit()
+
+if not os.path.exists(args.output):
+  os.makedirs(args.output)
 
 seqs = pd.read_csv(args.input)
 

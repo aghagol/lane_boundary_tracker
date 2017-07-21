@@ -66,6 +66,7 @@
   {
     "enable": true,
     "min_seq_length": 2,
-    "min_bbox_size": 7 //in meters
+    "min_bbox_size": 7, //in meters
+    "merge_subdrives": false
   }
 }
