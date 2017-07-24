@@ -16,7 +16,7 @@ class TestSurfaceStreetLineConnector(unittest.TestCase):
     poses = data_dir + "/poses"
     chunks = data_dir + "/chunks"
     drives = data_dir + "/drives.txt"
-    config = src_dir + "/conf.json"
+    config = data_dir + "/conf.json"
     cache = "/tmp/sslc"
     fuses = cache + "/output/fuse"
     tagged = cache + "/fuse_tagged"

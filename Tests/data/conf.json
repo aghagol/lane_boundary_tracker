@@ -1,0 +1,74 @@
+{
+  "preprocess":
+  {
+    "object_size": 10, //for MOT purposes
+    "ians_peak_filter": false,
+    "maxpool_size": 10, //maxpool filter size for extracting high confidence points
+    "global_confidence_thresh": 0.4,
+    "recall": 1, //drop detections randomly
+    "generate_fake_images": false,
+    "remove_adjacent_points": false,
+        "fake_confidence": true, //when detection point confidences are unknown
+        "min_pairwise_dist": 1,
+        "search_window_size": 100,
+    "split_on_temporal_gaps": true,
+        "gap_min": -999999999999, //temporal gaps larger than this result in split
+        "min_seq_size": 2,
+    "motion_observations": true, //replace (w,h) with speed (u,v)
+    "enable_tagging": true,
+        "tag_max_dist": 10, //in meters
+        "pose_filter_bbox": true,
+        "fake_timestamp": true,
+        "tag_altitude": true,
+            "pose_altitude_offset": 0 //meters (height of vehicle)
+  },
+  "gengraph":
+  {
+    "distance_threshold": 50,
+    "min_avg_pixel": 0.9
+  },
+  "sort":
+  {
+    "bypass_tracking_use_gt": false, //bypass tracking and output GT data
+    "d2t_dist_threshold_tight": 0.3,
+    "d2t_dist_threshold_loose": 0.3,
+    "max_age_after_last_update": 20,
+    "max_mov_after_last_update": 2,
+    "motion_model_variance": 1,
+    "observation_variance": 1,
+    "motion_init_pose": true, //this has priority over "motion_init_sync"
+    "motion_init_sync": false, //use existing trackers to estimate initial motion
+    "constant_fps": false //KF with fixed time steps
+  },
+  "visualize":
+  {
+    "delay": 0.01,
+    "window_size": 30,
+    "centered": true,
+    "show_tracks": true,
+    "min_track_length": 1,
+    "hide_predictions": false,
+    "real_time": false,
+        "delay_multiplier": 1,
+        "max_delay": 5,
+    "min_seq_length": 2,
+    "min_bbox_size": 7
+  },
+  "postprocess":
+  {
+    "stitch_tracklets": false,
+        "gating_thresh": 1, //max distance between two points to be marked neighbors
+        "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
+        "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
+    "point_reduction": true,
+        "rdp_epsilon": 0.1, //in meters
+    "merge_image_based_connections": true
+  },
+  "fuse":
+  {
+    "enable": true,
+    "min_seq_length": 2,
+    "min_bbox_size": 7, //in meters
+    "merge_subdrives": false
+  }
+}
