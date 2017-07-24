@@ -3,16 +3,14 @@
 CACHE="/home/mo/Desktop/tmp/"
 
 
-
-./scripts/runall \
+python line_connector.py \
   --images  ~/data_ian/input/images/ \
   --poses   ~/data_ian/input/poses/ \
   --chunks  ~/data_ian/input/chunks/ \
   --drives  ~/Desktop/drive_poc.txt \
-  --tracker "sort" \
   --config  ./conf.json \
   --verbosity 1 \
-  --visualize 0 \
+  --visualize 1 \
   --fuses   ~/data_ian/input/fuse/ \
   --tagged  ~/data_ian/input/fuse_tagged/ \
   --cache   $CACHE

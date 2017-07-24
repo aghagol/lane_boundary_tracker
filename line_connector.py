@@ -10,10 +10,11 @@ from modules import fuse
 from modules import visualize
 
 
-def run(images, fuses, tagged, cache, drives, poses, chunks, config, should_visualize, verbosity):
-    if os.path.exists(cache):
+def run(images, fuses, tagged, cache, clear_cache, drives, poses, chunks, config, should_visualize, verbosity):
+    if os.path.exists(cache) and clear_cache:
         shutil.rmtree(cache)
-    os.mkdir(cache)
+    if not os.path.exists(cache):
+        os.mkdir(cache)
 
     pre_process_path = os.path.join(cache, 'preprocess')
     mot_path = os.path.join(pre_process_path, 'MOT')
@@ -41,6 +42,7 @@ def main(argv):
     parser.add_argument("--fuses",  help="path to fuse files")
     parser.add_argument("--tagged", help="path to tagged fuse files")
     parser.add_argument("--cache",  help="path to cache", default="/tmp/surface_street_line_connector")
+    parser.add_argument("--clear_cache", help="clear existing cache before running", action='store_true')
     parser.add_argument("--drives", help="path to drives list file")
     parser.add_argument("--poses",  help="path to drive pose CSV files")
     parser.add_argument("--chunks", help="path to chunk metadata")
@@ -52,7 +54,7 @@ def main(argv):
     if args.verbosity >= 2:
         print(__doc__)
 
-    run(args.images, args.fuses, args.tagged, args.cache, args.drives, args.poses, args.chunks, args.config,
+    run(args.images, args.fuses, args.tagged, args.cache, args.clear_cache, args.drives, args.poses, args.chunks, args.config,
         args.visualize, args.verbosity)
 
 

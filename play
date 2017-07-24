@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 CACHE="/home/mo/Desktop/tmp/"
+rm -r $CACHE
 
 python line_connector.py \
   --images  ~/data_ian/input/images/ \
