@@ -20,7 +20,7 @@ def run(input, chunks, output, config, verbosity):
 
     if not param['enable']:
         if verbosity >= 1:
-            print('Fusion is disabled. Skipping.')
+            print('...Fusion is disabled. Skipping.')
         exit()
 
     if not os.path.exists(output):

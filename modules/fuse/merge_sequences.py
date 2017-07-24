@@ -18,7 +18,7 @@ def run(input, output, config, verbosity):
 
     if not param['merge_subdrives']:
         if verbosity >= 1:
-            print('Subdrive merging is disabled. Skipping.')
+            print('...Subdrive merging is disabled')
         return
 
     if not os.path.exists(output):
