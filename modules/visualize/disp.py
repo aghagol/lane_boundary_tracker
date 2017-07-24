@@ -98,7 +98,7 @@ def run(input, delay, margin, groundtruth, window_size, config, verbosity):
                         trk_curr_tail = trk_curr_tail[trk_curr_tail[:, 0] < frame, :]
                         trk_curr_tail = trk_curr_tail[trk_curr_tail[:, 0] >= start_frame, :]
                         ax.plot(trk_curr_tail[:, 3] - x_center, trk_curr_tail[:, 2] - y_center,
-                                color=colors[trk_curr_id % 711, :])
+                                color=colors[int(trk_curr_id % 711), :])
 
                 if param['real_time']:
                     delay = (frame_timestamps[frames[min(frame_idx + 1, len(frames) - 1)]] - timestamp) * 1e-6 * param[

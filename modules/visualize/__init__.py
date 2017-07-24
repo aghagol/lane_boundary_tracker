@@ -1,7 +1,7 @@
 import print_param
 import make_seq_list
 import disp
-import overlay
+#import overlay
 import os
 import datetime
 
