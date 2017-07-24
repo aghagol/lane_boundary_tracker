@@ -26,7 +26,12 @@ mkdir -p $OUTPUT_VISUALIZE
   --output    $OUTPUT_VISUALIZE/seqs.csv \
   --verbosity $VERBOSITY_VISUALIZE
 
-./modules/visualize/disp.py \
+# ./modules/visualize/disp.py \
+#   --input     $OUTPUT_VISUALIZE/seqs.csv \
+#   --config    $CONFIG_VISUALIZE \
+#   --verbosity $VERBOSITY_VISUALIZE
+
+./modules/visualize/overlay.py \
   --input     $OUTPUT_VISUALIZE/seqs.csv \
   --config    $CONFIG_VISUALIZE \
   --verbosity $VERBOSITY_VISUALIZE

@@ -14,9 +14,11 @@ def run(input, tracks, output, config, chunks, verbosity):
         os.mkdir(output)
 
     print_param.run(config, verbosity)
-    fuse_output = output + "/seqs.csv"
-    fused_output = output + "/fused"
-    fused_merged_output = output + "/fused_merged"
+
+    fuse_output = os.path.join(output, 'seqs.csv')
+    fused_output = os.path.join(output, 'fused')
+    fused_merged_output = os.path.join(output, 'fused_merged')
+    
     make_seq_list.run(input, tracks, fuse_output, verbosity)
 
     # if verbosity >= 1:

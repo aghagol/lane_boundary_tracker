@@ -50,7 +50,9 @@
     "hide_predictions": false,
     "real_time": false,
         "delay_multiplier": 1,
-        "max_delay": 5
+        "max_delay": 5,
+    "min_seq_length": 2,
+    "min_bbox_size": 7
   },
   "postprocess":
   {

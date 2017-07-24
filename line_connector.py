@@ -15,15 +15,15 @@ def run(images, fuses, tagged, cache, drives, poses, chunks, config, should_visu
         shutil.rmtree(cache)
     os.mkdir(cache)
 
-    pre_process_path = cache + "/preprocess"
-    mot_path = pre_process_path + "/MOT"
-    graph_path = cache + "/graphs"
-    tracker_path = cache + "/sort"
-    tracks_path = tracker_path + "/tracks"
-    post_process_path = cache + "/postprocess"
-    post_process_tracks_path = post_process_path + "/tracks"
-    fusion_path = cache + "/fusion"
-    visualize_path = cache + "/visualize"
+    pre_process_path = os.path.join(cache, 'preprocess')
+    mot_path = os.path.join(pre_process_path, 'MOT')
+    graph_path = os.path.join(cache, 'graphs')
+    tracker_path = os.path.join(cache, 'sort')
+    tracks_path = os.path.join(tracker_path, 'tracks')
+    post_process_path = os.path.join(cache, 'postprocess')
+    post_process_tracks_path = os.path.join(post_process_path, 'tracks')
+    fusion_path = os.path.join(cache, 'fusion')
+    visualize_path = os.path.join(cache, 'visualize')
 
     preprocess.run(images, pre_process_path, config, drives, poses, tagged, fuses, verbosity)
     gengraph.run(fuses, images, graph_path, config, drives, verbosity)
@@ -32,7 +32,7 @@ def run(images, fuses, tagged, cache, drives, poses, chunks, config, should_visu
     fuse.run(mot_path, post_process_tracks_path, fusion_path, config, chunks, verbosity)
 
     if should_visualize == 1:
-        visualize.run(mot_path, post_process_tracks_path, visualize_path, config, verbosity)
+        visualize.run(mot_path, images, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity)
 
 
 def main(argv):

@@ -14,7 +14,8 @@ def run(input, tracks, graphs, output, config, verbosity):
 
     print_param.run(config, verbosity)
 
-    seq_list_output = output + "/seqs.csv"
-    post_process_output = output + "/tracks"
+    seq_list_output = os.path.join(output, 'seqs.csv')
+    post_process_output = os.path.join(output, 'tracks')
+    
     make_seq_list.run(input, tracks, seq_list_output, verbosity)
     postprocess.run(seq_list_output, post_process_output, graphs, config, verbosity)
