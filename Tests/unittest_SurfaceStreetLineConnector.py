@@ -40,7 +40,7 @@ class TestSurfaceStreetLineConnector(unittest.TestCase):
             self.print_diff_files(sub_diff)
 
     def test_SingleImage(self):
-        line_connector.run(self.images, self.fuses, self.tagged, self.cache, self.drives, self.poses,
+        line_connector.run(self.images, self.fuses, self.tagged, self.cache, True, self.drives, self.poses,
                            self.chunks, self.config, 0, 1)
 
         diff = dircmp(data_dir + "/expected", self.cache)

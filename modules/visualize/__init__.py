@@ -1,12 +1,15 @@
 import print_param
 import make_seq_list
 import disp
-#import overlay
+import overlay
 import os
 import datetime
 
 
-def run(mot_path, images, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity):
+def run(vis_flag, mot_path, images, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity):
+    if vis_flag==0:
+        return
+
     if verbosity >= 1:
         print datetime.datetime.now(), ": Visualization"
 
@@ -19,5 +22,9 @@ def run(mot_path, images, pre_process_path, post_process_tracks_path, visualize_
 
     print_param.run(config, verbosity)
     make_seq_list.run(mot_path, post_process_tracks_path, seq_file, verbosity)
-    disp.run(seq_file, .01, 5, False, 30, config, verbosity)
-    # overlay.run(seq_file, images, img2fuse, fuse2seq, False, config, verbosity)
+
+    if vis_flag==1:
+        disp.run(seq_file, .01, 5, False, 30, config, verbosity)
+
+    if vis_flag==2:
+        overlay.run(seq_file, images, img2fuse, fuse2seq, False, config, verbosity)

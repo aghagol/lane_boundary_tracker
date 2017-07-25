@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 CACHE="/home/mo/Desktop/tmp/"
-rm -r $CACHE
 
 python line_connector.py \
   --images  ~/data_ian/input/images/ \
@@ -13,4 +12,5 @@ python line_connector.py \
   --visualize 1 \
   --fuses   ~/data_ian/input/fuse/ \
   --tagged  ~/data_ian/input/fuse_tagged/ \
-  --cache   $CACHE
+  --cache   $CACHE \
+  --clear_cache

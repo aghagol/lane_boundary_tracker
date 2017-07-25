@@ -10,7 +10,7 @@ from modules import fuse
 from modules import visualize
 
 
-def run(images, fuses, tagged, cache, clear_cache, drives, poses, chunks, config, should_visualize, verbosity):
+def run(images, fuses, tagged, cache, clear_cache, drives, poses, chunks, config, vis_flag, verbosity):
     if os.path.exists(cache) and clear_cache:
         shutil.rmtree(cache)
     if not os.path.exists(cache):
@@ -31,9 +31,7 @@ def run(images, fuses, tagged, cache, clear_cache, drives, poses, chunks, config
     trackers.run(mot_path, tracker_path, config, verbosity)
     postprocess.run(mot_path, tracks_path, graph_path, post_process_path, config, verbosity)
     fuse.run(mot_path, post_process_tracks_path, fusion_path, config, chunks, verbosity)
-
-    if should_visualize == 1:
-        visualize.run(mot_path, images, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity)
+    visualize.run(vis_flag, mot_path, images, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity)
 
 
 def main(argv):
@@ -47,7 +45,7 @@ def main(argv):
     parser.add_argument("--poses",  help="path to drive pose CSV files")
     parser.add_argument("--chunks", help="path to chunk metadata")
     parser.add_argument("--config", help="path to config file", required=True)
-    parser.add_argument("--visualize", help="visualize 1 = yes, 0 = no (default)", type=int, default=0)
+    parser.add_argument("--visualize", help="2 = snapshot, 1 = tracking, 0 = none (default)", type=int, default=0)
     parser.add_argument("--verbosity", help="verbosity level", type=int, default=1)
     args = parser.parse_args()
 

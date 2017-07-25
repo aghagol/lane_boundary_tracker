@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-CACHE="/home/mo/Desktop/tmp/"
-
-./scripts/runall \
-  --cache $CACHE \
-  --config ./conf.json \
-  --verbosity 1 \
-  --visualize 1
