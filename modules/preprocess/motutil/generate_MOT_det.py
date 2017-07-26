@@ -19,10 +19,11 @@ def generate_MOT_det(output_path, clusters, tiny_subdrives, pose_path, parameter
     for subdrive in clusters:
 
         # skip subdrive sequence if det.txt already exists
-        output_path += '/MOT/%s/det/' % (subdrive)
-        det_file_path = output_path + 'det.txt'
+        mot_det_path = os.path.join(output_path, 'MOT', subdrive, 'det')
+        det_file_path = os.path.join(mot_det_path, 'det.txt')
+        itllal_file_path = os.path.join(mot_det_path, 'itllal.txt')
+
         if os.path.exists(det_file_path): continue
-        itllal_file_path = output_path + 'itllal.txt'
 
         # skip subdrive sequence if subdrive is marked as "tiny"
         if subdrive in tiny_subdrives: continue

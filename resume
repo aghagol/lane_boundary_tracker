@@ -9,7 +9,7 @@ python line_connector.py \
   --drives  ~/Desktop/drive_poc.txt \
   --config  ./conf.json \
   --verbosity 1 \
-  --visualize 1 \
+  --visualize 2 \
   --fuses   ~/data_ian/input/fuse/ \
   --tagged  ~/data_ian/input/fuse_tagged/ \
   --cache   $CACHE

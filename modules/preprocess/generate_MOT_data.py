@@ -15,7 +15,7 @@ import networkx as nx
 import motutil
 
 
-def run(tagged, output, config, drives, poses, verbosity):
+def run(tagged, output_path, config, drives, poses, verbosity):
     with open(config) as fparam:
         param = json.loads(jsmin(fparam.read()))["preprocess"]
 
@@ -24,7 +24,7 @@ def run(tagged, output, config, drives, poses, verbosity):
         for line in fdrivelist:
             drive_list.append(line.strip())
 
-    fuse_to_seq_map = os.path.join(output, 'fuse2seq.txt')
+    fuse_to_seq_map = os.path.join(output_path, 'fuse2seq.txt')
     f_f2s = open(fuse_to_seq_map, 'w')
 
     # for each drive generate a sequence (or a series of sequence in the presence of long time gaps)
@@ -101,7 +101,7 @@ def run(tagged, output, config, drives, poses, verbosity):
         # create initial sequences in ITLLAL format (detection index,timestamp,latitude,longitude,altitude,GT label)
         if verbosity >= 2:
             print('\tCreating ITLLAL.txt')
-        motutil.generate_ITLLAL_and_tmap(tagged, output, clusters, tiny_subdrives, param)
+        motutil.generate_ITLLAL_and_tmap(tagged, output_path, clusters, tiny_subdrives, param)
 
         for subdrive in tiny_subdrives:
             if verbosity >= 2:
@@ -110,14 +110,14 @@ def run(tagged, output, config, drives, poses, verbosity):
         # create MOT formated det.txt files
         if verbosity >= 2:
             print('\tCreating MOT det.txt')
-        motutil.generate_MOT_det(output, clusters, tiny_subdrives, poses + '/' + drive + '-pose.csv', param)
+        motutil.generate_MOT_det(output_path, clusters, tiny_subdrives, os.path.join(poses, drive) + '-pose.csv', param)
 
         # save (fake) images for MOT compatibility
         if param['generate_fake_images']:
             if verbosity >= 2:
                 print('\tCreating MOT (fake) images')
             for subdrive in clusters:
-                img_out = os.path.join(output, 'MOT', subdrive, 'img1')
+                img_out = os.path.join(output_path, 'MOT', subdrive, 'img1')
                 if not os.path.exists(img_out):
                     os.makedirs(img_out)
                 Image.fromarray(np.zeros((1, 1))).convert('RGB').save(img_out + '000001.jpg')

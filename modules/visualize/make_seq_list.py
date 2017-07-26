@@ -20,13 +20,13 @@ def run(input, tracks, output, verbosity):
         sequences = sorted(list(seq_set_dets))
 
     seqs = {}
-    seqs['name'] = sequences
+    seqs['sname'] = sequences
     seqs['dpath'] = ['%s/%s/det/det.txt' % (input, seq) for seq in sequences]
     seqs['gpath'] = ['%s/%s/gt/gt.txt' % (input, seq) for seq in sequences]
     seqs['tpath'] = ['%s/%s.txt' % (tracks, seq) for seq in sequences]
 
     seqs_df = pd.DataFrame(seqs)
-    seqs_df = seqs_df[['name', 'dpath', 'tpath', 'gpath']]  # sort
+    seqs_df = seqs_df[['sname', 'dpath', 'tpath', 'gpath']]  # sort
 
     seqs_df.to_csv(output, index=False, header=True)
 

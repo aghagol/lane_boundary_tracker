@@ -14,7 +14,7 @@ from jsmin import jsmin
 import postprocessing_util
 
 
-def run(input, output, graphs, config, verbosity):
+def run(seq_list, output, graphs, config, verbosity):
     # format for output file (similar to tracking output)
     # format: frame_id, target_id, x, y, detection_id, confidence
     out_fmt = ['%05d', '%05d', '%011.5f', '%011.5f', '%05d', '%04.2f']
@@ -30,20 +30,20 @@ def run(input, output, graphs, config, verbosity):
     if not os.path.exists(output):
         os.makedirs(output)
 
-    seqs = pd.read_csv(input)
+    seqs = pd.read_csv(seq_list)
 
     if not flag_postprocess:
         if verbosity >= 1:
             print('No post-processing requested; linking to tracker output.')
         for seq_idx, seq in seqs.iterrows():
-            os.system('ln -s %s %s' % (seq.tpath, '%s/%s.txt' % (output, seqs.name[seq_idx])))
+            os.system('ln -s %s %s' % (seq.tpath, '%s/%s.txt' % (output, seq.sname)))
 
     for seq_idx, seq in seqs.iterrows():
-        output_path_final = '%s/%s.txt' % (output, seqs.name[seq_idx])
+        output_path_final = '%s/%s.txt' % (output, seq.sname)
         if os.path.exists(output_path_final): continue
 
         if verbosity >= 2:
-            print('Working on sequence %s' % seqs.name[seq_idx])
+            print('Working on sequence %s' % seq.sname)
 
         # start with the original tracking results
         trks = np.loadtxt(seq.tpath, delimiter=',')

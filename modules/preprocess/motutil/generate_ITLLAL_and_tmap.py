@@ -11,9 +11,10 @@ def generate_ITLLAL_and_tmap(input_path, output_path, clusters, tiny_subdrives, 
     for subdrive in clusters:
 
         # skip if output files exist for this subdrive
-        output_path += '/MOT/%s/det/' % (subdrive)
-        itllal_file_path = output_path + 'itllal.txt'
-        tmap_file_path = output_path + 'tmap.txt'
+        mot_det_path = os.path.join(output_path, 'MOT', subdrive, 'det')
+        itllal_file_path = os.path.join(mot_det_path, 'itllal.txt')
+        tmap_file_path = os.path.join(mot_det_path, 'tmap.txt')
+
         if os.path.exists(itllal_file_path) and os.path.exists(tmap_file_path): continue
 
         # list of fuse files for this subdrive
@@ -23,11 +24,11 @@ def generate_ITLLAL_and_tmap(input_path, output_path, clusters, tiny_subdrives, 
         dets = []
         tmap = []
         for filename in filelist:
-            if os.stat(input_path + '/' + filename).st_size:
+            if os.stat(os.path.join(input_path, filename)).st_size:
                 # points format: id, latitude, longitude, altitude, timestamp
-                dets.append(np.loadtxt(input_path + '/' + filename, delimiter=',').reshape(-1, 5))
+                dets.append(np.loadtxt(os.path.join(input_path, filename), delimiter=',').reshape(-1, 5))
                 if parameters['fake_timestamp']:
-                    tmap.append(np.loadtxt(input_path + '/' + filename + '.tmap', delimiter=',').reshape(-1, 2))
+                    tmap.append(np.loadtxt(os.path.join(input_path, filename) + '.tmap', delimiter=',').reshape(-1, 2))
         dets = np.vstack(dets)
         if parameters['fake_timestamp']:
             tmap = np.vstack(tmap)
@@ -65,8 +66,8 @@ def generate_ITLLAL_and_tmap(input_path, output_path, clusters, tiny_subdrives, 
         itllal[:, 5] = -1  # no GT labels
 
         # write itllal array to file
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+        if not os.path.exists(mot_det_path):
+            os.makedirs(mot_det_path)
 
         # format: index,timestamp,lat,lon,altitude,label
         fmt = ['%07d', '%016d', '%.10f', '%.10f', '%.10f', '%02d']

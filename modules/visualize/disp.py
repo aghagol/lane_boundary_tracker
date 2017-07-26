@@ -18,7 +18,7 @@ from jsmin import jsmin
 import warnings
 
 
-def run(input, delay, margin, groundtruth, window_size, config, verbosity):
+def run(seq_list, delay, margin, groundtruth, window_size, config, verbosity):
     warnings.filterwarnings("ignore")
     w = float(window_size)
     delay = delay
@@ -33,7 +33,7 @@ def run(input, delay, margin, groundtruth, window_size, config, verbosity):
     if 'delay' in param: delay = param['delay']
     if 'window_size' in param: w = param['window_size']
 
-    seqs = pd.read_csv(input)
+    seqs = pd.read_csv(seq_list)
 
     fig, ax = plt.subplots(1, 1, figsize=(9, 9))
     colors = np.random.rand(711, 3)  # create random colors for tracks
@@ -44,7 +44,7 @@ def run(input, delay, margin, groundtruth, window_size, config, verbosity):
         seq = seqs.iloc[seq_idx]
 
         if verbosity >= 2:
-            print('Working on sequence %s' % seqs.name[seq_idx])
+            print('Working on sequence %s' % seq.sname)
 
         dets = np.loadtxt(seq.dpath, delimiter=',')
         dets = dets[dets[:, 6] > 0, :]  # remove the guide (fake points)

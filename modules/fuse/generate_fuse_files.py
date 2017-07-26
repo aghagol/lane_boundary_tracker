@@ -11,7 +11,7 @@ import json
 from jsmin import jsmin
 
 
-def run(input, chunks, output, config, verbosity):
+def run(seq_list, chunks, output, config, verbosity):
     if not os.path.exists(output):
         os.makedirs(output)
 
@@ -26,12 +26,12 @@ def run(input, chunks, output, config, verbosity):
     if not os.path.exists(output):
         os.makedirs(output)
 
-    seqs = pd.read_csv(input)
+    seqs = pd.read_csv(seq_list)
 
     fmt = ['%.10f', '%.10f', '%.10f', '%d']
     for seq_idx, seq in seqs.iterrows():
 
-        subdrive = seqs.name[seq_idx]
+        subdrive = seq.sname
         drive = '_'.join(subdrive.split('_')[:2])
 
         if verbosity >= 2:

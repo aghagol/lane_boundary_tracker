@@ -31,7 +31,7 @@ def run(images, fuses, tagged, cache, clear_cache, drives, poses, chunks, config
     trackers.run(mot_path, tracker_path, config, verbosity)
     postprocess.run(mot_path, tracks_path, graph_path, post_process_path, config, verbosity)
     fuse.run(mot_path, post_process_tracks_path, fusion_path, config, chunks, verbosity)
-    visualize.run(vis_flag, mot_path, images, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity)
+    visualize.run(vis_flag, mot_path, images, fuses, pre_process_path, post_process_tracks_path, visualize_path, config, verbosity)
 
 
 def main(argv):
