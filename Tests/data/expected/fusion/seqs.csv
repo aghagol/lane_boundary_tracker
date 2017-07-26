@@ -1,2 +1,2 @@
-name,dpath,tmap,tpath
+sname,dpath,tmap,tpath
 HT073_1479214910_part_00000,/tmp/sslc/preprocess/MOT/HT073_1479214910_part_00000/det/itllal.txt,/tmp/sslc/preprocess/MOT/HT073_1479214910_part_00000/det/tmap.txt,/tmp/sslc/postprocess/tracks/HT073_1479214910_part_00000.txt

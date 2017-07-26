@@ -1,2 +1,2 @@
-name,dpath,tpath,mpath,gpath
+sname,dpath,tpath,mpath,gpath
 HT073_1479214910_part_00000,/tmp/sslc/preprocess/MOT/HT073_1479214910_part_00000/det/det.txt,/tmp/sslc/sort/tracks/HT073_1479214910_part_00000.txt,/tmp/sslc/preprocess/MOT/HT073_1479214910_part_00000/det/timestamps.txt,/tmp/sslc/preprocess/MOT/HT073_1479214910_part_00000/gt/gt.txt
