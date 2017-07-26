@@ -6,7 +6,7 @@ import numpy as np
 
 from ..common.params import get_total_channels
 from ..common.utils import restore_vars
-
+from ..common.arch_dir import batchnrm_conv_5_pool_2_2x_res_5_7_pool_2_2x_conv_1
 
 class Prediction(object):
     # --------------------------------------------------------------------------
@@ -34,7 +34,7 @@ class Prediction(object):
                        get_total_channels(params.features_layers)))
 
             print("Build network")
-            build_network = params.get_arch()
+            build_network = batchnrm_conv_5_pool_2_2x_res_5_7_pool_2_2x_conv_1.build_network
             self.prediction_op = build_network(self.features_pl, params.labels_layers)
 
             print("Define the param saver")

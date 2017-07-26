@@ -14,8 +14,7 @@ from itertools import chain
 
 import tensorflow as tf
 
-from .utils import dynamic_import
-
+import arch_dir
 
 # ------------------------------------------------------------------------------
 def get_layer_property(list_of_layers, prop):
@@ -300,25 +299,7 @@ class Params_base(object):
 
 
     # --------------------------------------------------------------------------
-    def get_arch(self, package=None):
-        """
-        the `build_network` function from the module specified by
-        self.arch_name
 
-        Args:
-            package (str): Package used for relative import of params
-
-        Returns:
-            function: `build_network` function used to construct model
-                      architecture
-
-        """
-        if package is None:
-            package = 'RoadProbMapNN.common'
-
-        return dynamic_import(
-            '.arch_dir.{}.build_network'.format(self.arch_name),
-            package)
 
 
 # ==============================================================================

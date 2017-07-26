@@ -9,7 +9,6 @@ Parameter container class used to store parameters for the model
 
 # ==============================================================================
 from ..common.params import Params_base
-from ..common.params import Layer
 
 
 # ==============================================================================
