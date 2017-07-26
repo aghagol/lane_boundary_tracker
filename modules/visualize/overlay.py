@@ -28,9 +28,6 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
     with open(config) as fparam:
         param = json.loads(jsmin(fparam.read()))["visualize"]
 
-    if not os.path.exists(overlay_out):
-        os.makedirs(overlay_out)
-
     #create mapping seq_name --> fuse_name --> image_name
     img2fuse_df = pd.read_csv(img2fuse, header=None)
     fuse2seq_df = pd.read_csv(fuse2seq, header=None)
@@ -96,9 +93,12 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             c = np.array([np.random.rand(),0,1])[np.random.permutation(3)]
             ax.plot(node_cols, node_rows, color=c)
 
-        #save figure (finally!)
-        plt.show()
-        # plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
+        if param['overlay_save_as_image']:
+            if not os.path.exists(overlay_out):
+                os.makedirs(overlay_out)
+            plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
+        else:
+            plt.show()
 
 
 def main(argv):

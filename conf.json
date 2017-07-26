@@ -46,14 +46,14 @@
     "window_size": 30,
     "centered": true,
     "show_tracks": true,
-    "min_track_length": 1,
     "hide_predictions": true,
     "real_time": false,
         "delay_multiplier": 1,
         "max_delay": 5,
     "min_seq_length": 2,
     "min_bbox_size": 7,
-    "overlay_detections": true
+    "overlay_detections": true,
+    "overlay_save_as_image": false
   },
   "postprocess":
   {

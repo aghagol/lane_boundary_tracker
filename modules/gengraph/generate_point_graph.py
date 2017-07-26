@@ -35,15 +35,17 @@ def run(fuses, images, output, config, drives, verbosity):
         if verbosity >= 2:
             print('Working on drive %s' % drive)
 
-        # global group_id counter for each drive
+        # global group_id counter per drive
         group_id = 1
-        clusters = []
 
         # get a list of images for this drive
         image_path = os.path.join(images, drive)
         image_list = [i for i in os.listdir(image_path) if i.endswith('png')]
 
         for image in image_list:
+            #clusters of peak points per image
+            clusters = []
+
             if verbosity >= 2:
                 print('Working on image %s' % (image))
 
@@ -68,20 +70,14 @@ def run(fuses, images, output, config, drives, verbosity):
             # finding the connected components (trees)
             cc_list = nx.connected_components(nx.from_numpy_matrix(A + A.T))  # list of sets
 
+            labels = np.zeros(A.shape[0])
             for cc in cc_list:
                 if len(cc) > 1:
-                    cc_array = np.empty((len(cc), 2))
-                    cc_array[:, 0] = list(cc)
-                    cc_array[:, 1] = group_id
-                    clusters.append(cc_array)
+                    labels[list(cc)] = group_id
                 group_id += 1
 
-        # sort based on detection (peak) id
-        clusters = np.vstack(clusters)
-        clusters = clusters[np.argsort(clusters[:, 0]), :]
-
-        # save the results in a text file
-        np.savetxt(os.path.join(output, drive) + '.txt', clusters, fmt=['%07d', '%06d'], delimiter=',')
+            # save the results in a text file
+            np.savetxt(os.path.join(output, fuse_filename), np.column_stack((P[:,0],labels)), fmt=['%07d', '%06d'], delimiter=',')
 
 
 def main(argv):
