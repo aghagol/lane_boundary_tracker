@@ -20,14 +20,18 @@ def main(argv):
     parser.add_argument("--images", help="list of top down images to process")
     parser.add_argument("--model", help="path to model, eg. /model/had_6cm_mc_batchnrm2_100_rate0.1/model-54970")
     parser.add_argument("--cache", help="path to cache", default="/tmp/fcn")
-    parser.add_argument("--clear_cache", help="clear existing cache before running", action='store_true')
+    parser.add_argument("--clear-cache", help="clear existing cache before running", action='store_true')
     parser.add_argument("--verbosity", help="verbosity level", type=int, default=1)
     args = parser.parse_args()
 
     if args.verbosity >= 2:
         print(__doc__)
 
-    run(args.drive_id, args.images, args.model, args.cache, args.clear_cache, args.verbosity)
+    images = []
+    for image in os.listdir(args.images):
+        if image.endswith(".png"):
+            images.append(os.path.join(args.images, image))
+    run(args.drive_id, images, args.model, args.cache, args.clear_cache, args.verbosity)
 
 
 if __name__ == '__main__':

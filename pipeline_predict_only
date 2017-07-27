@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 
-INPUT_DATA=~/data
+INPUT_DATA=~/HT002_1412347127
 FCN_CACHE=~/data_fcn
 LC_CACHE=~/data_lc
 MODEL=~/model
-DRIVE_ID=HT052_1458600142
-DRIVE_URI=s3://asset.ama.here.com/65e94cd2-a2d2-46cc-9116-ea1702f592c1
-ASSET_ID=78480985
+DRIVE_ID=HT002_1412347127
+DRIVE_URI=s3://asset.ama.here.com/26549bb2-8425-4559-971a-4ded905774aa
+ASSET_ID=7230177
+
+IMAGES=$INPUT_DATA/FeatureCollections/HT002_1412347127_1096382345000000/RGB
 
 export PYTHONPATH=$PYTHONPATH:~/source/fcn
 
-python top_down_image_generator_and_line_predictor.py \
+
+python line_predictor.py \
     --drive-id $DRIVE_ID \
-    --drive-uri $DRIVE_URI \
+    --images $IMAGES \
     --model $MODEL/had_6cm_mc_batchnrm2_100_rate0.1/model-549701 \
     --cache $FCN_CACHE \
     --verbosity 1
+
 
 python line_connector.py \
   --images  $FCN_CACHE/results \
@@ -29,4 +33,3 @@ python line_connector.py \
   --tagged  $LC_CACHE/input/fuse_tagged/ \
   --cache   $LC_CACHE \
   --clear_cache
-
