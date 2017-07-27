@@ -90,7 +90,7 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             node_rows = [dets_row_dict[det_id] for det_id in dets_ids]
             node_cols = [dets_col_dict[det_id] for det_id in dets_ids]
 
-            c = np.array([np.random.rand(),0,1])[np.random.permutation(3)]
+            c = np.array([np.random.rand(),np.random.rand()/4,1])[np.random.permutation(3)]
             ax.plot(node_cols, node_rows, color=c)
 
         if param['overlay_save_as_image']:

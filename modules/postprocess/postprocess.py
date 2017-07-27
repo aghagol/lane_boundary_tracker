@@ -64,6 +64,7 @@ def run(seq_list, img2fuse, fuse2seq, output, graphs, config, verbosity):
             if verbosity >= 2:
                 print('\tFusion with image based peak points clusterings')
             groups = np.loadtxt(os.path.join(graphs, fuse_name), delimiter=',')
+            # groups = groups[groups[:,1]>0,:] #remove isolate points
             trks = postprocessing_util.fusion(trks, groups, param)
 
         if flag_reduce:
