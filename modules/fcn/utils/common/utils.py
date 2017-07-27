@@ -92,7 +92,7 @@ def restore_vars(saver, sess, checkpoint_dir, path=None, quiet=False):
 
         path = path.model_checkpoint_path
 
-        path  = '{}/{}'.format(checkpoint_dir, path.split('/')[-1])
+        path = '{}/{}'.format(checkpoint_dir, path.split('/')[-1])
 
     if not quiet:
         print("\tRestored model from {}".format(path))
@@ -122,13 +122,13 @@ def get_file_lists(params, file_list_path=None):
     # Get lists of input files. These include one file lists for each
     # of the items in params.prefixes
 
-    check_files = True # This takes forever for big datasets.
+    check_files = True  # This takes forever for big datasets.
 
-    if(check_files):
+    if (check_files):
         file_names = {_layer.name: get_file_names(_layer.data_path)
                       for _layer in params.all_layers()}
 
-    # Keep only tiles that exist in **all** layers
+        # Keep only tiles that exist in **all** layers
         file_names_set = None
         for _file_names in file_names.values():
             if file_names_set is None:
@@ -141,7 +141,7 @@ def get_file_lists(params, file_list_path=None):
             valid_list = [_line.rstrip() for
                           _line in valid_list_file.readlines()]
 
-        if(check_files):
+        if (check_files):
             file_names_set = file_names_set.intersection(set(valid_list))
         else:
             file_names_set = set(valid_list)
@@ -152,7 +152,7 @@ def get_file_lists(params, file_list_path=None):
 
     # Reconstruct the file lists
     file_names = {_layer.name: ['{}/{}'.format(_layer.data_path, _input)
-                        for _input in file_names_set]
+                                for _input in file_names_set]
                   for _layer in params.all_layers()}
 
     return file_names
@@ -185,7 +185,7 @@ def get_images_and_labels(params, gen_batch, list_path=None):
     num_tiles = len(file_names[list(file_names.keys())[0]])
     print('Number of tiles: {}'.format(num_tiles))
 
-    batch = gen_batch(file_names, params,)
+    batch = gen_batch(file_names, params, )
     batch['length'] = num_tiles
 
     return batch

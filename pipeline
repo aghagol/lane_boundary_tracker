@@ -4,9 +4,9 @@ INPUT_DATA=~/data
 FCN_CACHE=~/data_fcn
 LC_CACHE=~/data_lc
 MODEL=~/model
-DRIVE_ID=HT073_1479214910
-DRIVE_URI=s3://asset.ama.here.com/888a6dda-5291-4759-97c3-e505e06a27d1
-ASSET_ID=7230177
+DRIVE_ID=HT052_1458600142
+DRIVE_URI=s3://asset.ama.here.com/65e94cd2-a2d2-46cc-9116-ea1702f592c1
+ASSET_ID=78480985
 
 export PYTHONPATH=$PYTHONPATH:~/source/fcn
 
@@ -19,13 +19,14 @@ python top_down_image_generator_and_line_predictor.py \
     --verbosity 1
 
 python line_connector.py \
-  --images  $FCN_CACHE/results/$DRIVE_ID \
-  --poses   $INPUT_DATA/input/poses/ \
-  --chunks  $INPUT_DATA/input/input/chunks/ \
+  --images  $FCN_CACHE/results \
+  --poses   $INPUT_DATA/$ASSET_ID-pose.csv \
+  --chunks  $INPUT_DATA/$ASSET_ID.csv \
+  --drives  $LC_CACHE/drives.txt \
   --config  ./conf.json \
   --verbosity 1 \
-  --visualize 1 \
+  --visualize 2 \
   --fuses   $LC_CACHE/fuse/ \
   --tagged  $LC_CACHE/input/fuse_tagged/ \
-  --cache   $LC_CACHE \
+  --cache   $LC_CACHE
   --clear_cache

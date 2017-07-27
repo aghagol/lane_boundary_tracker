@@ -16,6 +16,7 @@ import tensorflow as tf
 
 import arch_dir
 
+
 # ------------------------------------------------------------------------------
 def get_layer_property(list_of_layers, prop):
     """
@@ -94,11 +95,11 @@ class Layer(object):
         self.data_path = data_path
         self.summary_string = summary_string
 
-        if(rescale_factor is None):
-            if(png_dtype == tf.uint16):
-                self.rescale_factor = 2**16-1
+        if (rescale_factor is None):
+            if (png_dtype == tf.uint16):
+                self.rescale_factor = 2 ** 16 - 1
             else:
-                self.rescale_factor = 2**8-1
+                self.rescale_factor = 2 ** 8 - 1
         else:
             self.rescale_factor = rescale_factor
 
@@ -111,10 +112,9 @@ class Layer(object):
             weights = {}
         if not isinstance(weights, dict):
             print("Weights provided for {} is not a dictionary."
-                    "I'm setting weights to \{\}".format(name))
+                  "I'm setting weights to \{\}".format(name))
             weights = {}
         self.weights = weights
-
 
     # --------------------------------------------------------------------------
     def __str__(self):
@@ -172,10 +172,9 @@ class Params_base(object):
 
         self.rand_rotate = False
         self.rand_crop = True
-        self.train_size = (256,256)
+        self.train_size = (256, 256)
         self.test_image_size = (362, 362)
         self.sampling = (1, 1)
-
 
     # --------------------------------------------------------------------------
     def __str__(self):
@@ -191,9 +190,9 @@ class Params_base(object):
         """
         layer_summaries = '\n'.join(
             ['\t\t{}'.format(str(_layer).replace('\n', '\n\t\t'))
-                for _layer in self.all_layers()])
+             for _layer in self.all_layers()])
         weight_summaries = '\n'.join(['\t\t{}: {}'.format(_key, _value)
-            for _key, _value in self.weights.items()])
+                                      for _key, _value in self.weights.items()])
         return '\n'.join(
             ['Parameter container:',
              '\tModel tag: {}'.format(self.model_tag),
@@ -213,8 +212,7 @@ class Params_base(object):
              '\tDisplay frequency: {}'.format(self.display_frequency),
              '\tCheckpoint frequency: {}'.format(self.checkpoint_frequency),
              '\tTest interval in seconds: {}'.format(self.test_interval_secs),
-            ])
-
+             ])
 
     # --------------------------------------------------------------------------
     @property
@@ -227,7 +225,6 @@ class Params_base(object):
     def train_dir(self, new_input):
         self.__train_dir = new_input
 
-
     # --------------------------------------------------------------------------
     @property
     def test_dir(self):
@@ -239,24 +236,20 @@ class Params_base(object):
     def test_dir(self, new_input):
         self.__test_dir = new_input
 
-
     # --------------------------------------------------------------------------
     @property
     def checkpoint_dir(self):
         return '{}/checkpoints'.format(self.train_dir)
-
 
     # --------------------------------------------------------------------------
     @property
     def train_summary_dir(self):
         return '{}/summary'.format(self.train_dir)
 
-
     # --------------------------------------------------------------------------
     @property
     def test_summary_dir(self):
         return '{}/summary'.format(self.test_dir)
-
 
     # --------------------------------------------------------------------------
     def all_layers(self):
@@ -274,7 +267,6 @@ class Params_base(object):
         return [_layer for _layer in chain(self.features_layers,
                                            self.labels_layers,
                                            self.other_layers)]
-
 
     # --------------------------------------------------------------------------
     def check_data_dirs_exist(self):
@@ -298,8 +290,7 @@ class Params_base(object):
         return all_found
 
 
-    # --------------------------------------------------------------------------
-
+        # --------------------------------------------------------------------------
 
 
 # ==============================================================================
@@ -320,14 +311,14 @@ if __name__ == "__main__":
     params.features_layers = [
         Layer(name='lidar_height',
               data_path='{}/feats/height'.format(data_dir),
-              summary_string='1_0_lidar_height',),
+              summary_string='1_0_lidar_height', ),
         Layer(name='lidar_intens',
               data_path='{}/feats/intens'.format(data_dir),
-              summary_string='1_1_lidar_intens',),
+              summary_string='1_1_lidar_intens', ),
         Layer(name='lidar_observed',
               data_path='{}/feats/observed'.format(data_dir),
-              summary_string='1_2_lidar_observed',),
-        ]
+              summary_string='1_2_lidar_observed', ),
+    ]
 
     # Add labels layers
     params.labels_layers = [
@@ -335,11 +326,11 @@ if __name__ == "__main__":
               data_path='{}/labels/lane_bnd'.format(data_dir),
               summary_string='2_labels',
               dtype=tf.uint8),
-        ]
+    ]
 
     # Set model weights
     params.weights['l2_weight'] = 10
-    params.weights['negative_class_weight'] = 1/10
+    params.weights['negative_class_weight'] = 1 / 10
 
     params.batch_size = 10
     params.max_steps = 1001
@@ -349,13 +340,13 @@ if __name__ == "__main__":
 
     params.display_frequency = 100
     params.checkpoint_frequency = 100
-    params.test_interval_secs = 10*60
+    params.test_interval_secs = 10 * 60
 
     # Assert model parameters are as expected
     print(params)
 
     assert (params.train_dir ==
-        '/home/bjackson/DeepLearningProbe/models/tf_train')
+            '/home/bjackson/DeepLearningProbe/models/tf_train')
     assert params.test_dir == '/home/bjackson/DeepLearningProbe/models/tf_test'
     assert params.model_tag == 0
 

@@ -15,7 +15,6 @@ from ..params import Params
 
 import tensorflow as tf
 
-
 # ------------------------------------------------------------------------------
 # Root directory on which paths are based
 root_dir = '{}/../../../'.format(os.path.dirname(__file__))
@@ -50,11 +49,11 @@ params.test_list_path = (
 params.features_layers = [
     Layer(name='lidar_height',
           data_path='{}/feats/height'.format(data_dir),
-          summary_string='1_0_lidar_height',),
+          summary_string='1_0_lidar_height', ),
     Layer(name='lidar_intens',
           data_path='{}/feats/intens'.format(data_dir),
-          summary_string='1_1_lidar_intens',),
-    ]
+          summary_string='1_1_lidar_intens', ),
+]
 
 # Add labels layers
 params.labels_layers = [
@@ -63,32 +62,32 @@ params.labels_layers = [
           summary_string='2_0_labels_allnd',
           dtype=tf.uint8,
           rescale_factor=127,
-          weights={'negative': 1/100,
-                   'non_observed': 0/400}),
+          weights={'negative': 1 / 100,
+                   'non_observed': 0 / 400}),
     Layer(name='roadbnd',
           data_path='{}/labels/road_bnd'.format(data_dir),
           summary_string='2_1_labels_roadbnd',
           dtype=tf.uint8,
           rescale_factor=127,
-          weights={'negative': 1/100,
-                   'non_observed': 0/400}),
-    ]
+          weights={'negative': 1 / 100,
+                   'non_observed': 0 / 400}),
+]
 
 # Other layers
-params.other_layers  = [
+params.other_layers = [
     Layer(name='lidar_observed',
           data_path='{}/feats/vis'.format(data_dir),
           summary_string='2_1_lidar_observed',
-          dtype=tf.uint8,),
-    ]
+          dtype=tf.uint8, ),
+]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set model weights
 params.weights['l2'] = 1
-#params.weights['boundaries'] = 1
-#params.weights['center'] = 1/2
-#params.weights['negative'] = 1/20
-params.weights['non_observed'] = 0/400
+# params.weights['boundaries'] = 1
+# params.weights['center'] = 1/2
+# params.weights['negative'] = 1/20
+params.weights['non_observed'] = 0 / 400
 
 params.batch_size = 10
 params.max_steps = 1000000001
@@ -98,7 +97,7 @@ params.initial_learning_rate = 0.1
 
 params.display_frequency = 10
 params.checkpoint_frequency = 50
-params.test_interval_secs = 30*60
+params.test_interval_secs = 30 * 60
 
 # Training Params
 params.rand_rotate = True
@@ -106,6 +105,6 @@ params.rand_rotate = True
 # Testing Params
 params.crop_when_scoring = False
 params.cent_when_scoring = True
-params.sampling = (6,6)
+params.sampling = (6, 6)
 params.test_image_size = (512, 512)
 params.train_size = (256, 256)

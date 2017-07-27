@@ -33,7 +33,7 @@ class Params(Params_base):
             Nothing
 
         """
-        the_str = super().__str__()
+        the_str = super(Params, self).__str__()
         return '\n'.join(
             [the_str,
              '\tCropped when scoring: {}'.format(self.crop_when_scoring),

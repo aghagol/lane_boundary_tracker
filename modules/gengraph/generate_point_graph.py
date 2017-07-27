@@ -62,7 +62,7 @@ def run(fuses, images, output, config, drives, verbosity):
             checkpoints = np.arange(.1, 1, .1)  # there are 9 checkpoints on each link
             n_checkpoints = len(checkpoints)
             for i, j in links:
-                w = np.sum(I[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints)
+                w = np.sum([I[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints])
                 if w / n_checkpoints < parameters['min_avg_pixel']: A[i, j] = False
 
             # finding the connected components (trees)

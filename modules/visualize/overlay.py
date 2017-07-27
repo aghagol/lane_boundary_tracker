@@ -45,13 +45,18 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
 
         #find the corresponding image and drive_id
         fuse_name = seq2fuse_dict[seq.sname]
-        image_name = fuse2img_dict[fuse_name]
+        prediction_image = fuse2img_dict[fuse_name]
+        raw_image = fuse2img_dict[fuse_name].replace('_pred.png', '_raw.jpg')
+
         drive_id = '_'.join(seq.sname.split('_')[:2])
 
         if verbosity>=2:
             print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, image_name, drive_id))
 
-        ax.imshow(misc.imread(os.path.join(images, drive_id, image_name)) / (2.**16 - 1), cmap='gray', vmin=0, vmax=2)
+        if os.path.exists(os.path.join(images, drive_id, raw_image)):
+            ax.imshow(misc.imread(os.path.join(images, drive_id, raw_image))[:, :, 1], cmap='gray')
+        elif os.path.exists(os.path.join(images, drive_id, prediction_image)):
+            ax.imshow(misc.imread(os.path.join(images, drive_id, prediction_image)), cmap='gray', vmin=0, vmax=2)
 
         #load tracking results
         dets = np.loadtxt(seq.dpath, delimiter=',')

@@ -35,7 +35,10 @@ def run(fuses, tagged, images, config, drives, poses, verbosity):
             print('Working on drive %s' % drive)
 
         # read and process drive pose
-        pose_path = poses + '/' + drive + '-pose.csv'
+        if os.path.isdir(poses):
+            pose_path = poses + '/' + drive + '-pose.csv'
+        else:
+            pose_path = poses
         pose = np.loadtxt(pose_path)  # pose points format: latitude, longitude, altitude, timestamp
 
         # re-arrange pose points (rows) based on their timestamps

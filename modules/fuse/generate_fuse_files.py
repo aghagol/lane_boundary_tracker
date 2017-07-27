@@ -41,7 +41,10 @@ def run(seq_list, chunks, output, config, verbosity):
             os.makedirs(output + '/' + subdrive)
 
         # read chunk timestamp information for assigning points to chunks for visualization purposes
-        chunk_id_path = chunks + '/' + drive + '.csv'
+        if os.path.isdir(chunks):
+            chunk_id_path = chunks + '/' + drive + '.csv'
+        else:
+            chunk_id_path = chunks
         chunk_id = pd.read_csv(chunk_id_path)
         chunk_id.rename(columns=lambda x: x.strip(), inplace=True)  # remove whitespace from headers
 

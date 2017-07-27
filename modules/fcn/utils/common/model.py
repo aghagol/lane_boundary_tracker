@@ -28,11 +28,11 @@ def _weights_and_biases(kernel_shape, bias_shape, name=""):
     """
     # Create variable named "weights".
     weights = tf.get_variable("weights_{}".format(name), kernel_shape,
-        initializer=tf.contrib.layers.xavier_initializer())
+                              initializer=tf.contrib.layers.xavier_initializer())
 
     # Create variable named "biases".
     biases = tf.get_variable("biases_{}".format(name), bias_shape,
-        initializer=tf.truncated_normal_initializer(mean=0.0, stddev=0.1))
+                             initializer=tf.truncated_normal_initializer(mean=0.0, stddev=0.1))
 
     return weights, biases
 
@@ -82,17 +82,17 @@ def _conv_elu(inputs, convolution_shape, output_depth):
     """
     return tf.nn.elu(_conv(inputs, convolution_shape, output_depth))
 
-    #_BJ_ kernel_shape = [convolution_shape[0],
-    #_BJ_                 convolution_shape[1],
-    #_BJ_                 inputs.get_shape()[-1],
-    #_BJ_                 output_depth]
-    #_BJ_ weights, biases = _weights_and_biases(kernel_shape, [output_depth])
-    #_BJ_ conv = tf.nn.conv2d(inputs,
-    #_BJ_                     weights,
-    #_BJ_                     strides=[1, 1, 1, 1],
-    #_BJ_                     padding='SAME')
+    # _BJ_ kernel_shape = [convolution_shape[0],
+    # _BJ_                 convolution_shape[1],
+    # _BJ_                 inputs.get_shape()[-1],
+    # _BJ_                 output_depth]
+    # _BJ_ weights, biases = _weights_and_biases(kernel_shape, [output_depth])
+    # _BJ_ conv = tf.nn.conv2d(inputs,
+    # _BJ_                     weights,
+    # _BJ_                     strides=[1, 1, 1, 1],
+    # _BJ_                     padding='SAME')
 
-    #_BJ_ return tf.nn.elu(conv + biases)
+    # _BJ_ return tf.nn.elu(conv + biases)
 
 
 # ------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ def random_flip_up_down(layers, seed=None):
 
     # flip all the tiles about x-axis
     mirror = tf.less(tf.pack([uniform_random, 1.0, 1.0]), 0.5)
-    result = {_key:tf.reverse(_layer, mirror)
+    result = {_key: tf.reverse(_layer, mirror)
               for _key, _layer in layers.items()}
 
     # invert the  heading_x tile (i.e. 0 -> 1, 1 -> 0, 0.5 -> 0.5)
@@ -243,7 +243,7 @@ def random_flip_left_right(layers, seed=None):
 
     # flip all the tiles about y-axis
     mirror = tf.less([1., uniform_random, 1.], 0.5)
-    result = {_key:tf.reverse(_layer, mirror)
+    result = {_key: tf.reverse(_layer, mirror)
               for _key, _layer in layers.items()}
 
     # invert the  heading_y tile (i.e. 0 > 1, 1 > 0, 0.5 > 0.5)

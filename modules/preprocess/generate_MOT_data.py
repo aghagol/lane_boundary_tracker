@@ -110,7 +110,12 @@ def run(tagged, output_path, config, drives, poses, verbosity):
         # create MOT formated det.txt files
         if verbosity >= 2:
             print('\tCreating MOT det.txt')
-        motutil.generate_MOT_det(output_path, clusters, tiny_subdrives, os.path.join(poses, drive) + '-pose.csv', param)
+
+        if os.path.isdir(poses):
+            pose_path = poses + '/' + drive + '-pose.csv'
+        else:
+            pose_path = poses
+        motutil.generate_MOT_det(output_path, clusters, tiny_subdrives, pose_path, param)
 
         # save (fake) images for MOT compatibility
         if param['generate_fake_images']:
