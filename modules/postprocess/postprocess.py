@@ -24,7 +24,7 @@ def run(seq_list, img2fuse, fuse2seq, output, graphs, config, verbosity):
 
     flag_stitch = param['stitch_tracklets']
     flag_reduce = param['point_reduction']
-    flag_fusion = param['merge_image_based_connections']
+    flag_fusion = param['fusion']
     flag_postprocess = flag_stitch or flag_reduce or flag_fusion
 
     if not os.path.exists(output):

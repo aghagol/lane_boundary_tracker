@@ -63,7 +63,7 @@
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
     "point_reduction": false,
         "rdp_epsilon": 0.1, //in meters
-    "merge_image_based_connections": true
+    "fusion": true
   },
   "fuse":
   {
