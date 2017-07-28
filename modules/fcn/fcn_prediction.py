@@ -17,8 +17,12 @@ def run_prediction(drive_id, images, predictor, out_dir):
         return
 
     meta_csv_path = os.path.join(output, "meta.csv")
-    with open(meta_csv_path, 'w') as meta_csv:
-        meta_csv.write('name, time_start, time_end, min_lat, min_lon, max_lat, max_lon\n')
+    add_header = True
+    if os.path.exists(meta_csv_path):
+        add_header = False
+    with open(meta_csv_path, 'a+') as meta_csv:
+        if add_header:
+            meta_csv.write('name, time_start, time_end, min_lat, min_lon, max_lat, max_lon\n')
         for image in images:
             metadata_path = image.replace('.png', '-metadata.json')
             if not os.path.exists(metadata_path):
