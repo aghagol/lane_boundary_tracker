@@ -13,7 +13,6 @@ import os
 import argparse
 import json
 from jsmin import jsmin
-import ipdb
 
 
 def run(fuses, images, output, config, drives, verbosity):

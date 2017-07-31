@@ -33,8 +33,8 @@
     "bypass_tracking_use_gt": false, //bypass tracking and output GT data
     "d2t_dist_threshold_tight": 0.5,
     "d2t_dist_threshold_loose": 0.5,
-    "max_age_after_last_update": 50,
-    "max_mov_after_last_update": 3,
+    "max_age_after_last_update": 100,
+    "max_mov_after_last_update": 10,
     "motion_model_variance": 1,
     "observation_variance": 1,
     "motion_init_pose": true, //this has priority over "motion_init_sync"
@@ -53,8 +53,8 @@
         "max_delay": 5,
     "min_seq_length": 2,
     "min_bbox_size": 7,
-    "overlay_on_topdown": true,
-    "overlay_detections": false,
+    "overlay_on_topdown": false,
+    "overlay_detections": true,
     "overlay_save_as_image": false
   },
   "postprocess":
