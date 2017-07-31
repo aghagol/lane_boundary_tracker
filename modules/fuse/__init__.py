@@ -8,7 +8,7 @@ import datetime
 
 def run(input, tracks, output, config, chunks, verbosity):
     if verbosity >= 1:
-        print datetime.datetime.now(), ": Fusion"
+        print datetime.datetime.now(), ": Generating output"
 
     if not os.path.exists(output):
         os.mkdir(output)
@@ -20,13 +20,6 @@ def run(input, tracks, output, config, chunks, verbosity):
     fused_merged_output = os.path.join(output, 'fused_merged')
     
     make_seq_list.run(input, tracks, fuse_output, verbosity)
-
-    # if verbosity >= 1:
-    #     print datetime.datetime.now(), ": Fusion: Point Graph + Tracking"
-    # fuse_graph_tracking(fuse_output, fused_output, config, chunks, verbosity)
-
-    if verbosity >= 1:
-        print datetime.datetime.now(), ": Fusion: Generating .fuse files"
 
     generate_fuse_files.run(fuse_output, chunks, fused_output, config, verbosity)
     merge_sequences.run(fused_output, fused_merged_output, config, verbosity)

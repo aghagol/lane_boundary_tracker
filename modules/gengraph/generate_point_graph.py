@@ -23,6 +23,9 @@ def run(fuses, images, output, config, drives, verbosity):
     with open(config) as fparam:
         parameters = json.loads(jsmin(fparam.read()))["gengraph"]
 
+    if not parameters['enable']:
+        return
+
     # get names of drives to be processed
     drive_list = []
     with open(drives) as fdrivelist:
@@ -35,15 +38,17 @@ def run(fuses, images, output, config, drives, verbosity):
         if verbosity >= 2:
             print('Working on drive %s' % drive)
 
-        # global group_id counter for each drive
+        # global group_id counter per drive
         group_id = 1
-        clusters = []
 
         # get a list of images for this drive
         image_path = os.path.join(images, drive)
         image_list = [i for i in os.listdir(image_path) if i.endswith('png')]
 
         for image in image_list:
+            #clusters of peak points per image
+            clusters = []
+
             if verbosity >= 2:
                 print('Working on image %s' % (image))
 
@@ -52,7 +57,7 @@ def run(fuses, images, output, config, drives, verbosity):
 
             # read the peak points from the fuse files
             fuse_filename = '%s_%s.png.fuse' % (drive, image.split('_')[0])
-            P = np.loadtxt(os.path.join(fuses, fuse_filename), delimiter=',')
+            P = np.loadtxt(os.path.join(fuses, fuse_filename), delimiter=',').astype(int)
 
             # build the affinity matrix
             A = np.tril(squareform(pdist(P[:, 3:5]) < parameters['distance_threshold']))
@@ -62,26 +67,21 @@ def run(fuses, images, output, config, drives, verbosity):
             checkpoints = np.arange(.1, 1, .1)  # there are 9 checkpoints on each link
             n_checkpoints = len(checkpoints)
             for i, j in links:
-                w = np.sum([I[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints])
-                if w / n_checkpoints < parameters['min_avg_pixel']: A[i, j] = False
+                w = np.sum(I[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints)
+                if w < (I[tuple(P[j, 3:5])] + I[tuple(P[i, 3:5])]) / 2 * n_checkpoints * parameters['gap_bar']:
+                    A[i, j] = False
 
             # finding the connected components (trees)
             cc_list = nx.connected_components(nx.from_numpy_matrix(A + A.T))  # list of sets
 
+            labels = np.zeros(A.shape[0])
             for cc in cc_list:
                 if len(cc) > 1:
-                    cc_array = np.empty((len(cc), 2))
-                    cc_array[:, 0] = list(cc)
-                    cc_array[:, 1] = group_id
-                    clusters.append(cc_array)
+                    labels[list(cc)] = group_id
                 group_id += 1
 
-        # sort based on detection (peak) id
-        clusters = np.vstack(clusters)
-        clusters = clusters[np.argsort(clusters[:, 0]), :]
-
-        # save the results in a text file
-        np.savetxt(os.path.join(output, drive) + '.txt', clusters, fmt=['%07d', '%06d'], delimiter=',')
+            # save the results in a text file
+            np.savetxt(os.path.join(output, fuse_filename), np.column_stack((P[:,0],labels)), fmt=['%07d', '%06d'], delimiter=',')
 
 
 def main(argv):

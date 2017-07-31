@@ -28,9 +28,6 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
     with open(config) as fparam:
         param = json.loads(jsmin(fparam.read()))["visualize"]
 
-    if not os.path.exists(overlay_out):
-        os.makedirs(overlay_out)
-
     #create mapping seq_name --> fuse_name --> image_name
     img2fuse_df = pd.read_csv(img2fuse, header=None)
     fuse2seq_df = pd.read_csv(fuse2seq, header=None)
@@ -54,9 +51,14 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, image_name, drive_id))
 
         if os.path.exists(os.path.join(images, drive_id, raw_image)):
-            ax.imshow(misc.imread(os.path.join(images, drive_id, raw_image))[:, :, 1], cmap='gray')
+            pred_im = misc.imread(os.path.join(images, drive_id, raw_image))[:, :, 1]
+            # pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
+            ax.imshow(pred_im, cmap='gray')
         elif os.path.exists(os.path.join(images, drive_id, prediction_image)):
-            ax.imshow(misc.imread(os.path.join(images, drive_id, prediction_image)), cmap='gray', vmin=0, vmax=2)
+            pred_im = misc.imread(os.path.join(images, drive_id, prediction_image)).astype(float) / (2**16 - 1)
+            print pred_im.max(), pred_im.min(), pred_im.shape
+            # pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
+            ax.imshow(pred_im, cmap='gray', vmin=0, vmax=2)
 
         #load tracking results
         dets = np.loadtxt(seq.dpath, delimiter=',')
@@ -98,12 +100,15 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             node_rows = [dets_row_dict[det_id] for det_id in dets_ids]
             node_cols = [dets_col_dict[det_id] for det_id in dets_ids]
 
-            c = np.array([np.random.rand(),0,1])[np.random.permutation(3)]
+            c = np.array([np.random.rand(),np.random.rand()/4,1])[np.random.permutation(3)]
             ax.plot(node_cols, node_rows, color=c)
 
-        #save figure (finally!)
-        plt.show()
-        # plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
+        if param['overlay_save_as_image']:
+            if not os.path.exists(overlay_out):
+                os.makedirs(overlay_out)
+            plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
+        else:
+            plt.show()
 
 
 def main(argv):

@@ -12,9 +12,6 @@ def run(config, verbosity):
     with open(config) as fparam:
         param = json.loads(jsmin(fparam.read()))["visualize"]
 
-    if verbosity >= 1:
-        print('...Tracks shorter than %d will be omitted' % (param['min_track_length']))
-
     if verbosity >= 2:
         print("\nParamteres:")
         for param_key, param_val in param.iteritems():

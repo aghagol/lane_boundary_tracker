@@ -10,11 +10,10 @@ from jsmin import jsmin
 
 def run(config, verbosity):
     with open(config) as fparam:
-        param = json.loads(jsmin(fparam.read()))["fuse"]
+        param = json.loads(jsmin(fparam.read()))["output"]
 
-    if verbosity >= 1:
-        if not param['enable']:
-            print('...Fusion is disabled')
+    if verbosity >= 1 and not param['enable']:
+        print('...Output is disabled')
 
     if verbosity >= 2:
         print("\nParamteres:")
