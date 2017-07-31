@@ -3,8 +3,8 @@
   {
     "object_size": 10, //for MOT purposes
     "ians_peak_filter": false,
-    "maxpool_size": 10, //maxpool filter size for extracting high confidence points
-    "global_confidence_thresh": 0.4,
+    "maxpool_size": 5, //maxpool filter size for extracting high confidence points
+    "global_confidence_thresh": 0.9,
     "recall": 1, //drop detections randomly
     "generate_fake_images": false,
     "remove_adjacent_points": false,
@@ -24,16 +24,17 @@
   },
   "gengraph":
   {
+    "enable": false,
     "distance_threshold": 50,
-    "min_avg_pixel": 0.9
+    "gap_bar": 0.9
   },
   "sort":
   {
     "bypass_tracking_use_gt": false, //bypass tracking and output GT data
-    "d2t_dist_threshold_tight": 0.3,
-    "d2t_dist_threshold_loose": 0.3,
-    "max_age_after_last_update": 20,
-    "max_mov_after_last_update": 2,
+    "d2t_dist_threshold_tight": 0.5,
+    "d2t_dist_threshold_loose": 0.5,
+    "max_age_after_last_update": 50,
+    "max_mov_after_last_update": 3,
     "motion_model_variance": 1,
     "observation_variance": 1,
     "motion_init_pose": true, //this has priority over "motion_init_sync"
@@ -46,7 +47,7 @@
     "window_size": 30,
     "centered": true,
     "show_tracks": true,
-    "hide_predictions": true,
+    "hide_predictions": false,
     "real_time": false,
         "delay_multiplier": 1,
         "max_delay": 5,
@@ -61,13 +62,13 @@
         "gating_thresh": 1, //max distance between two points to be marked neighbors
         "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
-    "point_reduction": false,
-        "rdp_epsilon": 0.1, //in meters
-    "fusion": true
+    "point_reduction": true,
+        "rdp_epsilon": 0.3, //in meters
+    "fusion": false
   },
-  "fuse":
+  "output":
   {
-    "enable": true,
+    "enable": false,
     "min_seq_length": 2,
     "min_bbox_size": 7, //in meters
     "merge_subdrives": false

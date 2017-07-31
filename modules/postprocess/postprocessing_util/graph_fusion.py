@@ -6,7 +6,7 @@ Output is a numpy matrix with the same format as input
 """
 import numpy as np
 import networkx as nx
-import ipdb
+
 
 class track:
 
@@ -61,22 +61,22 @@ def fusion(tracks,groups,param):
   A[hubs, :] = False
   A[:, hubs] = False
 
+  #disconnect seqences with temporal u-turns
   cc_list = nx.connected_components(nx.from_numpy_matrix(A))  #list of sets
   for cc in cc_list:
     if len(cc)>2:
       for i in cc:
         neighbors = np.argwhere(A[i]).flatten().tolist()
         if len(neighbors)>1:
-          if len(neighbors)>2:
-            exit('something is off!')
           head_0 = head_info[track_id_list[neighbors[0]]]
           head_1 = head_info[track_id_list[neighbors[1]]]
           head_i = head_info[track_id_list[i]]
           if (head_0 > head_i and head_1 > head_i) or (head_0 < head_i and head_1 < head_i):
-            A[i, neighbors[0]] = False
-            A[neighbors[0], i] = False
-            A[i, neighbors[1]] = False
-            A[neighbors[1], i] = False
+            # A[i, neighbors[0]] = False
+            # A[neighbors[0], i] = False
+            # A[i, neighbors[1]] = False
+            # A[neighbors[1], i] = False
+            pass
   cc_list = nx.connected_components(nx.from_numpy_matrix(A))  #list of sets
 
   track_label_map = {track_id_list[i]:(label+1) for label, cc in enumerate(cc_list) for i in cc}

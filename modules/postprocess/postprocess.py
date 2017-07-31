@@ -36,7 +36,8 @@ def run(seq_list, img2fuse, fuse2seq, output, graphs, config, verbosity):
         if verbosity >= 1:
             print('No post-processing requested; linking to tracker output.')
         for seq_idx, seq in seqs.iterrows():
-            os.system('ln -s %s %s' % (seq.tpath, '%s/%s.txt' % (output, seq.sname)))
+            if not os.path.exists('%s/%s.txt' % (output, seq.sname)):
+                os.system('ln -s %s %s' % (seq.tpath, '%s/%s.txt' % (output, seq.sname)))
 
     #create mapping seq_name --> fuse_name --> image_name
     fuse2seq_df = pd.read_csv(fuse2seq, header=None)
@@ -46,7 +47,8 @@ def run(seq_list, img2fuse, fuse2seq, output, graphs, config, verbosity):
 
     for seq_idx, seq in seqs.iterrows():
         output_path_final = '%s/%s.txt' % (output, seq.sname)
-        if os.path.exists(output_path_final): continue
+        if os.path.exists(output_path_final):
+            continue
 
         if verbosity >= 2:
             print('Working on sequence %s' % seq.sname)

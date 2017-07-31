@@ -16,12 +16,10 @@ def run(seq_list, chunks, output, config, verbosity):
         os.makedirs(output)
 
     with open(config) as fparam:
-        param = json.loads(jsmin(fparam.read()))["fuse"]
+        param = json.loads(jsmin(fparam.read()))["output"]
 
     if not param['enable']:
-        if verbosity >= 1:
-            print('...Fusion is disabled. Skipping.')
-        exit()
+        return
 
     if not os.path.exists(output):
         os.makedirs(output)

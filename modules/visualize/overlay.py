@@ -48,7 +48,10 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
         if verbosity>=2:
             print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, image_name, drive_id))
 
-        ax.imshow(misc.imread(os.path.join(images, drive_id, image_name)) / (2.**16 - 1), cmap='gray', vmin=0, vmax=2)
+        pred_im = misc.imread(os.path.join(images, drive_id, image_name)) / (2.**16 - 1)
+        # pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
+        
+        ax.imshow(pred_im, cmap='gray', vmin=0, vmax=2)
 
         #load tracking results
         dets = np.loadtxt(seq.dpath, delimiter=',')

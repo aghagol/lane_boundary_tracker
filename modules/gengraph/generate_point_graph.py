@@ -23,6 +23,9 @@ def run(fuses, images, output, config, drives, verbosity):
     with open(config) as fparam:
         parameters = json.loads(jsmin(fparam.read()))["gengraph"]
 
+    if not parameters['enable']:
+        return
+
     # get names of drives to be processed
     drive_list = []
     with open(drives) as fdrivelist:
@@ -54,7 +57,7 @@ def run(fuses, images, output, config, drives, verbosity):
 
             # read the peak points from the fuse files
             fuse_filename = '%s_%s.png.fuse' % (drive, image.split('_')[0])
-            P = np.loadtxt(os.path.join(fuses, fuse_filename), delimiter=',')
+            P = np.loadtxt(os.path.join(fuses, fuse_filename), delimiter=',').astype(int)
 
             # build the affinity matrix
             A = np.tril(squareform(pdist(P[:, 3:5]) < parameters['distance_threshold']))
@@ -65,7 +68,8 @@ def run(fuses, images, output, config, drives, verbosity):
             n_checkpoints = len(checkpoints)
             for i, j in links:
                 w = np.sum(I[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints)
-                if w / n_checkpoints < parameters['min_avg_pixel']: A[i, j] = False
+                if w < (I[tuple(P[j, 3:5])] + I[tuple(P[i, 3:5])]) / 2 * n_checkpoints * parameters['gap_bar']:
+                    A[i, j] = False
 
             # finding the connected components (trees)
             cc_list = nx.connected_components(nx.from_numpy_matrix(A + A.T))  # list of sets

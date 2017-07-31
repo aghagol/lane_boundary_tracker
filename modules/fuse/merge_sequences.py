@@ -14,10 +14,10 @@ from jsmin import jsmin
 
 def run(input, output, config, verbosity):
     with open(config) as fparam:
-        param = json.loads(jsmin(fparam.read()))["fuse"]
+        param = json.loads(jsmin(fparam.read()))["output"]
 
     if not param['merge_subdrives']:
-        if verbosity >= 1:
+        if verbosity >= 1 and param['enable']:
             print('...Subdrive merging is disabled')
         return
 
