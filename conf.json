@@ -53,6 +53,7 @@
         "max_delay": 5,
     "min_seq_length": 2,
     "min_bbox_size": 7,
+    "overlay_on_topdown": true,
     "overlay_detections": false,
     "overlay_save_as_image": false
   },
@@ -63,7 +64,7 @@
         "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
     "point_reduction": true,
-        "rdp_epsilon": 0.1, //in meters
+        "rdp_epsilon": 0.2, //in meters
     "fusion": false
   },
   "output":

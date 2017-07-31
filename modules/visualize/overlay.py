@@ -18,7 +18,6 @@ from scipy import misc
 # suppress matplotlib warnings
 import warnings
 
-
 def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, config, verbosity):
     warnings.filterwarnings("ignore")
     
@@ -43,21 +42,20 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
         #find the corresponding image and drive_id
         fuse_name = seq2fuse_dict[seq.sname]
         prediction_image = fuse2img_dict[fuse_name]
-        raw_image = fuse2img_dict[fuse_name].replace('_pred.png', '_raw.jpg')
+        raw_image = fuse2img_dict[fuse_name].replace('_pred.png', '_raw.png')
 
         drive_id = '_'.join(seq.sname.split('_')[:2])
 
         if verbosity>=2:
             print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, image_name, drive_id))
 
-        if os.path.exists(os.path.join(images, drive_id, raw_image)):
-            pred_im = misc.imread(os.path.join(images, drive_id, raw_image))[:, :, 1]
-            # pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
+        if param['overlay_on_topdown'] and os.path.exists(os.path.join(images, drive_id, raw_image)):
+            pred_im = misc.imread(os.path.join(images, drive_id, raw_image), mode='F') / 255.
+            pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
             ax.imshow(pred_im, cmap='gray')
         elif os.path.exists(os.path.join(images, drive_id, prediction_image)):
-            pred_im = misc.imread(os.path.join(images, drive_id, prediction_image)).astype(float) / (2**16 - 1)
-            print pred_im.max(), pred_im.min(), pred_im.shape
-            # pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
+            pred_im = misc.imread(os.path.join(images, drive_id, prediction_image), mode='F') / (2 ** 16 - 1)
+            pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
             ax.imshow(pred_im, cmap='gray', vmin=0, vmax=2)
 
         #load tracking results

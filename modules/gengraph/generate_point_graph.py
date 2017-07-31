@@ -13,6 +13,7 @@ import os
 import argparse
 import json
 from jsmin import jsmin
+import ipdb
 
 
 def run(fuses, images, output, config, drives, verbosity):
@@ -53,7 +54,8 @@ def run(fuses, images, output, config, drives, verbosity):
                 print('Working on image %s' % (image))
 
             # load the image
-            I = misc.imread(os.path.join(images, drive, image)) / (2. ** 16 - 1)
+            I = misc.imread(os.path.join(images, drive, image), mode='F') / (2 ** 16 - 1)
+            I = np.fliplr(I.T)
 
             # read the peak points from the fuse files
             fuse_filename = '%s_%s.png.fuse' % (drive, image.split('_')[0])
