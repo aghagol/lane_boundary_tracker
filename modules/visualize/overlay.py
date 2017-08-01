@@ -36,25 +36,27 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
     seqs = pd.read_csv(seq_list)
 
     for seq_idx,seq in seqs.iterrows():
-        fig, ax = plt.subplots(1, 1)
-        ax.set_axis_off()
+        figure, axes = plt.subplots(1, 2, gridspec_kw={'width_ratios':[2, 1]})
+        ax_left, ax_right = axes
+        ax_left.set_axis_off()
+        ax_right.set_axis_off()
 
         #find the corresponding image and drive_id
         fuse_name = seq2fuse_dict[seq.sname]
         prediction_image = fuse2img_dict[fuse_name]
-        raw_image = fuse2img_dict[fuse_name].replace('_pred.png', '_raw.png')
+        raw_image = prediction_image.replace('_pred.png', '_raw.png')
 
         drive_id = '_'.join(seq.sname.split('_')[:2])
 
         if verbosity>=2:
-            print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, image_name, drive_id))
+            print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, prediction_image, drive_id))
 
         if param['overlay_on_topdown'] and os.path.exists(os.path.join(images, drive_id, raw_image)):
             pred_im = misc.imread(os.path.join(images, drive_id, raw_image)) / 255.
-            ax.imshow(np.rot90(pred_im,-1))
+            ax_left.imshow(np.rot90(pred_im,-1))
         elif os.path.exists(os.path.join(images, drive_id, prediction_image)):
             pred_im = misc.imread(os.path.join(images, drive_id, prediction_image), mode='F') / (2 ** 16 - 1)
-            ax.imshow(np.rot90(pred_im,-1), cmap='gray', vmin=0, vmax=2)
+            ax_left.imshow(np.rot90(pred_im,-1), cmap='gray', vmin=0, vmax=2)
 
         #load tracking results
         dets = np.loadtxt(seq.dpath, delimiter=',')
@@ -70,7 +72,7 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
         if param['overlay_detections']:
             dets_rows = [dets_row_dict[det_id] for det_id in dets[:,6]]
             dets_cols = [dets_col_dict[det_id] for det_id in dets[:,6]]
-            ax.plot(dets_cols, dets_rows, 'go', markerfacecolor='None', ms=10)
+            ax_left.plot(dets_cols, dets_rows, 'go', markerfacecolor='None', ms=10)
 
         #remove the predictions that are not matched with detections
         if param['hide_predictions']:
@@ -96,15 +98,25 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             node_rows = [dets_row_dict[det_id] for det_id in dets_ids]
             node_cols = [dets_col_dict[det_id] for det_id in dets_ids]
 
-            lb_color = np.array([np.random.rand(),np.random.rand()/2,1])[np.random.permutation(3)]
-            ax.plot(node_cols, node_rows, color=lb_color)
+            # lb_color = np.array([np.random.rand(),np.random.rand()/2,1])[np.random.permutation(3)]
+            lb_color = [1, 0, 0]
+            ax_left.plot(node_cols, node_rows, color=lb_color)
 
         if param['overlay_save_as_image']:
             if not os.path.exists(overlay_out):
                 os.makedirs(overlay_out)
             plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
         else:
-            plt.tight_layout(pad=0.4, w_pad=0.0, h_pad=0.0)
+            #print some image info
+            image_info = []
+            image_info.append('Sequence %d/%d'%(seq_idx+1,len(seqs)))
+            image_info.append('Start time= %s'%(prediction_image.split('_')[0]))
+            image_info.append('End time= %s'%(prediction_image.split('_')[1]))
+            image_info.append('Sequence name= %s'%(seq.sname))
+            image_info.append('Fuse name= %s'%(fuse_name))
+            ax_right.text(0, .5, '\n'.join(image_info))
+
+            plt.tight_layout()
             plt.get_current_fig_manager().window.showMaximized()
             plt.show()
 

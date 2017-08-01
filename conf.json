@@ -3,8 +3,8 @@
   {
     "object_size": 10, //for MOT purposes
     "ians_peak_filter": false,
-    "maxpool_size": 5, //maxpool filter size for extracting high confidence points
-    "global_confidence_thresh": 0.9,
+    "maxpool_size": 3, //maxpool filter size for extracting high confidence points
+    "global_confidence_thresh": 0.3,
     "recall": 1, //drop detections randomly
     "generate_fake_images": false,
     "remove_adjacent_points": false,
@@ -31,10 +31,10 @@
   "sort":
   {
     "bypass_tracking_use_gt": false, //bypass tracking and output GT data
-    "d2t_dist_threshold_tight": 0.5,
-    "d2t_dist_threshold_loose": 0.5,
-    "max_age_after_last_update": 100,
-    "max_mov_after_last_update": 10,
+    "d2t_dist_threshold_tight": 0.3,
+    "d2t_dist_threshold_loose": 0.3,
+    "max_age_after_last_update": 999999,
+    "max_mov_after_last_update": 1,
     "motion_model_variance": 1,
     "observation_variance": 1,
     "motion_init_pose": true, //this has priority over "motion_init_sync"
@@ -52,7 +52,7 @@
         "delay_multiplier": 1,
         "max_delay": 5,
     "min_seq_length": 2,
-    "min_bbox_size": 7,
+    "min_bbox_size": 3,
     "overlay_on_topdown": true,
     "overlay_detections": true,
     "overlay_save_as_image": false
@@ -63,8 +63,8 @@
         "gating_thresh": 1, //max distance between two points to be marked neighbors
         "affinity_thresh_min": 1, //minimum number of neighboring points to mark two tracks for stitching
         "affinity_thresh_max": 500, //maximum number of neighboring points to mark two tracks for stitching
-    "point_reduction": false,
-        "rdp_epsilon": 0.2, //in meters
+    "point_reduction": true,
+        "rdp_epsilon": 0.1, //in meters
     "fusion": false
   },
   "output":
