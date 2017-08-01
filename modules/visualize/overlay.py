@@ -50,13 +50,11 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             print('Working on seq %s (image %s, part of drive %s)'%(seq.sname, image_name, drive_id))
 
         if param['overlay_on_topdown'] and os.path.exists(os.path.join(images, drive_id, raw_image)):
-            pred_im = misc.imread(os.path.join(images, drive_id, raw_image), mode='F') / 255.
-            pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
-            ax.imshow(pred_im, cmap='gray')
+            pred_im = misc.imread(os.path.join(images, drive_id, raw_image)) / 255.
+            ax.imshow(np.rot90(pred_im,-1))
         elif os.path.exists(os.path.join(images, drive_id, prediction_image)):
             pred_im = misc.imread(os.path.join(images, drive_id, prediction_image), mode='F') / (2 ** 16 - 1)
-            pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
-            ax.imshow(pred_im, cmap='gray', vmin=0, vmax=2)
+            ax.imshow(np.rot90(pred_im,-1), cmap='gray', vmin=0, vmax=2)
 
         #load tracking results
         dets = np.loadtxt(seq.dpath, delimiter=',')
@@ -98,14 +96,16 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             node_rows = [dets_row_dict[det_id] for det_id in dets_ids]
             node_cols = [dets_col_dict[det_id] for det_id in dets_ids]
 
-            c = np.array([np.random.rand(),np.random.rand()/4,1])[np.random.permutation(3)]
-            ax.plot(node_cols, node_rows, color=c)
+            lb_color = np.array([np.random.rand(),np.random.rand()/2,1])[np.random.permutation(3)]
+            ax.plot(node_cols, node_rows, color=lb_color)
 
         if param['overlay_save_as_image']:
             if not os.path.exists(overlay_out):
                 os.makedirs(overlay_out)
             plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
         else:
+            plt.tight_layout(pad=0.4, w_pad=0.0, h_pad=0.0)
+            plt.get_current_fig_manager().window.showMaximized()
             plt.show()
 
 

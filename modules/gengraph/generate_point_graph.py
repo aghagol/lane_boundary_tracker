@@ -53,8 +53,8 @@ def run(fuses, images, output, config, drives, verbosity):
                 print('Working on image %s' % (image))
 
             # load the image
-            I = misc.imread(os.path.join(images, drive, image), mode='F') / (2 ** 16 - 1)
-            I = np.fliplr(I.T)
+            pred_im = misc.imread(os.path.join(images, drive, image), mode='F') / (2 ** 16 - 1)
+            pred_im = np.rot90(pred_im,-1)
 
             # read the peak points from the fuse files
             fuse_filename = '%s_%s.png.fuse' % (drive, image.split('_')[0])
@@ -68,8 +68,8 @@ def run(fuses, images, output, config, drives, verbosity):
             checkpoints = np.arange(.1, 1, .1)  # there are 9 checkpoints on each link
             n_checkpoints = len(checkpoints)
             for i, j in links:
-                w = np.sum(I[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints)
-                if w < (I[tuple(P[j, 3:5])] + I[tuple(P[i, 3:5])]) / 2 * n_checkpoints * parameters['gap_bar']:
+                w = np.sum(pred_im[tuple((P[i, 3:5] + alpha * (P[j, 3:5] - P[i, 3:5])).astype(int))] for alpha in checkpoints)
+                if w < (pred_im[tuple(P[j, 3:5])] + pred_im[tuple(P[i, 3:5])]) / 2 * n_checkpoints * parameters['gap_bar']:
                     A[i, j] = False
 
             # finding the connected components (trees)

@@ -67,7 +67,7 @@ def run(images, fuses, config, drives, output, verbosity):
 
             # read the probability image (FCN output)
             pred_im = misc.imread(os.path.join(images, drive, res['name']), mode='F') / (2 ** 16 - 1)
-            pred_im = np.fliplr(pred_im.T) #this is required for Jim's generated images
+            pred_im = np.rot90(pred_im,-1) #this is required for Jim's generated images
 
             if verbosity >= 2:
                 print('\t\timage size: %d x %d' % (pred_im.shape[0], pred_im.shape[1]))
