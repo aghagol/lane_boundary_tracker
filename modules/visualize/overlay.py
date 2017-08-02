@@ -18,6 +18,7 @@ from scipy import misc
 # suppress matplotlib warnings
 import warnings
 
+
 def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, config, verbosity):
     warnings.filterwarnings("ignore")
     

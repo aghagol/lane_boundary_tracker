@@ -72,7 +72,7 @@ def run(fuses, tagged, images, config, drives, poses, verbosity):
                 print('\tworking on %s' % (os.path.join(fuses, filename)))
 
             # read the detection points for the current image
-            points = np.loadtxt(os.path.join(fuses, filename), delimiter=',')
+            points = np.loadtxt(os.path.join(fuses, filename), delimiter=',').reshape(-1, 5)
 
             # clip the pose path according to the current image lat-lon bounds
             # this is how it works:
