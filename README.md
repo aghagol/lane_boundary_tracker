@@ -46,6 +46,7 @@ Python packages needed for running the code are:
  - `jsmin`
  - `filterpy`
  - `rdp`
+ - `haversine`
 
 If not using Anaconda, dependecny `python-tk` must be installed manually, for example using `sudo apt-get install python-tk`.
 

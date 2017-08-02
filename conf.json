@@ -53,7 +53,7 @@
         "max_delay": 5,
     "min_seq_length": 2,
     "min_bbox_size": 3,
-    "overlay_on_topdown": true,
+    "overlay_on_topdown": false,
     "overlay_detections": true,
     "overlay_save_as_image": false
   },

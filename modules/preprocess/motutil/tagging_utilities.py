@@ -1,7 +1,7 @@
 import numpy as np
 # import pandas as pd
 import os, sys
-import haversine
+from haversine import haversine
 
 
 def get_tagged(points, pose, pose_tmap, scale_meta, parameters):
@@ -109,8 +109,8 @@ def meterize(pose):
     lat_min, lat_max = pose[:, 0].min(), pose[:, 0].max()
     lon_min, lon_max = pose[:, 1].min(), pose[:, 1].max()
 
-    h = haversine.dist(lon_min, lat_min, lon_min, lat_max)
-    w = haversine.dist(lon_min, lat_min, lon_max, lat_min)
+    h = haversine((lat_min, lon_min), (lat_max, lon_min)) * 1000
+    w = haversine((lat_min, lon_min), (lat_min, lon_max)) * 1000
 
     lat_scale = h / (lat_max - lat_min) if h > 0 else 1.
     lon_scale = w / (lon_max - lon_min) if w > 0 else 1.

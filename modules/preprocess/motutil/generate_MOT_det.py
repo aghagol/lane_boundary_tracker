@@ -1,6 +1,6 @@
 import numpy as np
 import os, sys
-import haversine
+from haversine import haversine
 
 
 def generate_MOT_det(output_path, clusters, tiny_subdrives, pose_path, parameters):
@@ -33,8 +33,8 @@ def generate_MOT_det(output_path, clusters, tiny_subdrives, pose_path, parameter
 
         lat_min, lat_max = (dets[:, 2].min(), dets[:, 2].max())
         lon_min, lon_max = (dets[:, 3].min(), dets[:, 3].max())
-        h = haversine.dist(lon_min, lat_min, lon_min, lat_max)
-        w = haversine.dist(lon_min, lat_min, lon_max, lat_min)
+        h = haversine((lat_min, lon_min), (lat_max, lon_min)) * 1000
+        w = haversine((lat_min, lon_min), (lat_min, lon_max)) * 1000
 
         lat_scale = h / (lat_max - lat_min) if h > 0 else 1.
         lon_scale = w / (lon_max - lon_min) if w > 0 else 1.
