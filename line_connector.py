@@ -23,7 +23,7 @@ def run(images, fuses, tagged, cache, clear_cache, drives, poses, chunks, config
     tracks_path = os.path.join(tracker_path, 'tracks')
     post_process_path = os.path.join(cache, 'postprocess')
     post_process_tracks_path = os.path.join(post_process_path, 'tracks')
-    fusion_path = os.path.join(cache, 'fusion')
+    fusion_path = os.path.join(cache, 'output')
     visualize_path = os.path.join(cache, 'visualize')
 
     preprocess.run(images, pre_process_path, config, drives, poses, tagged, fuses, verbosity)

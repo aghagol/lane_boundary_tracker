@@ -36,7 +36,7 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
     seqs = pd.read_csv(seq_list)
 
     for seq_idx,seq in seqs.iterrows():
-        figure, axes = plt.subplots(1, 2, gridspec_kw={'width_ratios':[2, 1]})
+        figure, axes = plt.subplots(1, 2, gridspec_kw={'width_ratios':[2, 1]}, figsize=(14, 9))
         ax_left, ax_right = axes
         ax_left.set_axis_off()
         ax_right.set_axis_off()
@@ -102,20 +102,22 @@ def run(seq_list, images, fuses, img2fuse, fuse2seq, groundtruth, overlay_out, c
             lb_color = [1, 0, 0]
             ax_left.plot(node_cols, node_rows, color=lb_color)
 
+        #print some image info
+        image_info = []
+        image_info.append('Sequence %d/%d'%(seq_idx+1,len(seqs)))
+        image_info.append('Start time= %s'%(prediction_image.split('_')[0]))
+        image_info.append('End time= %s'%(prediction_image.split('_')[1]))
+        image_info.append('Sequence name= %s'%(seq.sname))
+        image_info.append('Fuse name= %s'%(fuse_name))
+        ax_right.text(0, .5, '\n'.join(image_info))
+
         if param['overlay_save_as_image']:
             if not os.path.exists(overlay_out):
                 os.makedirs(overlay_out)
-            plt.savefig(os.path.join(overlay_out, image_name), ppi=300)
+            if verbosity>=2:
+                print('...Saving image %s'*(prediction_image))
+            plt.savefig(os.path.join(overlay_out, prediction_image))
         else:
-            #print some image info
-            image_info = []
-            image_info.append('Sequence %d/%d'%(seq_idx+1,len(seqs)))
-            image_info.append('Start time= %s'%(prediction_image.split('_')[0]))
-            image_info.append('End time= %s'%(prediction_image.split('_')[1]))
-            image_info.append('Sequence name= %s'%(seq.sname))
-            image_info.append('Fuse name= %s'%(fuse_name))
-            ax_right.text(0, .5, '\n'.join(image_info))
-
             plt.tight_layout()
             plt.get_current_fig_manager().window.showMaximized()
             plt.show()

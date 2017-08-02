@@ -10,7 +10,7 @@ python line_connector.py \
   --config  ./conf.json \
   --verbosity 1 \
   --visualize 2 \
-  --fuses   $CACHE/input/fuse/ \
-  --tagged  $CACHE/input/fuse_tagged/ \
+  --fuses   $CACHE/input/points/ \
+  --tagged  $CACHE/input/points_tagged/ \
   --cache   $CACHE \
   --clear_cache

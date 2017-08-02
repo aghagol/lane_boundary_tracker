@@ -16,8 +16,8 @@ def run(input, tracks, output, config, chunks, verbosity):
     print_param.run(config, verbosity)
 
     fuse_output = os.path.join(output, 'seqs.csv')
-    fused_output = os.path.join(output, 'fused')
-    fused_merged_output = os.path.join(output, 'fused_merged')
+    fused_output = os.path.join(output, 'fuse_files')
+    fused_merged_output = os.path.join(output, 'fuse_files_merged_per_drive')
     
     make_seq_list.run(input, tracks, fuse_output, verbosity)
 
