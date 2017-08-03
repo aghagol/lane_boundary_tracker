@@ -78,7 +78,7 @@ def run(images, fuses, config, drives, output, verbosity):
                 pred_im = pred_im * peaks
 
             # discard detections that are not local maxima within a "maxpool_size" window
-            pred_im[pred_im != maximum_filter(pred_im, size=parameters['maxpool_size'])] = 0
+            pred_im[pred_im != maximum_filter(pred_im, size=parameters['maxpool_size'], mode='constant', cval=0)] = 0
 
             # get lat-lon coordiantes of detection points
             bbox = np.r_[res['min_lat'], res['min_lon'], res['max_lat'], res['max_lon']]

@@ -55,7 +55,7 @@
     "min_bbox_size": 3,
     "overlay_on_topdown": true,
     "overlay_detections": false,
-    "overlay_save_as_image": true
+    "overlay_save_as_image": false
   },
   "postprocess":
   {
@@ -72,6 +72,7 @@
     "enable": true,
     "min_seq_length": 2,
     "min_bbox_size": 7, //in meters
+    "replace_timestamp_with_chunk_number": false,
     "merge_subdrives": false
   }
 }

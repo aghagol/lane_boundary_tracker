@@ -26,7 +26,7 @@ def run(seq_list, chunks, output, config, verbosity):
 
     seqs = pd.read_csv(seq_list)
 
-    fmt = ['%.10f', '%.10f', '%.10f', '%d']
+    fmt = ['%.10f', '%.10f', '%.10f', '%d', '%.2f']
     for seq_idx, seq in seqs.iterrows():
 
         subdrive = seq.sname
@@ -56,7 +56,7 @@ def run(seq_list, chunks, output, config, verbosity):
 
         for lb_number, target_id in enumerate(sorted(set(trks[:, 1]))):
 
-            output_fuse_chunk = output + '/%s/%d_laneMarking.fuse' % (subdrive, lb_number)
+            output_fuse_chunk = output + '/%s/%d_laneMarking.llatc' % (subdrive, lb_number)
             if os.path.exists(output_fuse_chunk): continue
 
             trk_active = trks[trks[:, 1] == target_id, :]
@@ -79,18 +79,23 @@ def run(seq_list, chunks, output, config, verbosity):
             for det_id in dets_ids:
                 out_fuse.append(itllal[itllal[:, 0] == det_id, [2, 3, 4, 1]].reshape(1, -1))
             out_fuse = np.vstack(out_fuse)
+            out_fuse = np.hstack((out_fuse, np.zeros((out_fuse.shape[0], 1))))
 
             # replace timestamp with chunk number
-            in_chunk = np.zeros((out_fuse.shape[0]), dtype=bool)
-            for row in range(out_fuse.shape[0]):
-                timestamp = tmap[out_fuse[row, 3]]
-                mask = np.logical_and(chunk_id['StartTime'] <= timestamp, chunk_id['EndTime'] > timestamp)
-                if mask.sum() == 1:  # ignore points that do not belong to any chunk (or belong to multiple chunks -> must not happen)
-                    in_chunk[row] = True
-                    out_fuse[row, 3] = chunk_id['ChunkId'][mask]
-
-            with open(output_fuse_chunk, 'w') as fout:
-                np.savetxt(fout, out_fuse[in_chunk, :], fmt=fmt)
+            if param['replace_timestamp_with_chunk_number']:
+                in_chunk = np.zeros((out_fuse.shape[0]), dtype=bool)
+                for row in range(out_fuse.shape[0]):
+                    timestamp = tmap[out_fuse[row, 3]]
+                    mask = np.logical_and(chunk_id['StartTime'] <= timestamp, chunk_id['EndTime'] > timestamp)
+                    if mask.sum() == 1:  # ignore points that do not belong to any chunk (or belong to multiple chunks -> must not happen)
+                        in_chunk[row] = True
+                        out_fuse[row, 3] = chunk_id['ChunkId'][mask]
+                with open(output_fuse_chunk, 'w') as fout:
+                    np.savetxt(fout, out_fuse[in_chunk, :], fmt=fmt)
+            else:
+                out_fuse[:, 3] = map(lambda x: tmap[x], out_fuse[:, 3])
+                with open(output_fuse_chunk, 'w') as fout:
+                    np.savetxt(fout, out_fuse, fmt=fmt)
 
 
 def main(argv):
